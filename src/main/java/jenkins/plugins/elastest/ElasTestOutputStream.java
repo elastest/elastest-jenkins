@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-package jenkins.plugins.logstash;
+package jenkins.plugins.elastest;
 
 import hudson.console.ConsoleNote;
 import hudson.console.LineTransformationOutputStream;
@@ -42,11 +42,11 @@ import com.michelin.cio.hudson.plugins.maskpasswords.MaskPasswordsOutputStream;
  * @author K Jonathan Harker
  * @author Rusty Gerard
  */
-public class LogstashOutputStream extends LineTransformationOutputStream {
+public class ElasTestOutputStream extends LineTransformationOutputStream {
   final OutputStream delegate;
-  final LogstashWriter logstash;
+  final ElasTestWriter logstash;
 
-  public LogstashOutputStream(OutputStream delegate, LogstashWriter logstash) {
+  public ElasTestOutputStream(OutputStream delegate, ElasTestWriter logstash) {
     super();
     this.delegate = delegate;
     this.logstash = logstash;

@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-package jenkins.plugins.logstash;
+package jenkins.plugins.elastest;
 
 import hudson.Extension;
 import hudson.tools.ToolDescriptor;
@@ -33,7 +33,7 @@ import hudson.util.FormValidation;
 import java.util.List;
 
 import jenkins.model.Jenkins;
-import jenkins.plugins.logstash.persistence.LogstashIndexerDao.IndexerType;
+import jenkins.plugins.elastest.persistence.LogstashIndexerDao.IndexerType;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
@@ -47,26 +47,20 @@ import org.kohsuke.stapler.StaplerRequest;
  * @author Rusty Gerard
  * @since 1.0.0
  */
-public class LogstashInstallation extends ToolInstallation {
+public class ElasTestInstallation extends ToolInstallation {
   private static final long serialVersionUID = -5730780734005293851L;
 
   @DataBoundConstructor
-  public LogstashInstallation(String name, String home, List<? extends ToolProperty<?>> properties) {
+  public ElasTestInstallation(String name, String home, List<? extends ToolProperty<?>> properties) {
     super(name, home, properties);
   }
 
   public static Descriptor getLogstashDescriptor() {
-    return (Descriptor) Jenkins.getInstance().getDescriptor(LogstashInstallation.class);
+    return (Descriptor) Jenkins.getInstance().getDescriptor(ElasTestInstallation.class);
   }
 
   @Extension
-  public static final class Descriptor extends ToolDescriptor<LogstashInstallation> {
-    public IndexerType type;
-    public String host;
-    public Integer port = -1;
-    public String username;
-    public String password;
-    public String key;
+  public static final class Descriptor extends ToolDescriptor<ElasTestInstallation> {
     public String elasTestUrl;
 
     public Descriptor() {

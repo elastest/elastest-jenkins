@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package jenkins.plugins.logstash;
+package jenkins.plugins.elastest;
 
 import hudson.Plugin;
 
@@ -31,6 +31,6 @@ public class PluginImpl extends Plugin {
   private final static Logger LOG = Logger.getLogger(PluginImpl.class.getName());
 
   public void start() throws Exception {
-    LOG.info("Logstash: a logstash agent to send jenkins logs to a logstash indexer.");
+    LOG.info("ElasTest: a ElasTest client to send jenkins logs to a ElasTest Platform.");
   }
 }

@@ -20,6 +20,8 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 
+import jenkins.plugins.elastest.persistence.RabbitMqDao;
+
 @RunWith(MockitoJUnitRunner.class)
 public class RabbitMqDaoTest {
   RabbitMqDao dao;

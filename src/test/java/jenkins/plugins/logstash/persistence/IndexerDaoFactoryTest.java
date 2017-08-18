@@ -2,9 +2,12 @@ package jenkins.plugins.logstash.persistence;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import jenkins.plugins.logstash.persistence.LogstashIndexerDao.IndexerType;
 
 import org.junit.Test;
+
+import jenkins.plugins.elastest.persistence.IndexerDaoFactory;
+import jenkins.plugins.elastest.persistence.LogstashIndexerDao;
+import jenkins.plugins.elastest.persistence.LogstashIndexerDao.IndexerType;
 
 public class IndexerDaoFactoryTest {
 

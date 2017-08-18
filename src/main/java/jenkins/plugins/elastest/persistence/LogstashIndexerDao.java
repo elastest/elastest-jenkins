@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-package jenkins.plugins.logstash.persistence;
+package jenkins.plugins.elastest.persistence;
 
 import java.io.IOException;
 import java.util.List;
@@ -41,7 +41,8 @@ public interface LogstashIndexerDao {
     REDIS,
     RABBIT_MQ,
     ELASTICSEARCH,
-    SYSLOG
+    SYSLOG,
+    LOGSTASH
   }
 
   String getDescription();
@@ -70,4 +71,12 @@ public interface LogstashIndexerDao {
    * @return The formatted JSON object, never null
    */
   JSONObject buildPayload(BuildData buildData, String jenkinsUrl, List<String> logLines, ExternalJob externalJjob);
+  
+ /**
+  * Bulds a String playload compatible con the Logstash input.
+  * @param logLines
+  * @param externalJob
+  * @return
+  */
+  String buildPayload(List<String> logLines, ExternalJob externalJob);
 }

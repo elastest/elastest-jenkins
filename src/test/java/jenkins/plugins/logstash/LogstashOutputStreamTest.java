@@ -16,16 +16,19 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import jenkins.plugins.elastest.ElasTestOutputStream;
+import jenkins.plugins.elastest.ElasTestWriter;
+
 @SuppressWarnings("resource")
 @RunWith(MockitoJUnitRunner.class)
 public class LogstashOutputStreamTest {
   // Extension of the unit under test that avoids making calls to getInstance() to get the DAO singleton
-  static LogstashOutputStream createLogstashOutputStream(OutputStream delegate, LogstashWriter logstash) {
-    return new LogstashOutputStream(delegate, logstash);
+  static ElasTestOutputStream createLogstashOutputStream(OutputStream delegate, ElasTestWriter logstash) {
+    return new ElasTestOutputStream(delegate, logstash);
   }
 
   ByteArrayOutputStream buffer;
-  @Mock LogstashWriter mockWriter;
+  @Mock ElasTestWriter mockWriter;
 
   @Before
   public void before() throws Exception {
@@ -42,7 +45,7 @@ public class LogstashOutputStreamTest {
 
   @Test
   public void constructorSuccess() throws Exception {
-    new LogstashOutputStream(buffer, mockWriter);
+    new ElasTestOutputStream(buffer, mockWriter);
 
     // Verify results
     assertEquals("Results don't match", "", buffer.toString());
@@ -50,7 +53,7 @@ public class LogstashOutputStreamTest {
 
   @Test
   public void eolSuccess() throws Exception {
-    LogstashOutputStream los = new LogstashOutputStream(buffer, mockWriter);
+    ElasTestOutputStream los = new ElasTestOutputStream(buffer, mockWriter);
     String msg = "test";
     buffer.reset();
 
@@ -65,7 +68,7 @@ public class LogstashOutputStreamTest {
 
   @Test
   public void eolSuccessConnectionBroken() throws Exception {
-    LogstashOutputStream los = new LogstashOutputStream(buffer, mockWriter);
+    ElasTestOutputStream los = new ElasTestOutputStream(buffer, mockWriter);
 
     String msg = "[logstash-plugin]: Failed to send log data to REDIS:localhost:8080.\n" +
       "[logstash-plugin]: No Further logs will be sent.\n" +
@@ -107,7 +110,7 @@ public class LogstashOutputStreamTest {
   @Test
   public void eolSuccessNoDao() throws Exception {
     when(mockWriter.isConnectionBroken()).thenReturn(true);
-    LogstashOutputStream los = new LogstashOutputStream(buffer, mockWriter);
+    ElasTestOutputStream los = new ElasTestOutputStream(buffer, mockWriter);
     String msg = "test";
     buffer.reset();
 

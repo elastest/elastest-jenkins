@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-package jenkins.plugins.logstash.persistence;
+package jenkins.plugins.elastest.persistence;
 
 import hudson.model.Action;
 import hudson.model.Environment;

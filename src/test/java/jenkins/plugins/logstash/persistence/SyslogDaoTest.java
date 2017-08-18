@@ -11,6 +11,8 @@ import com.cloudbees.syslog.MessageFormat;
 import com.cloudbees.syslog.Severity;
 import com.cloudbees.syslog.sender.UdpSyslogMessageSender;
 
+import jenkins.plugins.elastest.persistence.SyslogDao;
+
 
 @RunWith(MockitoJUnitRunner.class)
 public class SyslogDaoTest {

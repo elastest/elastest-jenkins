@@ -12,6 +12,8 @@ import hudson.model.Run;
 import hudson.model.Result;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Notifier;
+import jenkins.plugins.elastest.LogstashNotifier;
+import jenkins.plugins.elastest.ElasTestWriter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -34,15 +36,15 @@ import org.mockito.stubbing.Answer;
 public class LogstashNotifierTest {
   // Extension of the unit under test that avoids making calls to Jenkins.getInstance() to get the DAO singleton
   static class MockLogstashNotifier extends LogstashNotifier {
-    LogstashWriter writer;
+    ElasTestWriter writer;
 
-    MockLogstashNotifier(int maxLines, boolean failBuild, LogstashWriter writer) {
+    MockLogstashNotifier(int maxLines, boolean failBuild, ElasTestWriter writer) {
       super(maxLines, failBuild);
       this.writer = writer;
     }
 
     @Override
-    LogstashWriter getLogStashWriter(Run<?, ?> run, OutputStream errorStream, TaskListener listener) {
+    ElasTestWriter getLogStashWriter(Run<?, ?> run, OutputStream errorStream, TaskListener listener) {
       // Simulate bad Writer
       if(writer.isConnectionBroken()) {
         try {
@@ -73,7 +75,7 @@ public class LogstashNotifierTest {
   }
 
   @Mock AbstractBuild<?, ?> mockBuild;
-  @Mock LogstashWriter mockWriter;
+  @Mock ElasTestWriter mockWriter;
   @Mock Launcher mockLauncher;
   @Mock BuildListener mockListener;
 

@@ -22,26 +22,8 @@
  * THE SOFTWARE.
  */
 
-package jenkins.plugins.logstash;
+package jenkins.plugins.elastest;
 
-
-import hudson.model.AbstractBuild;
-import hudson.model.TaskListener;
-import hudson.model.Run;
-import jenkins.model.Jenkins;
-import jenkins.plugins.elastest.ExternalJob;
-import jenkins.plugins.logstash.persistence.BuildData;
-import jenkins.plugins.logstash.persistence.IndexerDaoFactory;
-import jenkins.plugins.logstash.persistence.LogstashIndexerDao;
-import jenkins.plugins.logstash.persistence.LogstashIndexerDao.IndexerType;
-import net.sf.json.JSONObject;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -49,39 +31,52 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
+
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.WebResource;
+
+import hudson.model.AbstractBuild;
+import hudson.model.Run;
+import hudson.model.TaskListener;
+import jenkins.model.Jenkins;
+import jenkins.plugins.elastest.persistence.BuildData;
+import jenkins.plugins.elastest.persistence.IndexerDaoFactory;
+import jenkins.plugins.elastest.persistence.LogstashIndexerDao;
+import jenkins.plugins.elastest.persistence.LogstashIndexerDao.IndexerType;
+
 /**
  * A writer that wraps all Logstash DAOs.  Handles error reporting and per build connection state.
  * Each call to write (one line or multiple lines) sends a Logstash payload to the DAO.
  * If any write fails, writer will not attempt to send any further messages to logstash during this build.
  *
  * @author Rusty Gerard
- * @author Liam Newman
+ * @author Liam Newman 
  * @since 1.0.5
  */
-public class LogstashWriter {
+public class ElasTestWriter {
 
   final OutputStream errorStream;
   final Run<?, ?> build;
   final TaskListener listener;
   final BuildData buildData;
   final String jenkinsUrl;
-  //final LogstashIndexerDao dao;
   final LogstashIndexerDao elasticSearchDao;
-  final LogstashIndexerDao rabbitDao;
+
   
   private boolean connectionBroken;
   final ExternalJob externalJob;
 
-  public LogstashWriter(Run<?, ?> run, OutputStream error, TaskListener listener, ExternalJob externalJob) {
+  public ElasTestWriter(Run<?, ?> run, OutputStream error, TaskListener listener, ExternalJob externalJob) {
     this.errorStream = error != null ? error : System.err;
     this.build = run;
     this.listener = listener;
     this.externalJob = externalJob;
     this.elasticSearchDao = this.getDaoOrNull(IndexerType.ELASTICSEARCH);
-    this.rabbitDao = this.getDaoOrNull(IndexerType.RABBIT_MQ);
-    //this.dao = this.getDaoOrNull();
-    //if (this.dao == null) {
-    if (this.elasticSearchDao == null || this.rabbitDao == null){
+    
+    if (this.elasticSearchDao == null){
       this.jenkinsUrl = "";
       this.buildData = null;
     } else {
@@ -139,20 +134,19 @@ public class LogstashWriter {
    * @return True if errors have occurred during initialization or write.
    */
   public boolean isConnectionBroken() {
-    return connectionBroken || build == null || elasticSearchDao == null || rabbitDao == null || buildData == null;
+    return connectionBroken || build == null || elasticSearchDao == null || buildData == null;
   }
 
   // Method to encapsulate calls for unit-testing
   LogstashIndexerDao getDao(IndexerType type) throws InstantiationException {
-    LogstashInstallation.Descriptor descriptor = LogstashInstallation.getLogstashDescriptor();
+    ElasTestInstallation.Descriptor descriptor = ElasTestInstallation.getLogstashDescriptor();
     String key = "";
     
     if (type.compareTo( IndexerType.ELASTICSEARCH) == 0){
     	key = String.valueOf(externalJob.gettJobExecId()) + "/" + "testlogs";    	    	
-    }else if (type.compareTo( IndexerType.RABBIT_MQ) == 0){
-    	key =  "test."+ String.valueOf(externalJob.gettJobExecId()) + ".log";    	
     }
-    return IndexerDaoFactory.getInstance(type, descriptor.host, descriptor.port, key , descriptor.username, descriptor.password);
+    
+    return IndexerDaoFactory.getInstance(type, externalJob.getServicesIp(), new Integer(externalJob.getLogstashPort()), key , null, null);
     
   }
 
@@ -171,12 +165,11 @@ public class LogstashWriter {
   /**
    * Write a list of lines to the indexer as one Logstash payload.
    */
-  private void write(List<String> lines/*, ExternalJob externalJob*/) {
-    JSONObject payload = elasticSearchDao.buildPayload(buildData, jenkinsUrl, lines, externalJob);    
+  private void write(List<String> lines/*, ExternalJob externalJob*/) {   
+    String payload = elasticSearchDao.buildPayload(lines, externalJob);
     try {
     	System.out.println("Send message: " + payload.toString());
     	elasticSearchDao.push(payload.toString());
-    	rabbitDao.push(payload.toString());
     	
     	if (lines.get(0).contains("Finished:")){
     		sendEndJobMessageToElasTest();
@@ -189,16 +182,13 @@ public class LogstashWriter {
     }
   }
   
-  private void sendEndJobMessageToElasTest(){
-	  	  
-	  System.out.println("MESSAGE FINISHED DETECTED");
-	  Client client = Client.create();	  
-	  	  
-	  LogstashInstallation.Descriptor pluginDescriptor = LogstashInstallation.getLogstashDescriptor();
-	  String elastestHostURL = pluginDescriptor.elasTestUrl + "/api/external/tjob";	  
-	  WebResource webResource = client.resource(elastestHostURL);
-	  ClientResponse response = webResource.type("application/json").put(ClientResponse.class, externalJob.toJSON());		
+  private void sendEndJobMessageToElasTest(){	  
+	  Client client = Client.create();	  	  
+	  ElasTestInstallation.Descriptor pluginDescriptor = ElasTestInstallation.getLogstashDescriptor();
+	  String elasTestApiURL = pluginDescriptor.elasTestUrl + "/api/external/tjob";
 	  
+	  WebResource webResource = client.resource(elasTestApiURL);
+	  ClientResponse response = webResource.type("application/json").put(ClientResponse.class, externalJob.toJSON());	  
   }
 
   /**

@@ -11,7 +11,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import jenkins.plugins.logstash.persistence.BuildData;
+import jenkins.plugins.elastest.ElasTestBuildWrapper;
+import jenkins.plugins.elastest.ElasTestOutputStream;
+import jenkins.plugins.elastest.ElasTestWriter;
+import jenkins.plugins.elastest.persistence.BuildData;
 
 import org.junit.After;
 import org.junit.Before;
@@ -23,16 +26,16 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class LogstashBuildWrapperTest {
   // Extension of the unit under test that avoids making calls to statics or constructors
-  static class MockLogstashBuildWrapper extends LogstashBuildWrapper {
-    LogstashWriter writer;
+  static class MockLogstashBuildWrapper extends ElasTestBuildWrapper {
+    ElasTestWriter writer;
 
-    MockLogstashBuildWrapper(LogstashWriter writer) {
+    MockLogstashBuildWrapper(ElasTestWriter writer) {
       super();
       this.writer = writer;
     }
 
     @Override
-    LogstashWriter getLogStashWriter(AbstractBuild<?, ?> build, OutputStream errorStream) {
+    ElasTestWriter getLogStashWriter(AbstractBuild<?, ?> build, OutputStream errorStream) {
       // Simulate bad Writer
       if(writer.isConnectionBroken()) {
         try {
@@ -48,7 +51,7 @@ public class LogstashBuildWrapperTest {
 
   @Mock AbstractBuild<?, ?> mockBuild;
   @Mock BuildData mockBuildData;
-  @Mock LogstashWriter mockWriter;
+  @Mock ElasTestWriter mockWriter;
 
   @Before
   public void before() throws Exception {
@@ -73,8 +76,8 @@ public class LogstashBuildWrapperTest {
 
     // Verify results
     assertNotNull("Result was null", result);
-    assertTrue("Result is not the right type", result instanceof LogstashOutputStream);
-    assertSame("Result has wrong writer", mockWriter, ((LogstashOutputStream) result).logstash);
+    assertTrue("Result is not the right type", result instanceof ElasTestOutputStream);
+    assertSame("Result has wrong writer", mockWriter, ((ElasTestOutputStream) result).logstash);
     assertEquals("Results don't match", "", buffer.toString());
     verify(mockWriter).isConnectionBroken();
   }
@@ -90,8 +93,8 @@ public class LogstashBuildWrapperTest {
 
     // Verify results
     assertNotNull("Result was null", result);
-    assertTrue("Result is not the right type", result instanceof LogstashOutputStream);
-    assertSame("Result has wrong writer", mockWriter, ((LogstashOutputStream) result).logstash);
+    assertTrue("Result is not the right type", result instanceof ElasTestOutputStream);
+    assertSame("Result has wrong writer", mockWriter, ((ElasTestOutputStream) result).logstash);
     assertEquals("Error was not written", "Mocked Constructor failure", buffer.toString());
     verify(mockWriter).isConnectionBroken();
   }

@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-package jenkins.plugins.logstash.persistence;
+package jenkins.plugins.elastest.persistence;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -30,10 +30,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import jenkins.plugins.logstash.persistence.LogstashIndexerDao.IndexerType;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
+
+import jenkins.plugins.elastest.persistence.LogstashIndexerDao.IndexerType;
 
 /**
  * Factory for AbstractLogstashIndexerDao objects.
@@ -47,11 +47,8 @@ public final class IndexerDaoFactory {
   private static final Map<IndexerType, Class<?>> INDEXER_MAP;
   static {
     Map<IndexerType, Class<?>> indexerMap = new HashMap<IndexerType, Class<?>>();
-
-    indexerMap.put(IndexerType.REDIS, RedisDao.class);
-    indexerMap.put(IndexerType.RABBIT_MQ, RabbitMqDao.class);
+   
     indexerMap.put(IndexerType.ELASTICSEARCH, ElasticSearchDao.class);
-    indexerMap.put(IndexerType.SYSLOG, SyslogDao.class);
 
     INDEXER_MAP = Collections.unmodifiableMap(indexerMap);
   }

@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-package jenkins.plugins.logstash.persistence;
+package jenkins.plugins.elastest.persistence;
 
 import static com.google.common.collect.Ranges.closedOpen;
 
@@ -71,8 +71,8 @@ public class ElasticSearchDao extends AbstractLogstashIndexerDao {
     }
 
     try {
-      uri = new URIBuilder("http://192.168.99.100")
-        .setPort(9200)
+      uri = new URIBuilder("http://" + host)
+        .setPort(port)
         // Normalizer will remove extra starting slashes, but missing slash will cause annoying failures
         .setPath("/" + key)
         .build();

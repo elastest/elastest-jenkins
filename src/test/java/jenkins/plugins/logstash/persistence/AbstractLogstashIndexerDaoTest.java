@@ -15,6 +15,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import jenkins.plugins.elastest.persistence.AbstractLogstashIndexerDao;
+import jenkins.plugins.elastest.persistence.BuildData;
+
 @RunWith(MockitoJUnitRunner.class)
 public class AbstractLogstashIndexerDaoTest {
   static final String EMPTY_STRING = "{\"@buildTimestamp\":\"2000-01-01\",\"data\":{},\"message\":[],\"source\":\"jenkins\",\"source_host\":\"http://localhost:8080/jenkins\",\"@version\":1}";

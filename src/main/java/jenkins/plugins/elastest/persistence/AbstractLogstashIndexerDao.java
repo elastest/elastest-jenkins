@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-package jenkins.plugins.logstash.persistence;
+package jenkins.plugins.elastest.persistence;
 
 import java.util.Calendar;
 import java.util.List;
@@ -59,7 +59,7 @@ abstract class AbstractLogstashIndexerDao implements LogstashIndexerDao {
 
   @Override
   public JSONObject buildPayload(BuildData buildData, String jenkinsUrl, List<String> logLines, ExternalJob externalJob) {
-    JSONObject payload = new JSONObject();
+    JSONObject payload = new JSONObject();    
     payload.put("tjobexec", externalJob.gettJobExecId());
     payload.put("component_type", "test");
     payload.put("trace_type", "log");
@@ -73,8 +73,16 @@ abstract class AbstractLogstashIndexerDao implements LogstashIndexerDao {
 
     return payload;
   }
-
+  
+  
   @Override
+  public String buildPayload(List<String> logLines, ExternalJob externalJob) {
+	String payload = logLines.get(0);
+	payload = "<>test_" + externalJob.gettJobExecId() + "_tjobexec[]: " + payload; 
+	return payload;
+}
+
+@Override
   public String getDescription() {
     return this.host + ":" + this.port;
   }

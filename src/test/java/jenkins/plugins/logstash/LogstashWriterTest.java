@@ -4,9 +4,10 @@ import hudson.model.AbstractBuild;
 import hudson.model.Project;
 import hudson.model.Result;
 import hudson.tasks.test.AbstractTestResultAction;
-import jenkins.plugins.logstash.persistence.BuildData;
-import jenkins.plugins.logstash.persistence.LogstashIndexerDao;
-import jenkins.plugins.logstash.persistence.LogstashIndexerDao.IndexerType;
+import jenkins.plugins.elastest.ElasTestWriter;
+import jenkins.plugins.elastest.persistence.BuildData;
+import jenkins.plugins.elastest.persistence.LogstashIndexerDao;
+import jenkins.plugins.elastest.persistence.LogstashIndexerDao.IndexerType;
 import net.sf.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
@@ -30,12 +31,12 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class LogstashWriterTest {
   // Extension of the unit under test that avoids making calls to getInstance() to get the DAO singleton
-  static LogstashWriter createLogstashWriter(final AbstractBuild<?, ?> testBuild,
+  static ElasTestWriter createLogstashWriter(final AbstractBuild<?, ?> testBuild,
                                              OutputStream error,
                                              final String url,
                                              final LogstashIndexerDao indexer,
                                              final BuildData data) {
-    return new LogstashWriter(testBuild, error, null) {
+    return new ElasTestWriter(testBuild, error, null) {
       @Override
       LogstashIndexerDao getDao() throws InstantiationException {
         if (indexer == null) {
@@ -160,7 +161,7 @@ public class LogstashWriterTest {
       "[logstash-plugin]: Unable to instantiate LogstashIndexerDao with current configuration.\n";
 
     // Unit under test
-    LogstashWriter writer = createLogstashWriter(mockBuild, errorBuffer, "http://my-jenkins-url", null, null);
+    ElasTestWriter writer = createLogstashWriter(mockBuild, errorBuffer, "http://my-jenkins-url", null, null);
 
     // Verify results
     assertEquals("Results don't match", exMessage, errorBuffer.toString());
@@ -169,7 +170,7 @@ public class LogstashWriterTest {
 
   @Test
   public void writeSuccessNoDao() throws Exception {
-    LogstashWriter writer = createLogstashWriter(mockBuild, errorBuffer, "http://my-jenkins-url", null, null);
+    ElasTestWriter writer = createLogstashWriter(mockBuild, errorBuffer, "http://my-jenkins-url", null, null);
     assertTrue("Connection not broken", writer.isConnectionBroken());
 
     String msg = "test";
@@ -185,7 +186,7 @@ public class LogstashWriterTest {
 
   @Test
   public void writeBuildLogSuccessNoDao() throws Exception {
-    LogstashWriter writer = createLogstashWriter(mockBuild, errorBuffer, "http://my-jenkins-url", null, null);
+    ElasTestWriter writer = createLogstashWriter(mockBuild, errorBuffer, "http://my-jenkins-url", null, null);
     assertTrue("Connection not broken", writer.isConnectionBroken());
 
     errorBuffer.reset();
@@ -200,7 +201,7 @@ public class LogstashWriterTest {
 
   @Test
   public void writeSuccess() throws Exception {
-    LogstashWriter writer = createLogstashWriter(mockBuild, errorBuffer, "http://my-jenkins-url", mockDao, mockBuildData);
+    ElasTestWriter writer = createLogstashWriter(mockBuild, errorBuffer, "http://my-jenkins-url", mockDao, mockBuildData);
     String msg = "test";
     errorBuffer.reset();
 
@@ -217,7 +218,7 @@ public class LogstashWriterTest {
 
   @Test
   public void writeBuildLogSuccess() throws Exception {
-    LogstashWriter writer = createLogstashWriter(mockBuild, errorBuffer, "http://my-jenkins-url", mockDao, mockBuildData);
+    ElasTestWriter writer = createLogstashWriter(mockBuild, errorBuffer, "http://my-jenkins-url", mockDao, mockBuildData);
     errorBuffer.reset();
 
     // Unit under test
@@ -235,7 +236,7 @@ public class LogstashWriterTest {
   @Test
   public void writeSuccessConnectionBroken() throws Exception {
     Mockito.doNothing().doThrow(new IOException("BOOM!")).doNothing().when(mockDao).push(anyString());
-    LogstashWriter los = createLogstashWriter(mockBuild, errorBuffer, "http://my-jenkins-url", mockDao, mockBuildData);
+    ElasTestWriter los = createLogstashWriter(mockBuild, errorBuffer, "http://my-jenkins-url", mockDao, mockBuildData);
 
 
     String msg = "test";
@@ -281,7 +282,7 @@ public class LogstashWriterTest {
     // Initialize mocks
     when(mockBuild.getLog(3)).thenThrow(new IOException("Unable to read log file"));
 
-    LogstashWriter writer = createLogstashWriter(mockBuild, errorBuffer, "http://my-jenkins-url", mockDao, mockBuildData);
+    ElasTestWriter writer = createLogstashWriter(mockBuild, errorBuffer, "http://my-jenkins-url", mockDao, mockBuildData);
     assertEquals("Errors were written", "", errorBuffer.toString());
 
     // Unit under test

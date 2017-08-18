@@ -13,6 +13,8 @@ import hudson.model.Node;
 import hudson.model.Project;
 import hudson.tasks.test.AbstractTestResultAction;
 import hudson.tasks.test.TestResult;
+import jenkins.plugins.elastest.persistence.BuildData;
+import jenkins.plugins.elastest.persistence.BuildData.TestData;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -23,7 +25,6 @@ import java.util.Map;
 import java.util.HashSet;
 import java.util.Set;
 
-import jenkins.plugins.logstash.persistence.BuildData.TestData;
 import net.sf.json.JSONObject;
 import net.sf.json.test.JSONAssert;
 

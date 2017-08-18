@@ -16,6 +16,8 @@ import org.junit.runner.RunWith;
 import org.mockito.*;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import jenkins.plugins.elastest.persistence.ElasticSearchDao;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URI;
