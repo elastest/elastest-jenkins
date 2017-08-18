@@ -1,4 +1,4 @@
-package jenkins.plugins.logstash;
+package jenkins.plugins.elastest;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -6,6 +6,8 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 
 import hudson.model.AbstractBuild;
+import hudson.model.Job;
+import hudson.model.Run;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -24,7 +26,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class LogstashBuildWrapperTest {
+public class ElasTestBuildWrapperTest {
   // Extension of the unit under test that avoids making calls to statics or constructors
   static class MockLogstashBuildWrapper extends ElasTestBuildWrapper {
     ElasTestWriter writer;
@@ -35,7 +37,7 @@ public class LogstashBuildWrapperTest {
     }
 
     @Override
-    ElasTestWriter getLogStashWriter(AbstractBuild<?, ?> build, OutputStream errorStream) {
+    ElasTestWriter getLogStashWriter(AbstractBuild<?, ?> build, OutputStream errorStream, ExternalJob externalJob) {
       // Simulate bad Writer
       if(writer.isConnectionBroken()) {
         try {
@@ -49,13 +51,14 @@ public class LogstashBuildWrapperTest {
 
   ByteArrayOutputStream buffer;
 
-  @Mock AbstractBuild<?, ?> mockBuild;
+  @Mock AbstractBuild<?, ?> mockBuild;  
   @Mock BuildData mockBuildData;
   @Mock ElasTestWriter mockWriter;
 
   @Before
   public void before() throws Exception {
-    when(mockWriter.isConnectionBroken()).thenReturn(false);
+    when(mockWriter.isConnectionBroken()).thenReturn(false);    
+    when(mockBuild.getParent().getDisplayName()).thenReturn("JobTest");
 
     buffer = new ByteArrayOutputStream();
   }

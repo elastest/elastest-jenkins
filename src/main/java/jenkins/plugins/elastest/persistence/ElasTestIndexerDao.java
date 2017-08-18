@@ -36,12 +36,8 @@ import net.sf.json.JSONObject;
  * @author Rusty Gerard
  * @since 1.0.0
  */
-public interface LogstashIndexerDao {
-  static enum IndexerType {
-    REDIS,
-    RABBIT_MQ,
-    ELASTICSEARCH,
-    SYSLOG,
+public interface ElasTestIndexerDao {
+  static enum IndexerType {    
     LOGSTASH
   }
 

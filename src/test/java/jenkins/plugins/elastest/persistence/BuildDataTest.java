@@ -1,4 +1,4 @@
-package jenkins.plugins.logstash.persistence;
+package jenkins.plugins.elastest.persistence;
 
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.times;

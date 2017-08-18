@@ -38,14 +38,14 @@ import net.sf.json.JSONObject;
  * @author Rusty Gerard
  * @since 1.0.0
  */
-abstract class AbstractLogstashIndexerDao implements LogstashIndexerDao {
+abstract class AbstractElasTestIndexerDao implements ElasTestIndexerDao {
   protected final String host;
   protected final int port;
   protected final String key;
   protected final String username;
   protected final String password;
 
-  AbstractLogstashIndexerDao(String host, int port, String key, String username, String password) {
+  AbstractElasTestIndexerDao(String host, int port, String key, String username, String password) {
     this.host = host;
     this.port = port;
     this.key = key;

@@ -24,17 +24,6 @@
 
 package jenkins.plugins.elastest.persistence;
 
-import hudson.model.Action;
-import hudson.model.Environment;
-import hudson.model.Result;
-import hudson.model.AbstractBuild;
-import hudson.model.TaskListener;
-import hudson.model.Run;
-import hudson.model.Node;
-import hudson.model.Executor;
-import hudson.tasks.test.AbstractTestResultAction;
-import hudson.tasks.test.TestResult;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -45,14 +34,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.io.IOException;
-
-import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
+import hudson.model.AbstractBuild;
+import hudson.model.Action;
+import hudson.model.Environment;
+import hudson.model.Executor;
+import hudson.model.Node;
+import hudson.model.Result;
+import hudson.model.Run;
+import hudson.model.TaskListener;
+import hudson.tasks.test.AbstractTestResultAction;
+import hudson.tasks.test.TestResult;
+import net.sf.json.JSONObject;
 
 /**
  * POJO for mapping build info to JSON.

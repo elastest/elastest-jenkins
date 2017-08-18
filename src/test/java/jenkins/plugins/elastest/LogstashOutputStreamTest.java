@@ -1,4 +1,4 @@
-package jenkins.plugins.logstash;
+package jenkins.plugins.elastest;
 
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertEquals;

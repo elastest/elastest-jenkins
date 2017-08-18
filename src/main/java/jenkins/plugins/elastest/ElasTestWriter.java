@@ -44,8 +44,8 @@ import hudson.model.TaskListener;
 import jenkins.model.Jenkins;
 import jenkins.plugins.elastest.persistence.BuildData;
 import jenkins.plugins.elastest.persistence.IndexerDaoFactory;
-import jenkins.plugins.elastest.persistence.LogstashIndexerDao;
-import jenkins.plugins.elastest.persistence.LogstashIndexerDao.IndexerType;
+import jenkins.plugins.elastest.persistence.ElasTestIndexerDao;
+import jenkins.plugins.elastest.persistence.ElasTestIndexerDao.IndexerType;
 
 /**
  * A writer that wraps all Logstash DAOs.  Handles error reporting and per build connection state.
@@ -53,8 +53,9 @@ import jenkins.plugins.elastest.persistence.LogstashIndexerDao.IndexerType;
  * If any write fails, writer will not attempt to send any further messages to logstash during this build.
  *
  * @author Rusty Gerard
- * @author Liam Newman 
- * @since 1.0.5
+ * @author Liam Newman
+ * @author frdiaz 
+ * @since ElasTest Plugin 0.0.1
  */
 public class ElasTestWriter {
 
@@ -63,7 +64,7 @@ public class ElasTestWriter {
   final TaskListener listener;
   final BuildData buildData;
   final String jenkinsUrl;
-  final LogstashIndexerDao elasticSearchDao;
+  final ElasTestIndexerDao elasticSearchDao;
 
   
   private boolean connectionBroken;
@@ -74,7 +75,7 @@ public class ElasTestWriter {
     this.build = run;
     this.listener = listener;
     this.externalJob = externalJob;
-    this.elasticSearchDao = this.getDaoOrNull(IndexerType.ELASTICSEARCH);
+    this.elasticSearchDao = this.getDaoOrNull(IndexerType.LOGSTASH);
     
     if (this.elasticSearchDao == null){
       this.jenkinsUrl = "";
@@ -138,11 +139,11 @@ public class ElasTestWriter {
   }
 
   // Method to encapsulate calls for unit-testing
-  LogstashIndexerDao getDao(IndexerType type) throws InstantiationException {
+  ElasTestIndexerDao getDao(IndexerType type) throws InstantiationException {
     ElasTestInstallation.Descriptor descriptor = ElasTestInstallation.getLogstashDescriptor();
     String key = "";
     
-    if (type.compareTo( IndexerType.ELASTICSEARCH) == 0){
+    if (type.compareTo( IndexerType.LOGSTASH) == 0){
     	key = String.valueOf(externalJob.gettJobExecId()) + "/" + "testlogs";    	    	
     }
     
@@ -172,6 +173,7 @@ public class ElasTestWriter {
     	elasticSearchDao.push(payload.toString());
     	
     	if (lines.get(0).contains("Finished:")){
+    		getBuildData();
     		sendEndJobMessageToElasTest();
     	}
     } catch (IOException e) {
@@ -195,9 +197,9 @@ public class ElasTestWriter {
    * Construct a valid indexerDao or return null.
    * Writes errors to errorStream if dao constructor fails.
    *
-   * @return valid {@link LogstashIndexerDao} or return null.
+   * @return valid {@link ElasTestIndexerDao} or return null.
    */
-  private LogstashIndexerDao getDaoOrNull(IndexerType type) {
+  private ElasTestIndexerDao getDaoOrNull(IndexerType type) {
     try {
       return getDao(type);
     } catch (InstantiationException e) {

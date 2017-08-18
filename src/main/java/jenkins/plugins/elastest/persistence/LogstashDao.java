@@ -51,19 +51,19 @@ import com.google.common.collect.Range;
  * @author Liam Newman
  * @since 1.0.4
  */
-public class ElasticSearchDao extends AbstractLogstashIndexerDao {
+public class LogstashDao extends AbstractElasTestIndexerDao {
   final HttpClientBuilder clientBuilder;
   final URI uri;
   final String auth;
   final Range<Integer> successCodes = closedOpen(200,300);
 
   //primary constructor used by indexer factory
-  public ElasticSearchDao(String host, int port, String key, String username, String password) {
+  public LogstashDao(String host, int port, String key, String username, String password) {
     this(null, host, port, key, username, password);
   }
 
   // Factored for unit testing
-  ElasticSearchDao(HttpClientBuilder factory, String host, int port, String key, String username, String password) {
+  LogstashDao(HttpClientBuilder factory, String host, int port, String key, String username, String password) {
     super(host, port, key, username, password);
 
     if (StringUtils.isBlank(key)) {
@@ -154,5 +154,5 @@ public class ElasticSearchDao extends AbstractLogstashIndexerDao {
   }
 
   @Override
-  public IndexerType getIndexerType() { return IndexerType.ELASTICSEARCH; }
+  public IndexerType getIndexerType() { return IndexerType.LOGSTASH; }
 }

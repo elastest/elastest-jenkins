@@ -33,7 +33,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 
-import jenkins.plugins.elastest.persistence.LogstashIndexerDao.IndexerType;
+import jenkins.plugins.elastest.persistence.ElasTestIndexerDao.IndexerType;
 
 /**
  * Factory for AbstractLogstashIndexerDao objects.
@@ -42,13 +42,13 @@ import jenkins.plugins.elastest.persistence.LogstashIndexerDao.IndexerType;
  * @since 1.0.0
  */
 public final class IndexerDaoFactory {
-  private static AbstractLogstashIndexerDao instance = null;
+  private static AbstractElasTestIndexerDao instance = null;
 
   private static final Map<IndexerType, Class<?>> INDEXER_MAP;
   static {
     Map<IndexerType, Class<?>> indexerMap = new HashMap<IndexerType, Class<?>>();
    
-    indexerMap.put(IndexerType.ELASTICSEARCH, ElasticSearchDao.class);
+    indexerMap.put(IndexerType.LOGSTASH, LogstashDao.class);
 
     INDEXER_MAP = Collections.unmodifiableMap(indexerMap);
   }
@@ -71,7 +71,7 @@ public final class IndexerDaoFactory {
    * @return The instance of the appropriate indexer DAO, never null
    * @throws InstantiationException
    */
-  public static synchronized LogstashIndexerDao getInstance(IndexerType type, String host, Integer port, String key, String username, String password) throws InstantiationException {
+  public static synchronized ElasTestIndexerDao getInstance(IndexerType type, String host, Integer port, String key, String username, String password) throws InstantiationException {
     if (type == null || !INDEXER_MAP.containsKey(type)) {
       throw new InstantiationException("[logstash-plugin]: Unknown IndexerType '" + type + "'. Did you forget to configure the plugin?");
     }
@@ -83,7 +83,7 @@ public final class IndexerDaoFactory {
       try {
         Class<?> indexerClass = INDEXER_MAP.get(type);
         Constructor<?> constructor = indexerClass.getConstructor(String.class, int.class, String.class, String.class, String.class);
-        instance = (AbstractLogstashIndexerDao) constructor.newInstance(host, port, key, username, password);
+        instance = (AbstractElasTestIndexerDao) constructor.newInstance(host, port, key, username, password);
       } catch (NoSuchMethodException e) {
         throw new InstantiationException(ExceptionUtils.getRootCauseMessage(e));
       } catch (InvocationTargetException e) {

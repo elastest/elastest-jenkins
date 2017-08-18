@@ -1,4 +1,4 @@
-package jenkins.plugins.logstash.persistence;
+package jenkins.plugins.elastest.persistence;
 
 import static net.sf.json.test.JSONAssert.assertEquals;
 import static org.mockito.Mockito.when;
@@ -15,7 +15,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import jenkins.plugins.elastest.persistence.AbstractLogstashIndexerDao;
+import jenkins.plugins.elastest.persistence.AbstractElasTestIndexerDao;
 import jenkins.plugins.elastest.persistence.BuildData;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -34,10 +34,10 @@ public class AbstractLogstashIndexerDaoTest {
 
   @Test
   public void buildPayloadSuccessEmpty() throws Exception {
-    AbstractLogstashIndexerDao dao = getInstance();
+    AbstractElasTestIndexerDao dao = getInstance();
 
     // Unit under test
-    JSONObject result = dao.buildPayload(mockBuildData, "http://localhost:8080/jenkins", new ArrayList<String>());
+    JSONObject result = dao.buildPayload(mockBuildData, "http://localhost:8080/jenkins", new ArrayList<String>(), null);
     result.remove("@timestamp");
 
     // Verify results
@@ -46,10 +46,10 @@ public class AbstractLogstashIndexerDaoTest {
 
   @Test
   public void buildPayloadSuccessOneLine() throws Exception {
-    AbstractLogstashIndexerDao dao = getInstance();
+    AbstractElasTestIndexerDao dao = getInstance();
 
     // Unit under test
-    JSONObject result = dao.buildPayload(mockBuildData, "http://localhost:8080/jenkins", Arrays.asList("LINE 1"));
+    JSONObject result = dao.buildPayload(mockBuildData, "http://localhost:8080/jenkins", Arrays.asList("LINE 1"), null);
     result.remove("@timestamp");
 
     // Verify results
@@ -58,21 +58,21 @@ public class AbstractLogstashIndexerDaoTest {
 
   @Test
   public void buildPayloadSuccessTwoLines() throws Exception {
-    AbstractLogstashIndexerDao dao = getInstance();
+    AbstractElasTestIndexerDao dao = getInstance();
 
     // Unit under test
-    JSONObject result = dao.buildPayload(mockBuildData, "http://localhost:8080/jenkins", Arrays.asList("LINE 1", "LINE 2"));
+    JSONObject result = dao.buildPayload(mockBuildData, "http://localhost:8080/jenkins", Arrays.asList("LINE 1", "LINE 2"), null);
     result.remove("@timestamp");
 
     // Verify results
     assertEquals("Results don't match", JSONObject.fromObject(TWO_LINE_STRING), result);
   }
 
-  private AbstractLogstashIndexerDao getInstance() {
-    return new AbstractLogstashIndexerDao("localhost", -1, "", "", "") {
+  private AbstractElasTestIndexerDao getInstance() {
+    return new AbstractElasTestIndexerDao("localhost", -1, "", "", "") {
 
       public IndexerType getIndexerType() {
-        return IndexerType.REDIS;
+        return IndexerType.LOGSTASH;
       }
 
       public void push(String data) throws IOException {}

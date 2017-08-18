@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2014 Rusty Gerard
+ * Copyright 2017 Hewlett-Packard Development Company, L.P.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,7 +33,7 @@ import hudson.util.FormValidation;
 import java.util.List;
 
 import jenkins.model.Jenkins;
-import jenkins.plugins.elastest.persistence.LogstashIndexerDao.IndexerType;
+import jenkins.plugins.elastest.persistence.ElasTestIndexerDao.IndexerType;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
@@ -44,8 +44,7 @@ import org.kohsuke.stapler.StaplerRequest;
 /**
  * POJO for storing global configurations shared between components.
  *
- * @author Rusty Gerard
- * @since 1.0.0
+ * @author frdiaz 
  */
 public class ElasTestInstallation extends ToolInstallation {
   private static final long serialVersionUID = -5730780734005293851L;
