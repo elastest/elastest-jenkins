@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-package jenkins.plugins.elastest.persistence;
+package jenkins.plugins.elastest.submiter;
 
 import java.util.Calendar;
 import java.util.List;

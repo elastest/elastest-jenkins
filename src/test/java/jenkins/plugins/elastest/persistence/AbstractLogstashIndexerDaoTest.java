@@ -15,8 +15,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import jenkins.plugins.elastest.persistence.AbstractElasTestIndexerDao;
-import jenkins.plugins.elastest.persistence.BuildData;
+import jenkins.plugins.elastest.submiter.AbstractElasTestIndexerDao;
+import jenkins.plugins.elastest.submiter.BuildData;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AbstractLogstashIndexerDaoTest {

@@ -35,9 +35,9 @@ import hudson.model.AbstractBuild;
 import hudson.model.Project;
 import hudson.model.Result;
 import hudson.tasks.test.AbstractTestResultAction;
-import jenkins.plugins.elastest.persistence.BuildData;
-import jenkins.plugins.elastest.persistence.ElasTestIndexerDao;
-import jenkins.plugins.elastest.persistence.ElasTestIndexerDao.IndexerType;
+import jenkins.plugins.elastest.submiter.BuildData;
+import jenkins.plugins.elastest.submiter.ElasTestIndexerDao;
+import jenkins.plugins.elastest.submiter.ElasTestIndexerDao.IndexerType;
 import net.java.sezpoz.impl.Indexer6;
 import net.sf.json.JSONObject;
 

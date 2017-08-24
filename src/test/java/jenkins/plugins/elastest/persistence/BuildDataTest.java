@@ -13,8 +13,8 @@ import hudson.model.Node;
 import hudson.model.Project;
 import hudson.tasks.test.AbstractTestResultAction;
 import hudson.tasks.test.TestResult;
-import jenkins.plugins.elastest.persistence.BuildData;
-import jenkins.plugins.elastest.persistence.BuildData.TestData;
+import jenkins.plugins.elastest.submiter.BuildData;
+import jenkins.plugins.elastest.submiter.BuildData.TestData;
 
 import java.util.Arrays;
 import java.util.Collections;

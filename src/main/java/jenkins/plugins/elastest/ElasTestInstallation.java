@@ -33,7 +33,7 @@ import hudson.util.FormValidation;
 import java.util.List;
 
 import jenkins.model.Jenkins;
-import jenkins.plugins.elastest.persistence.ElasTestIndexerDao.IndexerType;
+import jenkins.plugins.elastest.submiter.ElasTestIndexerDao.IndexerType;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
@@ -43,76 +43,75 @@ import org.kohsuke.stapler.StaplerRequest;
 
 /**
  * POJO for storing global configurations shared between components.
- *
- * @author frdiaz 
  */
 public class ElasTestInstallation extends ToolInstallation {
-  private static final long serialVersionUID = -5730780734005293851L;
 
-  @DataBoundConstructor
-  public ElasTestInstallation(String name, String home, List<? extends ToolProperty<?>> properties) {
-    super(name, home, properties);
-  }
+	private static final long serialVersionUID = -5730780734005293851L;
 
-  public static Descriptor getLogstashDescriptor() {
-    return (Descriptor) Jenkins.getInstance().getDescriptor(ElasTestInstallation.class);
-  }
+	@DataBoundConstructor
+	public ElasTestInstallation(String name, String home, List<? extends ToolProperty<?>> properties) {
+		super(name, home, properties);
+	}
 
-  @Extension
-  public static final class Descriptor extends ToolDescriptor<ElasTestInstallation> {
-    public String elasTestUrl;
+	public static Descriptor getLogstashDescriptor() {
+		return (Descriptor) Jenkins.getInstance().getDescriptor(ElasTestInstallation.class);
+	}
 
-    public Descriptor() {
-      super();
-      load();
-    }
+	@Extension
+	public static final class Descriptor extends ToolDescriptor<ElasTestInstallation> {
+		public String elasTestUrl;
 
-    @Override
-    public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
-      req.bindJSON(this, formData.getJSONObject("logstash"));
-      save();
-      return super.configure(req, formData);
-    }
+		public Descriptor() {
+			super();
+			load();
+		}
 
-    @Override
-    public ToolInstallation newInstance(StaplerRequest req, JSONObject formData) throws FormException {
-      req.bindJSON(this, formData.getJSONObject("logstash"));
-      save();
-      return super.newInstance(req, formData);
-    }
+		@Override
+		public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
+			req.bindJSON(this, formData.getJSONObject("logstash"));
+			save();
+			return super.configure(req, formData);
+		}
 
-    @Override
-    public String getDisplayName() {
-      return Messages.DisplayName();
-    }
+		@Override
+		public ToolInstallation newInstance(StaplerRequest req, JSONObject formData) throws FormException {
+			req.bindJSON(this, formData.getJSONObject("logstash"));
+			save();
+			return super.newInstance(req, formData);
+		}
 
-    /*
-     * Form validation methods
-     */
-    public FormValidation doCheckInteger(@QueryParameter("value") String value) {
-      try {
-        Integer.parseInt(value);
-      } catch (NumberFormatException e) {
-        return FormValidation.error(Messages.ValueIsInt());
-      }
+		@Override
+		public String getDisplayName() {
+			return Messages.DisplayName();
+		}
 
-      return FormValidation.ok();
-    }
+		/*
+		 * Form validation methods
+		 */
+		public FormValidation doCheckInteger(@QueryParameter("value") String value) {
+			try {
+				Integer.parseInt(value);
+			} catch (NumberFormatException e) {
+				return FormValidation.error(Messages.ValueIsInt());
+			}
 
-    public FormValidation doCheckHost(@QueryParameter("value") String value) {
-      if (StringUtils.isBlank(value)) {
-        return FormValidation.warning(Messages.PleaseProvideHost());
-      }
+			return FormValidation.ok();
+		}
 
-      return FormValidation.ok();
-    }
+		public FormValidation doCheckHost(@QueryParameter("value") String value) {
+			if (StringUtils.isBlank(value)) {
+				return FormValidation.warning(Messages.PleaseProvideHost());
+			}
 
-    public FormValidation doCheckString(@QueryParameter("value") String value) {
-      if (StringUtils.isBlank(value)) {
-        return FormValidation.error(Messages.ValueIsRequired());
-      }
+			return FormValidation.ok();
+		}
 
-      return FormValidation.ok();
-    }
-  }
+		public FormValidation doCheckString(@QueryParameter("value") String value) {
+			if (StringUtils.isBlank(value)) {
+				return FormValidation.error(Messages.ValueIsRequired());
+			}
+
+			return FormValidation.ok();
+		}
+	}
 }

@@ -5,9 +5,9 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 
-import jenkins.plugins.elastest.persistence.IndexerDaoFactory;
-import jenkins.plugins.elastest.persistence.ElasTestIndexerDao;
-import jenkins.plugins.elastest.persistence.ElasTestIndexerDao.IndexerType;
+import jenkins.plugins.elastest.submiter.ElasTestIndexerDao;
+import jenkins.plugins.elastest.submiter.IndexerDaoFactory;
+import jenkins.plugins.elastest.submiter.ElasTestIndexerDao.IndexerType;
 
 public class IndexerDaoFactoryTest {
 

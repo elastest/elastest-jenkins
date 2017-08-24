@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-package jenkins.plugins.elastest.persistence;
+package jenkins.plugins.elastest.submiter;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -33,7 +33,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 
-import jenkins.plugins.elastest.persistence.ElasTestIndexerDao.IndexerType;
+import jenkins.plugins.elastest.submiter.ElasTestIndexerDao.IndexerType;
 
 /**
  * Factory for AbstractLogstashIndexerDao objects.

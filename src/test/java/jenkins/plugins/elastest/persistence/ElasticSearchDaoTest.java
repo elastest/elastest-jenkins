@@ -16,7 +16,7 @@ import org.junit.runner.RunWith;
 import org.mockito.*;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import jenkins.plugins.elastest.persistence.LogstashDao;
+import jenkins.plugins.elastest.submiter.LogstashDao;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

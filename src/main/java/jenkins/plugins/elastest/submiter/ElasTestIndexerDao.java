@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-package jenkins.plugins.elastest.persistence;
+package jenkins.plugins.elastest.submiter;
 
 import java.io.IOException;
 import java.util.List;

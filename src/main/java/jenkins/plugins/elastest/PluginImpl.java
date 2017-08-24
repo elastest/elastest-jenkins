@@ -1,7 +1,7 @@
 /*
  * The MIT License
  * 
- * Copyright 2013 Hewlett-Packard Development Company, L.P.
+ * Copyright 2017 ElasTest
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -31,6 +31,6 @@ public class PluginImpl extends Plugin {
   private final static Logger LOG = Logger.getLogger(PluginImpl.class.getName());
 
   public void start() throws Exception {
-    LOG.info("ElasTest: a ElasTest client to send jenkins logs to a ElasTest Platform.");
+    LOG.info("ElasTest: An ElasTest client to send job build records to ElasTest.");
   }
 }
