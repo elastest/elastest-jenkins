@@ -15,14 +15,12 @@ Configure
 =========
 1. To configure this plugin, you must go to "Manage Jenkins => Global Tool Configuration" and in the section `ElasTest Plugin` fill the `ElasTest URL` field (e.g. http://localhost:8090/).   
 
-2. Check the 
-
-
+2. Check the checkbox with the description `Send console log to ElasTest` in the configuration of the job whose logs you want to send to ElasTest.
 
 Pipeline
 ========
 
-Logstash plugin can be used as a publisher in pipeline jobs:
+ElasTest plugin can be used to send logs in pipeline jobs:
 
 ```Groovy
  node('master') {
