@@ -23,9 +23,9 @@
  */
 package jenkins.plugins.elastest.action;
 
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import hudson.model.AbstractBuild;
 import hudson.model.Action;
 import hudson.model.Actionable;
 import hudson.model.Run;
@@ -38,14 +38,18 @@ import jenkins.plugins.elastest.Messages;
  */
 public class ElasTestItemMenuAction extends Actionable implements Action {
 	
-	private final static Logger LOG = Logger.getLogger(ElasTestItemMenuAction.class.getName());
+	private final static Logger log =LoggerFactory.getLogger(ElasTestItemMenuAction.class);
 	private static final String ICON_IMAGE ="/plugin/elastest/images/icon.png";
 	
 	private String elasTestLogAnalyzerUrl = "http://localhost:4200/#/logmanager";
+	private String elasTestTJobExecutionUrl = "";
 			
-	public ElasTestItemMenuAction(@SuppressWarnings("rawtypes") Run<?,?> build, String elasTestLogAnalyzerUrl) {
+	public ElasTestItemMenuAction(@SuppressWarnings("rawtypes") Run<?,?> build, String elasTestLogAnalyzerUrl, String elasTestTJobExecutionUrl) {
 		super();
+		log.info("ElasTest Log Analayser URL: {}", elasTestLogAnalyzerUrl);
+		log.info("ElasTest TJob execution URL: {}", elasTestTJobExecutionUrl);
 		this.elasTestLogAnalyzerUrl = elasTestLogAnalyzerUrl;
+		this.elasTestTJobExecutionUrl = elasTestTJobExecutionUrl;
 	}
 
 	@Override
@@ -65,7 +69,7 @@ public class ElasTestItemMenuAction extends Actionable implements Action {
 
 	@Override
 	public String getUrlName() {
-		return elasTestLogAnalyzerUrl;
+		return elasTestTJobExecutionUrl;
 	}
 
 	public String getElasTestLogAnalyzerUrl() {
@@ -75,5 +79,13 @@ public class ElasTestItemMenuAction extends Actionable implements Action {
 	public void setElasTestLogAnalyzerUrl(String elasTestLogAnalyzerUrl) {
 		this.elasTestLogAnalyzerUrl = elasTestLogAnalyzerUrl;
 	}
+
+    public String getElasTestTJobExecutionUrl() {
+        return elasTestTJobExecutionUrl;
+    }
+
+    public void setElasTestTJobExecutionUrl(String elasTestTJobExecutionUrl) {
+        this.elasTestTJobExecutionUrl = elasTestTJobExecutionUrl;
+    }
 
 }

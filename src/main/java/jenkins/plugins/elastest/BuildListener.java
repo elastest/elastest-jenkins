@@ -44,9 +44,10 @@ public class BuildListener extends RunListener<Run> {
 	public Environment setUpEnvironment(AbstractBuild build, Launcher launcher, hudson.model.BuildListener listener)
 			throws IOException, InterruptedException, RunnerAbortedException {
 		LOG.info("Set up environment");		
-		ElasTestItemMenuAction action = new ElasTestItemMenuAction(build, null);
+		ElasTestItemMenuAction action = new ElasTestItemMenuAction(build, elasTestService.getExternalJobByBuildId(build.getId()).getLogAnalyzerUrl(),
+                elasTestService.getExternalJobByBuildId(build.getId()).getExecutionUrl());
 		build.addAction(action);		
-		action.setElasTestLogAnalyzerUrl(elasTestService.getExternalJobByBuildId(build.getId()).getLogAnalyzerUrl());
+		//action.setElasTestLogAnalyzerUrl(elasTestService.getExternalJobByBuildId(build.getId()).getLogAnalyzerUrl());
 		return super.setUpEnvironment(build, launcher, listener);
 	}
 

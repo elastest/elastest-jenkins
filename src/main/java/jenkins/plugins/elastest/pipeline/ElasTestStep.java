@@ -24,10 +24,7 @@
 package jenkins.plugins.elastest.pipeline;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.io.Serializable;
-import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 
@@ -35,19 +32,17 @@ import org.jenkinsci.plugins.workflow.steps.AbstractStepDescriptorImpl;
 import org.jenkinsci.plugins.workflow.steps.AbstractStepExecutionImpl;
 import org.jenkinsci.plugins.workflow.steps.AbstractStepImpl;
 import org.jenkinsci.plugins.workflow.steps.BodyExecutionCallback;
-import org.jenkinsci.plugins.workflow.steps.BodyInvoker;
 import org.jenkinsci.plugins.workflow.steps.StepContext;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import hudson.EnvVars;
 import hudson.Extension;
 import hudson.console.ConsoleLogFilter;
-import hudson.model.AbstractBuild;
 import hudson.model.Run;
 import jenkins.YesNoMaybe;
-import jenkins.plugins.elastest.BuildListener;
 import jenkins.plugins.elastest.ConsoleLogFilterImpl;
 import jenkins.plugins.elastest.ElasTestService;
 import jenkins.plugins.elastest.Messages;
@@ -61,7 +56,7 @@ import jenkins.plugins.elastest.action.ElasTestItemMenuAction;
  */
 public class ElasTestStep extends AbstractStepImpl {
 
-	private static final Logger LOG = Logger.getLogger(ElasTestStep.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(ElasTestStep.class);
 		
 	/**
 	 * Constructor.
@@ -84,16 +79,18 @@ public class ElasTestStep extends AbstractStepImpl {
 		 */
 		@Override
 		public boolean start() throws Exception {
-			LOG.info("Step start.");
+			logger.info("Step start.");
 			elasTestService = ElasTestService.getInstance();			
 			StepContext context = getContext();
 			Run<?, ?> build = context.get(Run.class);
 			try {
 				elasTestService.asociateToElasTestTJob(build);
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
+			    logger.error("Error trying to bind the build with a TJob.");
 				e.printStackTrace();
+				throw e;
 			}
+			
 			
 			context.newBodyInvoker().withContext(createConsoleLogFilter(context, build))
 					.withCallback(BodyExecutionCallback.wrap(context)).start();
@@ -102,10 +99,11 @@ public class ElasTestStep extends AbstractStepImpl {
 
 		private ConsoleLogFilter createConsoleLogFilter(StepContext context, Run<?, ?> build)
 				throws IOException, InterruptedException {
-			ConsoleLogFilterImpl logFilterImpl =  new ConsoleLogFilterImpl(build, elasTestService);			
-			ElasTestItemMenuAction action = new ElasTestItemMenuAction(build, null);
-			build.addAction(action);			
-			action.setElasTestLogAnalyzerUrl(elasTestService.getExternalJobByBuildId(build.getId()).getLogAnalyzerUrl());		
+		    logger.info("Creatin console log filter.");
+		    ConsoleLogFilterImpl logFilterImpl =  new ConsoleLogFilterImpl(build, elasTestService);			
+			ElasTestItemMenuAction action = new ElasTestItemMenuAction(build, elasTestService.getExternalJobByBuildId(build.getId()).getLogAnalyzerUrl(),
+			        elasTestService.getExternalJobByBuildId(build.getId()).getExecutionUrl());
+			build.addAction(action);
 			
 			return logFilterImpl;
 		}

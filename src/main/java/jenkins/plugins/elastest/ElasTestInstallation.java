@@ -24,22 +24,20 @@
 
 package jenkins.plugins.elastest;
 
-import hudson.Extension;
-import hudson.tools.ToolDescriptor;
-import hudson.tools.ToolProperty;
-import hudson.tools.ToolInstallation;
-import hudson.util.FormValidation;
-
 import java.util.List;
-
-import jenkins.model.Jenkins;
-import jenkins.plugins.elastest.submiter.ElasTestIndexerDao.IndexerType;
-import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
+
+import hudson.Extension;
+import hudson.tools.ToolDescriptor;
+import hudson.tools.ToolInstallation;
+import hudson.tools.ToolProperty;
+import hudson.util.FormValidation;
+import jenkins.model.Jenkins;
+import net.sf.json.JSONObject;
 
 /**
  * POJO for storing global configurations shared between components.
@@ -60,6 +58,9 @@ public class ElasTestInstallation extends ToolInstallation {
 	@Extension
 	public static final class Descriptor extends ToolDescriptor<ElasTestInstallation> {
 		public String elasTestUrl;
+		public String logstashPath;
+	    public String username;
+	    public String password;
 
 		public Descriptor() {
 			super();

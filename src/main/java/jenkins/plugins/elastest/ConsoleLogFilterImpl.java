@@ -20,7 +20,7 @@ public class ConsoleLogFilterImpl extends ConsoleLogFilter implements Serializab
 	private static final long serialVersionUID = 1;
 	private static final Logger LOG = Logger.getLogger(ConsoleLogFilterImpl.class.getName());
 	
-	private final Run<?, ?> build;	
+	private final transient Run<?, ?> build;	
 	private ElasTestService elasTestService;
 
 	public ConsoleLogFilterImpl(Run<?, ?> build, ElasTestService elasTestService) {		

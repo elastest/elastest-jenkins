@@ -3,6 +3,15 @@
      <f:entry title="${%ElasTest Url}" field="elasTestUrl">
       <f:textbox value="${descriptor.elasTestUrl}"
         checkUrl="'${resURL}/descriptorByName/LogstashInstallation/checkHost?value='+escape(this.value)" />
-    </f:entry>    
+    </f:entry>
+    <f:entry title="${%Logstash Path}" field="logstashPath">
+      <f:textbox value="${descriptor.logstashPath}" />
+    </f:entry>
+    <f:entry title="${%Username}" field="username">
+      <f:textbox value="${descriptor.username}" />
+    </f:entry>
+    <f:entry title="${%Password}" field="password">
+      <f:password value="${descriptor.password}" />
+    </f:entry>
   </f:section>
 </j:jelly>

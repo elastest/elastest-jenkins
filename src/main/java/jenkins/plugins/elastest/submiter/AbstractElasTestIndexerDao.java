@@ -78,7 +78,11 @@ abstract class AbstractElasTestIndexerDao implements ElasTestIndexerDao {
   @Override
   public String buildPayload(List<String> logLines, ExternalJob externalJob) {
 	String payload = logLines.get(0);
-	payload = "<>test_" + externalJob.gettJobExecId() + "_tjobexec[]: " + payload; 
+	payload = "{" + "\"component\":\"test\""
+    + ",\"exec\":\"" + externalJob.gettJobExecId() + "\"" + ",\"stream\":\"default_log\""
+    + ",\"message\":\"" + payload + "\""
+    + "}";
+	
 	return payload;
 }
 

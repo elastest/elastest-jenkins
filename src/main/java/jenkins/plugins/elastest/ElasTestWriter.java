@@ -145,11 +145,11 @@ public class ElasTestWriter {
 		String key = "";
 
 		if (type.compareTo(IndexerType.LOGSTASH) == 0) {
-			key = String.valueOf(externalJob.gettJobExecId()) + "/" + "testlogs";
+			key =  descriptor.logstashPath != "" ? descriptor.logstashPath : "";
 		}
 
 		return IndexerDaoFactory.getInstance(type, externalJob.getServicesIp(),
-				new Integer(externalJob.getLogstashPort()), key, null, null);
+				new Integer(externalJob.getLogstashPort()), key, descriptor.username, descriptor.password);
 
 	}
 
