@@ -39,6 +39,7 @@ import hudson.model.Run;
 import hudson.model.TaskListener;
 import jenkins.model.Jenkins;
 import jenkins.plugins.elastest.action.ElasTestItemMenuAction;
+import jenkins.plugins.elastest.json.ExternalJob;
 import jenkins.plugins.elastest.submiter.BuildData;
 import jenkins.plugins.elastest.submiter.ElasTestIndexerDao;
 import jenkins.plugins.elastest.submiter.ElasTestIndexerDao.IndexerType;

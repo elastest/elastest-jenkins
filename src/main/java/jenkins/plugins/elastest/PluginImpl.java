@@ -31,6 +31,6 @@ public class PluginImpl extends Plugin {
   private final static Logger LOG = Logger.getLogger(PluginImpl.class.getName());
 
   public void start() throws Exception {
-    LOG.info("ElasTest: An ElasTest client to send job build records to ElasTest.");
+    LOG.info("ElasTest Plugin: A client to integrate Jenkins with The ElasTest Platform.");
   }
 }

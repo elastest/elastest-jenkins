@@ -25,28 +25,25 @@ package jenkins.plugins.elastest.pipeline;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.Nonnull;
 
 import org.jenkinsci.plugins.workflow.steps.AbstractStepDescriptorImpl;
-import org.jenkinsci.plugins.workflow.steps.AbstractStepExecutionImpl;
 import org.jenkinsci.plugins.workflow.steps.AbstractStepImpl;
-import org.jenkinsci.plugins.workflow.steps.BodyExecutionCallback;
-import org.jenkinsci.plugins.workflow.steps.StepContext;
+import org.jenkinsci.plugins.workflow.steps.StepContextParameter;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import hudson.EnvVars;
 import hudson.Extension;
-import hudson.console.ConsoleLogFilter;
-import hudson.model.Run;
 import jenkins.YesNoMaybe;
-import jenkins.plugins.elastest.ConsoleLogFilterImpl;
-import jenkins.plugins.elastest.ElasTestService;
 import jenkins.plugins.elastest.Messages;
-import jenkins.plugins.elastest.action.ElasTestItemMenuAction;
 
 /**
  * Pipeline plug-in step for sending log traces to ElasTest Platform.
@@ -57,67 +54,52 @@ import jenkins.plugins.elastest.action.ElasTestItemMenuAction;
 public class ElasTestStep extends AbstractStepImpl {
 
 	private static final Logger logger = LoggerFactory.getLogger(ElasTestStep.class);
-		
+	
+	@StepContextParameter
+	public EnvVars envVars;
+	
+	@Nonnull
+	private String sut = "";
+	
+	@Nonnull
+	private List<String> tss = new ArrayList<String>();
+	
+	private Long tJobId;
+	
+	
 	/**
 	 * Constructor.
 	 */
 	@DataBoundConstructor
 	public ElasTestStep() {		
 	}
+    
+	public List<String> getTss() {
+        return tss;
+    }
 
-	/**
-	 * Execution for {@link ElasTestStep}.
-	 */
-	public static class ExecutionImpl extends AbstractStepExecutionImpl {
+    @DataBoundSetter
+	public void setTss(List<String> tss) {
+        this.tss = tss;
+    }
 
-		private static final long serialVersionUID = 1L;
-		
-		private ElasTestService elasTestService;
+    public String getSut() {
+        return sut;
+    }
 
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
-		public boolean start() throws Exception {
-			logger.info("Step start.");
-			elasTestService = ElasTestService.getInstance();			
-			StepContext context = getContext();
-			Run<?, ?> build = context.get(Run.class);
-			try {
-				elasTestService.asociateToElasTestTJob(build);
-			} catch (Exception e) {
-			    logger.error("Error trying to bind the build with a TJob.");
-				e.printStackTrace();
-				throw e;
-			}
-			
-			
-			context.newBodyInvoker().withContext(createConsoleLogFilter(context, build))
-					.withCallback(BodyExecutionCallback.wrap(context)).start();
-			return false;
-		}
+    public void setSut(String sut) {
+        this.sut = sut;
+    }
 
-		private ConsoleLogFilter createConsoleLogFilter(StepContext context, Run<?, ?> build)
-				throws IOException, InterruptedException {
-		    logger.info("Creatin console log filter.");
-		    ConsoleLogFilterImpl logFilterImpl =  new ConsoleLogFilterImpl(build, elasTestService);			
-			ElasTestItemMenuAction action = new ElasTestItemMenuAction(build, elasTestService.getExternalJobByBuildId(build.getId()).getLogAnalyzerUrl(),
-			        elasTestService.getExternalJobByBuildId(build.getId()).getExecutionUrl());
-			build.addAction(action);
-			
-			return logFilterImpl;
-		}
+    public Long gettJobId() {
+        return tJobId;
+    }
+    @DataBoundSetter
+    public void settJobId(Long tJobId) {
+        this.tJobId = tJobId;
+    }
 
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
-		public void stop(@Nonnull Throwable cause) throws Exception {
-			getContext().onFailure(cause);
-		}
-	}
-
-	/**
+    /**
 	 * Descriptor for {@link ElasTestStep}.
 	 */
 	@Extension(dynamicLoadable = YesNoMaybe.YES, optional = true)

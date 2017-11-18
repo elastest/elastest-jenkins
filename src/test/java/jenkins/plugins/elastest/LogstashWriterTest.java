@@ -35,6 +35,7 @@ import hudson.model.AbstractBuild;
 import hudson.model.Project;
 import hudson.model.Result;
 import hudson.tasks.test.AbstractTestResultAction;
+import jenkins.plugins.elastest.json.ExternalJob;
 import jenkins.plugins.elastest.submiter.BuildData;
 import jenkins.plugins.elastest.submiter.ElasTestIndexerDao;
 import jenkins.plugins.elastest.submiter.ElasTestIndexerDao.IndexerType;

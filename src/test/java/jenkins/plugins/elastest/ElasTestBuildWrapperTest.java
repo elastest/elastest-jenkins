@@ -16,6 +16,7 @@ import java.io.OutputStream;
 import jenkins.plugins.elastest.ElasTestBuildWrapper;
 import jenkins.plugins.elastest.ElasTestOutputStream;
 import jenkins.plugins.elastest.ElasTestWriter;
+import jenkins.plugins.elastest.json.ExternalJob;
 import jenkins.plugins.elastest.submiter.BuildData;
 
 import org.junit.After;

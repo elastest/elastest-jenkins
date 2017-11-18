@@ -15,6 +15,7 @@ import hudson.console.ConsoleLogFilter;
 import hudson.model.BuildableItemWithBuildWrappers;
 import hudson.model.Run;
 import hudson.tasks.BuildWrapper;
+import jenkins.plugins.elastest.json.ExternalJob;
 
 public class ConsoleLogFilterImpl extends ConsoleLogFilter implements Serializable {
 	private static final long serialVersionUID = 1;

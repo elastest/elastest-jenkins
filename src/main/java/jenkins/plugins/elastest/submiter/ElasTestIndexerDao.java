@@ -27,7 +27,7 @@ package jenkins.plugins.elastest.submiter;
 import java.io.IOException;
 import java.util.List;
 
-import jenkins.plugins.elastest.ExternalJob;
+import jenkins.plugins.elastest.json.ExternalJob;
 import net.sf.json.JSONObject;
 
 /**

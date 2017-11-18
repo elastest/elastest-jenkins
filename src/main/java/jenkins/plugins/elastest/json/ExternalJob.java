@@ -21,11 +21,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package jenkins.plugins.elastest;
+package jenkins.plugins.elastest.json;
 
 import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -55,6 +56,15 @@ public class ExternalJob implements Serializable {
 	
 	@JsonProperty("servicesIp")	
 	private String servicesIp;
+	
+	@JsonProperty("tSServices")
+	private List<TestSupportServices> tSServices;
+	
+	@JsonProperty("tSSEnvVars")
+    private Map<String, String> tSSEnvVars;
+	
+	@JsonProperty("result")
+	private int result;
 		
 	public ExternalJob(){}
 	
@@ -62,17 +72,23 @@ public class ExternalJob implements Serializable {
 		this.jobName = jobName;
 	}
 	
-	public ExternalJob(String jobName, String executionUrl, String logAnalyzerUrl,  Long tJobExecId,
-			String logstashPort, String servicesIp){
-		this.jobName = jobName;
-		this.executionUrl = executionUrl;
-		this.logAnalyzerUrl = logAnalyzerUrl;
-		this.tJobExecId = tJobExecId;
-		this.logstashPort = logstashPort;
-		this.servicesIp = servicesIp;
-	}
-	
-	public String getJobName() {
+    public ExternalJob(String jobName, String executionUrl,
+            String logAnalyzerUrl, Long tJobExecId, String logstashPort,
+            String servicesIp, List<TestSupportServices> tSServices,
+            Map<String, String> tSSEnvVars, int result) {
+        super();
+        this.jobName = jobName;
+        this.executionUrl = executionUrl;
+        this.logAnalyzerUrl = logAnalyzerUrl;
+        this.tJobExecId = tJobExecId;
+        this.logstashPort = logstashPort;
+        this.servicesIp = servicesIp;
+        this.tSServices = tSServices;
+        this.tSSEnvVars = tSSEnvVars;
+        this.result = result;
+    }
+
+    public String getJobName() {
 		return jobName;
 	}
 	
@@ -120,7 +136,31 @@ public class ExternalJob implements Serializable {
 		this.servicesIp = servicesIp;
 	}
 	
-	@Override
+	public List<TestSupportServices> gettSServices() {
+        return tSServices;
+    }
+
+    public void settSServices(List<TestSupportServices> tSServices) {
+        this.tSServices = tSServices;
+    }
+
+    public Map<String, String> gettSSEnvVars() {
+        return tSSEnvVars;
+    }
+
+    public void settSSEnvVars(Map<String, String> tSSEnvVars) {
+        this.tSSEnvVars = tSSEnvVars;
+    }
+
+    public int getResult() {
+        return result;
+    }
+
+    public void setResult(int result) {
+        this.result = result;
+    }
+
+    @Override
 	public boolean equals(java.lang.Object o) {
 		if (this == o) {
 			return true;
@@ -133,12 +173,15 @@ public class ExternalJob implements Serializable {
 				&& Objects.equals(this.logAnalyzerUrl, externalJob.logAnalyzerUrl)
 				&& Objects.equals(this.tJobExecId, externalJob.tJobExecId) 
 				&& Objects.equals(this.logstashPort, externalJob.logstashPort)
-				&& Objects.equals(this.servicesIp, externalJob.servicesIp);
+				&& Objects.equals(this.servicesIp, externalJob.servicesIp)
+				&& Objects.equals(this.tSServices, externalJob.tSServices)
+				&& Objects.equals(this.result, externalJob.result)
+                && Objects.equals(this.tSSEnvVars, externalJob.tSSEnvVars);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(jobName, executionUrl, tJobExecId);
+	    return Objects.hash(jobName, executionUrl, logAnalyzerUrl, tJobExecId, logstashPort, servicesIp, tSServices, tSSEnvVars, result);
 	}
 
 	@Override
@@ -151,6 +194,9 @@ public class ExternalJob implements Serializable {
 		sb.append("    tJobExecId: ").append(toIndentedString(tJobExecId)).append("\n");
 		sb.append("    logstashPort: ").append(toIndentedString(logstashPort)).append("\n");
 		sb.append("    servicesIp: ").append(toIndentedString(servicesIp)).append("\n");
+		sb.append("    tSServices: ").append(toIndentedString(tSServices)).append("\n");
+        sb.append("    tSSEnvVars: ").append(toIndentedString(tSSEnvVars)).append("\n");
+        sb.append("    result: ").append(toIndentedString(result)).append("\n");
 		sb.append("}");
 		
 		return sb.toString();

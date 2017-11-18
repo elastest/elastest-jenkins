@@ -29,7 +29,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
-import jenkins.plugins.elastest.ExternalJob;
+import jenkins.plugins.elastest.json.ExternalJob;
 import net.sf.json.JSONObject;
 
 /**
