@@ -37,7 +37,7 @@ public class ElasTestService implements Serializable {
     private String elasTestApiUrl;
     private String elasTestUrl;
     private transient Client client;
-    
+
     public ElasTestService() {
         this.externalJobs = new HashMap<>();
         elasTestUrl = ElasTestInstallation.getLogstashDescriptor().elasTestUrl;
@@ -46,56 +46,61 @@ public class ElasTestService implements Serializable {
         client.addFilter(new HTTPBasicAuthFilter(
                 ElasTestInstallation.getLogstashDescriptor().username,
                 ElasTestInstallation.getLogstashDescriptor().password));
-        
+
         tSServicesCatalog = loadTSSCatalog();
     }
-    
+
     private Map<String, String> loadTSSCatalog() {
         Map<String, String> tSSCatalog = new HashMap<>();
-        
+
         tSSCatalog.put("EUS", "29216b91-497c-43b7-a5c4-6613f13fa0e9");
         tSSCatalog.put("EBS", "a1920b13-7d11-4ebc-a732-f86a108ea49c");
         tSSCatalog.put("EMS", "bab3ae67-8c1d-46ec-a940-94183a443825");
         tSSCatalog.put("ESS", "af7947d9-258b-4dd1-b1ca-17450db25ef7");
         tSSCatalog.put("EDS", "fe5e0531-b470-441f-9c69-721c2b4875f2");
-        
+
         return tSSCatalog;
     }
 
-    public ExternalJob asociateToElasTestTJob(Run<?, ?> build) throws Exception {
-        ExternalJob externalJob = new ExternalJob(
-                build.getParent().getDisplayName());
-        externalJob = asociateToElasTestTJob(build, externalJob);
-        return externalJob;
-    }
-    
-    public ExternalJob asociateToElasTestTJob(Run<?, ?> build, ElasTestStep elasTestStep) throws Exception{
-        ExternalJob externalJob = new ExternalJob(
-                build.getParent().getDisplayName());
-        externalJob.settSServices(prepareTSSToSendET(elasTestStep.getTss()));
-        externalJob = asociateToElasTestTJob(build, externalJob);
-//        elasTestStep.envVars.putAll(externalJob.gettSSEnvVars());
-//        for (Map.Entry<String, String> entry : elasTestStep.envVars
-//                .entrySet()) {
-//            log.info("Env variable key: {}, value: {}", entry.getKey(), entry.getValue());
-//        }
-//        
-//        for (Map.Entry<String, String> entry : envVarsAM
-//                .entrySet()) {
-//            log.info("Another Vars =>Env variable key: {}, value: {}", entry.getKey(), entry.getValue());
-//        }
-        
-        return externalJob;
-    }
-    
-    public ExternalJob asociateToElasTestTJob(Run<?, ?> build, ExternalJob externalJob)
+    public ExternalJob asociateToElasTestTJob(Run<?, ?> build)
             throws Exception {
+        log.info("Associate a Job to a TJob {}", build.getParent().getDisplayName());
+        ExternalJob externalJob = new ExternalJob(
+                build.getParent().getDisplayName());
+        externalJob = asociateToElasTestTJob(build, externalJob);
+        return externalJob;
+    }
+
+    public ExternalJob asociateToElasTestTJob(Run<?, ?> build,
+            ElasTestStep elasTestStep) throws Exception {
+        ExternalJob externalJob = new ExternalJob(
+                build.getParent().getDisplayName());
+        externalJob.setTSServices(prepareTSSToSendET(elasTestStep.getTss()));
+        externalJob = asociateToElasTestTJob(build, externalJob);
+        // elasTestStep.envVars.putAll(externalJob.gettSSEnvVars());
+        // for (Map.Entry<String, String> entry : elasTestStep.envVars
+        // .entrySet()) {
+        // log.info("Env variable key: {}, value: {}", entry.getKey(),
+        // entry.getValue());
+        // }
+        //
+        // for (Map.Entry<String, String> entry : envVarsAM
+        // .entrySet()) {
+        // log.info("Another Vars =>Env variable key: {}, value: {}",
+        // entry.getKey(), entry.getValue());
+        // }
+
+        return externalJob;
+    }
+
+    public ExternalJob asociateToElasTestTJob(Run<?, ?> build,
+            ExternalJob externalJob) throws Exception {
         externalJob.settJobExecId(0L);
         externalJob = createTJobOnElasTest(externalJob);
         externalJob.setExecutionUrl(externalJob.getExecutionUrl());
         externalJob.setLogAnalyzerUrl(externalJob.getLogAnalyzerUrl());
         externalJobs.put(build.getId(), externalJob);
-        
+
         return externalJob;
     }
 
@@ -150,14 +155,16 @@ public class ElasTestService implements Serializable {
 
         return instance;
     }
-    
-    private List<TestSupportServices> prepareTSSToSendET(List<String> tSServices){
+
+    private List<TestSupportServices> prepareTSSToSendET(
+            List<String> tSServices) {
         List<TestSupportServices> eTTSServices = new ArrayList<>();
-        for (String tSSName: tSServices){
+        for (String tSSName : tSServices) {
             if (tSServicesCatalog.containsKey(tSSName)) {
-              TestSupportServices newTSService = new TestSupportServices(tSServicesCatalog.get(tSSName), tSSName, true);
-              eTTSServices.add(newTSService);
-          }
+                TestSupportServices newTSService = new TestSupportServices(
+                        tSServicesCatalog.get(tSSName), tSSName, true);
+                eTTSServices.add(newTSService);
+            }
         }
         return eTTSServices;
     }

@@ -349,6 +349,6 @@ public class BuildData {
   }
 
   public void setTestResults(TestData testResults) {
-    this.testResults = testResults;
-  }
+        this.testResults = testResults;
+    }
 }

@@ -39,55 +39,57 @@ import net.sf.json.JSONObject;
  * @since 1.0.0
  */
 abstract class AbstractElasTestIndexerDao implements ElasTestIndexerDao {
-  protected final String host;
-  protected final int port;
-  protected final String key;
-  protected final String username;
-  protected final String password;
+    protected final String host;
+    protected final int port;
+    protected final String key;
+    protected final String username;
+    protected final String password;
 
-  AbstractElasTestIndexerDao(String host, int port, String key, String username, String password) {
-    this.host = host;
-    this.port = port;
-    this.key = key;
-    this.username = username;
-    this.password = password;
+    AbstractElasTestIndexerDao(String host, int port, String key,
+            String username, String password) {
+        this.host = host;
+        this.port = port;
+        this.key = key;
+        this.username = username;
+        this.password = password;
 
-    if (StringUtils.isBlank(host)) {
-      throw new IllegalArgumentException("host name is required");
+        if (StringUtils.isBlank(host)) {
+            throw new IllegalArgumentException("host name is required");
+        }
     }
-  }
 
-  @Override
-  public JSONObject buildPayload(BuildData buildData, String jenkinsUrl, List<String> logLines, ExternalJob externalJob) {
-    JSONObject payload = new JSONObject();    
-    payload.put("tjobexec", externalJob.gettJobExecId());
-    payload.put("component_type", "test");
-    payload.put("trace_type", "log");
-    payload.put("data", buildData.toJson());
-    payload.put("message", logLines);
-    payload.put("source", "jenkins");
-    payload.put("source_host", jenkinsUrl);
-    payload.put("@buildTimestamp", buildData.getTimestamp());
-    payload.put("@timestamp", BuildData.DATE_FORMATTER.format(Calendar.getInstance().getTime()));
-    payload.put("@version", 1);
+    @Override
+    public JSONObject buildPayload(BuildData buildData, String jenkinsUrl,
+            List<String> logLines, ExternalJob externalJob) {
+        JSONObject payload = new JSONObject();
+        payload.put("tjobexec", externalJob.gettJobExecId());
+        payload.put("component_type", "test");
+        payload.put("trace_type", "log");
+        payload.put("data", buildData.toJson());
+        payload.put("message", logLines);
+        payload.put("source", "jenkins");
+        payload.put("source_host", jenkinsUrl);
+        payload.put("@buildTimestamp", buildData.getTimestamp());
+        payload.put("@timestamp", BuildData.DATE_FORMATTER
+                .format(Calendar.getInstance().getTime()));
+        payload.put("@version", 1);
 
-    return payload;
-  }
-  
-  
-  @Override
-  public String buildPayload(List<String> logLines, ExternalJob externalJob) {
-	String payload = logLines.get(0);
-	payload = "{" + "\"component\":\"test\""
-    + ",\"exec\":\"" + externalJob.gettJobExecId() + "\"" + ",\"stream\":\"default_log\""
-    + ",\"message\":\"" + payload + "\""
-    + "}";
-	
-	return payload;
-}
+        return payload;
+    }
 
-@Override
-  public String getDescription() {
-    return this.host + ":" + this.port;
-  }
+    @Override
+    public String buildPayload(List<String> logLines, ExternalJob externalJob) {
+        String payload = logLines.get(0);
+        payload = "{" + "\"component\":\"test\"" + ",\"exec\":\""
+                + externalJob.gettJobExecId() + "\""
+                + ",\"stream\":\"default_log\"" + ",\"message\":\"" + payload
+                + "\"" + "}";
+
+        return payload;
+    }
+
+    @Override
+    public String getDescription() {
+        return this.host + ":" + this.port;
+    }
 }

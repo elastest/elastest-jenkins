@@ -23,12 +23,13 @@ import jenkins.plugins.elastest.json.ExternalJob;
  * Execution for {@link ElasTestStep}.
  */
 public class ExecutionImpl extends AbstractStepExecutionImpl {
-    
-    private static final Logger logger = LoggerFactory.getLogger(ExecutionImpl.class);
+
+    private static final Logger logger = LoggerFactory
+            .getLogger(ExecutionImpl.class);
     private static final long serialVersionUID = 1L;
-    
+
     private ElasTestService elasTestService;
-    @Inject 
+    @Inject
     transient ElasTestStep elasTestStep;
 
     /**
@@ -41,7 +42,7 @@ public class ExecutionImpl extends AbstractStepExecutionImpl {
         StepContext context = getContext();
         Run<?, ?> build = context.get(Run.class);
         try {
-            
+
             elasTestService.asociateToElasTestTJob(build, elasTestStep);
             addEnvVars(build);
         } catch (Exception e) {
@@ -49,28 +50,37 @@ public class ExecutionImpl extends AbstractStepExecutionImpl {
             e.printStackTrace();
             throw e;
         }
-        
-        context.newBodyInvoker().withContext(createConsoleLogFilter(context, build))
+
+        context.newBodyInvoker()
+                .withContext(createConsoleLogFilter(context, build))
+                .withContext(elasTestStep.envVars)
                 .withCallback(BodyExecutionCallback.wrap(context)).start();
         return false;
     }
 
-    private ConsoleLogFilter createConsoleLogFilter(StepContext context, Run<?, ?> build)
-            throws IOException, InterruptedException {
+    private ConsoleLogFilter createConsoleLogFilter(StepContext context,
+            Run<?, ?> build) throws IOException, InterruptedException {
         logger.info("Creatin console log filter.");
-        ConsoleLogFilterImpl logFilterImpl =  new ConsoleLogFilterImpl(build, elasTestService);
-        ElasTestItemMenuAction action = new ElasTestItemMenuAction(build, elasTestService.getExternalJobByBuildId(build.getId()).getLogAnalyzerUrl(),
-                elasTestService.getExternalJobByBuildId(build.getId()).getExecutionUrl());
+        ConsoleLogFilterImpl logFilterImpl = new ConsoleLogFilterImpl(build,
+                elasTestService);
+        ElasTestItemMenuAction action = new ElasTestItemMenuAction(build,
+                elasTestService.getExternalJobByBuildId(build.getId())
+                        .getLogAnalyzerUrl(),
+                elasTestService.getExternalJobByBuildId(build.getId())
+                        .getExecutionUrl());
         build.addAction(action);
-        
+
         return logFilterImpl;
     }
-    
-    private void addEnvVars(Run<?,?> build) {
-        ExternalJob externalJob = elasTestService.getExternalJobByBuildId(build.getId());
-        elasTestStep.envVars.putAll(externalJob.gettSSEnvVars());
-        for (Map.Entry<String, String> entry : elasTestStep.envVars.entrySet()) {
-            logger.debug("Environment variable => key: {}, value: {}", entry.getKey(), entry.getValue());
+
+    private void addEnvVars(Run<?, ?> build) {
+        ExternalJob externalJob = elasTestService
+                .getExternalJobByBuildId(build.getId());
+        elasTestStep.envVars.putAll(externalJob.getTSSEnvVars());
+        for (Map.Entry<String, String> entry : elasTestStep.envVars
+                .entrySet()) {
+            logger.debug("Environment variable => key: {}, value: {}",
+                    entry.getKey(), entry.getValue());
         }
     }
 

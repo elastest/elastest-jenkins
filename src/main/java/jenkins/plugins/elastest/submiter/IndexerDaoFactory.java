@@ -42,71 +42,82 @@ import jenkins.plugins.elastest.submiter.ElasTestIndexerDao.IndexerType;
  * @since 1.0.0
  */
 public final class IndexerDaoFactory {
-  private static AbstractElasTestIndexerDao instance = null;
+    private static AbstractElasTestIndexerDao instance = null;
 
-  private static final Map<IndexerType, Class<?>> INDEXER_MAP;
-  static {
-    Map<IndexerType, Class<?>> indexerMap = new HashMap<IndexerType, Class<?>>();
-   
-    indexerMap.put(IndexerType.LOGSTASH, LogstashDao.class);
+    private static final Map<IndexerType, Class<?>> INDEXER_MAP;
+    static {
+        Map<IndexerType, Class<?>> indexerMap = new HashMap<IndexerType, Class<?>>();
 
-    INDEXER_MAP = Collections.unmodifiableMap(indexerMap);
-  }
+        indexerMap.put(IndexerType.LOGSTASH, LogstashDao.class);
 
-  /**
-   * Singleton instance accessor.
-   *
-   * @param type
-   *          The type of indexer, not null
-   * @param host
-   *          The host name or IP address of the indexer, not null
-   * @param port
-   *          The port the indexer listens on
-   * @param key
-   *          The subcollection to write to in the indexer, not null
-   * @param username
-   *          The user name to authenticate with the indexer, nullable
-   * @param password
-   *          The password to authenticate with the indexer, nullable
-   * @return The instance of the appropriate indexer DAO, never null
-   * @throws InstantiationException
-   */
-  public static synchronized ElasTestIndexerDao getInstance(IndexerType type, String host, Integer port, String key, String username, String password) throws InstantiationException {
-    if (type == null || !INDEXER_MAP.containsKey(type)) {
-      throw new InstantiationException("[logstash-plugin]: Unknown IndexerType '" + type + "'. Did you forget to configure the plugin?");
+        INDEXER_MAP = Collections.unmodifiableMap(indexerMap);
     }
 
-    // Prevent NPE
-    port = (port == null ? -1 : port.intValue());
+    /**
+     * Singleton instance accessor.
+     *
+     * @param type
+     *            The type of indexer, not null
+     * @param host
+     *            The host name or IP address of the indexer, not null
+     * @param port
+     *            The port the indexer listens on
+     * @param key
+     *            The subcollection to write to in the indexer, not null
+     * @param username
+     *            The user name to authenticate with the indexer, nullable
+     * @param password
+     *            The password to authenticate with the indexer, nullable
+     * @return The instance of the appropriate indexer DAO, never null
+     * @throws InstantiationException
+     */
+    public static synchronized ElasTestIndexerDao getInstance(IndexerType type,
+            String host, Integer port, String key, String username,
+            String password) throws InstantiationException {
+        if (type == null || !INDEXER_MAP.containsKey(type)) {
+            throw new InstantiationException(
+                    "[logstash-plugin]: Unknown IndexerType '" + type
+                            + "'. Did you forget to configure the plugin?");
+        }
 
-    if (shouldRefreshInstance(type, host, port, key, username, password)) {
-      try {
-        Class<?> indexerClass = INDEXER_MAP.get(type);
-        Constructor<?> constructor = indexerClass.getConstructor(String.class, int.class, String.class, String.class, String.class);
-        instance = (AbstractElasTestIndexerDao) constructor.newInstance(host, port, key, username, password);
-      } catch (NoSuchMethodException e) {
-        throw new InstantiationException(ExceptionUtils.getRootCauseMessage(e));
-      } catch (InvocationTargetException e) {
-        throw new InstantiationException(ExceptionUtils.getRootCauseMessage(e));
-      } catch (IllegalAccessException e) {
-        throw new InstantiationException(ExceptionUtils.getRootCauseMessage(e));
-      }
+        // Prevent NPE
+        port = (port == null ? -1 : port.intValue());
+
+        if (shouldRefreshInstance(type, host, port, key, username, password)) {
+            try {
+                Class<?> indexerClass = INDEXER_MAP.get(type);
+                Constructor<?> constructor = indexerClass.getConstructor(
+                        String.class, int.class, String.class, String.class,
+                        String.class);
+                instance = (AbstractElasTestIndexerDao) constructor
+                        .newInstance(host, port, key, username, password);
+            } catch (NoSuchMethodException e) {
+                throw new InstantiationException(
+                        ExceptionUtils.getRootCauseMessage(e));
+            } catch (InvocationTargetException e) {
+                throw new InstantiationException(
+                        ExceptionUtils.getRootCauseMessage(e));
+            } catch (IllegalAccessException e) {
+                throw new InstantiationException(
+                        ExceptionUtils.getRootCauseMessage(e));
+            }
+        }
+
+        return instance;
     }
 
-    return instance;
-  }
+    private static boolean shouldRefreshInstance(IndexerType type, String host,
+            int port, String key, String username, String password) {
+        if (instance == null) {
+            return true;
+        }
 
-  private static boolean shouldRefreshInstance(IndexerType type, String host, int port, String key, String username, String password) {
-    if (instance == null) {
-      return true;
+        boolean matches = (instance.getIndexerType() == type)
+                && StringUtils.equals(instance.host, host)
+                && (instance.port == port)
+                && StringUtils.equals(instance.key, key)
+                && StringUtils.equals(instance.username, username)
+                && StringUtils.equals(instance.password, password);
+        return !matches;
     }
-
-    boolean matches = (instance.getIndexerType() == type) &&
-      StringUtils.equals(instance.host, host) &&
-      (instance.port == port) &&
-      StringUtils.equals(instance.key, key) &&
-      StringUtils.equals(instance.username, username) &&
-      StringUtils.equals(instance.password, password);
-    return !matches;
-  }
 }

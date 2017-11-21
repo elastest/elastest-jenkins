@@ -1,26 +1,3 @@
-/*
- * The MIT License
- * 
- * Copyright (c) 2017 Steven G. Brown, ElasTest
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
 package jenkins.plugins.elastest.pipeline;
 
 import java.io.IOException;
@@ -47,39 +24,39 @@ import jenkins.plugins.elastest.Messages;
 
 /**
  * Pipeline plug-in step for sending log traces to ElasTest Platform.
- * 
- * @author Steven G. Brown
+ *  
  * @author Francisco R. Díaz
  */
 public class ElasTestStep extends AbstractStepImpl {
 
-	private static final Logger logger = LoggerFactory.getLogger(ElasTestStep.class);
-	
-	@StepContextParameter
-	public EnvVars envVars;
-	
-	@Nonnull
-	private String sut = "";
-	
-	@Nonnull
-	private List<String> tss = new ArrayList<String>();
-	
-	private Long tJobId;
-	
-	
-	/**
-	 * Constructor.
-	 */
-	@DataBoundConstructor
-	public ElasTestStep() {		
-	}
-    
-	public List<String> getTss() {
+    private static final Logger logger = LoggerFactory
+            .getLogger(ElasTestStep.class);
+
+    @StepContextParameter
+    public EnvVars envVars;
+
+    @Nonnull
+    private String sut = "";
+
+    @Nonnull
+    private List<String> tss = new ArrayList<String>();
+
+    @Nonnull
+    private Long tJobId = -1L;
+
+    /**
+     * Constructor.
+     */
+    @DataBoundConstructor
+    public ElasTestStep() {
+    }
+
+    public List<String> getTss() {
         return tss;
     }
 
     @DataBoundSetter
-	public void setTss(List<String> tss) {
+    public void setTss(List<String> tss) {
         this.tss = tss;
     }
 
@@ -91,71 +68,73 @@ public class ElasTestStep extends AbstractStepImpl {
         this.sut = sut;
     }
 
-    public Long gettJobId() {
+    public Long getTJobId() {
         return tJobId;
     }
+
     @DataBoundSetter
-    public void settJobId(Long tJobId) {
+    public void setTJobId(Long tJobId) {
         this.tJobId = tJobId;
     }
 
     /**
-	 * Descriptor for {@link ElasTestStep}.
-	 */
-	@Extension(dynamicLoadable = YesNoMaybe.YES, optional = true)
-	public static class DescriptorImpl extends AbstractStepDescriptorImpl {
+     * Descriptor for {@link ElasTestStep}.
+     */
+    @Extension(dynamicLoadable = YesNoMaybe.YES, optional = true)
+    public static class DescriptorImpl extends AbstractStepDescriptorImpl {
 
-		/**
-		 * Constructor.
-		 */
-		public DescriptorImpl() {
-			super(ExecutionImpl.class);
-		}
+        /**
+         * Constructor.
+         */
+        public DescriptorImpl() {
+            super(ExecutionImpl.class);
+        }
 
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
-		public String getDisplayName() {
-			return Messages.DisplayName();
-		}
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String getDisplayName() {
+            return Messages.DisplayName();
+        }
 
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
-		public String getFunctionName() {
-			return Messages.ElasTestPipelineStep();
-		}
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String getFunctionName() {
+            return Messages.ElasTestPipelineStep();
+        }
 
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
-		public boolean takesImplicitBlockArgument() {
-			return true;
-		}
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean takesImplicitBlockArgument() {
+            return true;
+        }
 
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
-		public String getHelpFile() {
-			return getDescriptorFullUrl() + "/help";
-		}
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String getHelpFile() {
+            return getDescriptorFullUrl() + "/help";
+        }
 
-		/**
-		 * Serve the help file.
-		 * 
-		 * @param request
-		 * @param response
-		 * @throws IOException
-		 */
-		public void doHelp(StaplerRequest request, StaplerResponse response) throws IOException {
-			response.setContentType("text/html;charset=UTF-8");
-			PrintWriter writer = response.getWriter();
-			writer.println(Messages.DisplayName());
-			writer.flush();
-		}
-	}
+        /**
+         * Serve the help file.
+         * 
+         * @param request
+         * @param response
+         * @throws IOException
+         */
+        public void doHelp(StaplerRequest request, StaplerResponse response)
+                throws IOException {
+            response.setContentType("text/html;charset=UTF-8");
+            PrintWriter writer = response.getWriter();
+            writer.println(Messages.DisplayName());
+            writer.flush();
+        }
+    }
 }

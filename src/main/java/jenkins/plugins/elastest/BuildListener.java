@@ -15,43 +15,50 @@ import jenkins.plugins.elastest.action.ElasTestItemMenuAction;
 import jenkins.plugins.elastest.json.ExternalJob;
 
 /**
- * Listener 
+ * Listener
+ * 
  * @author frdiaz
  *
  */
 @Extension
 public class BuildListener extends RunListener<Run> {
-	private static final Logger LOG = Logger.getLogger(BuildListener.class.getName());
-	
-	private String elasTestApiURL;
-	//@Inject
-	private ElasTestService elasTestService;
+    private static final Logger LOG = Logger
+            .getLogger(BuildListener.class.getName());
 
-	public BuildListener() {
-		LOG.info("Initializing Listener");
-		elasTestApiURL = ElasTestInstallation.getLogstashDescriptor().elasTestUrl + "/api/external/tjob";
-		elasTestService = ElasTestService.getInstance();
-	}
+    private String elasTestApiURL;
+    // @Inject
+    private ElasTestService elasTestService;
 
-	@Override
-	public Environment setUpEnvironment(AbstractBuild build, Launcher launcher, hudson.model.BuildListener listener)
-			throws IOException, InterruptedException, RunnerAbortedException {
-		LOG.info("Set up environment");		
-		ElasTestItemMenuAction action = new ElasTestItemMenuAction(build, elasTestService.getExternalJobByBuildId(build.getId()).getLogAnalyzerUrl(),
-                elasTestService.getExternalJobByBuildId(build.getId()).getExecutionUrl());
-		build.addAction(action);		
-		//action.setElasTestLogAnalyzerUrl(elasTestService.getExternalJobByBuildId(build.getId()).getLogAnalyzerUrl());
-		return super.setUpEnvironment(build, launcher, listener);
-	}
+    public BuildListener() {
+        LOG.info("Initializing Listener");
+        elasTestApiURL = ElasTestInstallation
+                .getLogstashDescriptor().elasTestUrl + "/api/external/tjob";
+        elasTestService = ElasTestService.getInstance();
+    }
 
-	@Override
-	public void onCompleted(Run run, TaskListener listener) {
-	    LOG.info("Resultado:  " + run.getResult().ordinal);
-	}
+    @Override
+    public Environment setUpEnvironment(AbstractBuild build, Launcher launcher,
+            hudson.model.BuildListener listener)
+            throws IOException, InterruptedException, RunnerAbortedException {
+        LOG.info("Set up environment");
+        ElasTestItemMenuAction action = new ElasTestItemMenuAction(build,
+                /*elasTestService.getExternalJobByBuildId(build.getId())
+                        .getLogAnalyzerUrl()*/ null,
+                /*elasTestService.getExternalJobByBuildId(build.getId())
+                        .getExecutionUrl()*/ null);
+        build.addAction(action);
+        // action.setElasTestLogAnalyzerUrl(elasTestService.getExternalJobByBuildId(build.getId()).getLogAnalyzerUrl());
+        return super.setUpEnvironment(build, launcher, listener);
+    }
 
-	@Override
-	public void onFinalized(Run build) {
-		super.onFinalized(build);				
+    @Override
+    public void onCompleted(Run run, TaskListener listener) {
+        LOG.info("Resultado:  " + run.getResult().ordinal);
+    }
+
+    @Override
+    public void onFinalized(Run build) {
+        super.onFinalized(build);
 
         if (elasTestService.getExternalJobs().size() > 0) {
             ExternalJob externalJob = elasTestService
@@ -60,7 +67,9 @@ public class BuildListener extends RunListener<Run> {
             case 0:
                 externalJob.setResult(0);
                 break;
-            case 1: case 2: case 3:
+            case 1:
+            case 2:
+            case 3:
                 externalJob.setResult(1);
                 break;
             case 4:
@@ -71,12 +80,13 @@ public class BuildListener extends RunListener<Run> {
                 break;
             }
 
-			elasTestService.sendJobInformationToElasTest(elasTestService.getExternalJobByBuildId(build.getId()));
-			elasTestService.removeExternalJobs(build.getId());
-			LOG.info("Resultado:  " + build.getResult().ordinal);
-		}
-		
-		LOG.info("Finalized all");
-	}
-	
+            elasTestService.sendJobInformationToElasTest(
+                    elasTestService.getExternalJobByBuildId(build.getId()));
+            elasTestService.removeExternalJobs(build.getId());
+            LOG.info("Resultado:  " + build.getResult().ordinal);
+        }
+
+        LOG.info("Finalized all");
+    }
+
 }

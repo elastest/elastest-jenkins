@@ -54,7 +54,8 @@ import com.google.common.collect.Range;
  * @since 1.0.4
  */
 public class LogstashDao extends AbstractElasTestIndexerDao {
-    private static final Logger logger = LoggerFactory.getLogger(LogstashDao.class);
+    private static final Logger logger = LoggerFactory
+            .getLogger(LogstashDao.class);
 
     final HttpClientBuilder clientBuilder;
     final URI uri;
@@ -73,7 +74,8 @@ public class LogstashDao extends AbstractElasTestIndexerDao {
         super(host, port, key, username, password);
 
         try {
-            uri = new URIBuilder("http://" + host).setPort(port).setPath("/" + key).build();
+            uri = new URIBuilder("http://" + host).setPort(port)
+                    .setPath("/" + key).build();
             logger.info("Logstash URI: {}", uri);
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("Could not create uri", e);
@@ -83,8 +85,9 @@ public class LogstashDao extends AbstractElasTestIndexerDao {
             throw new IllegalArgumentException(
                     "host field must specify scheme, such as 'http://'");
         }
-        
-        if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(password)) {
+
+        if (StringUtils.isNotBlank(username)
+                && StringUtils.isNotBlank(password)) {
             logger.info("Basic authentication is used");
             auth = Base64.encodeBase64String(
                     (username + ":" + StringUtils.defaultString(password))
@@ -123,10 +126,10 @@ public class LogstashDao extends AbstractElasTestIndexerDao {
                     .contains(response.getStatusLine().getStatusCode())) {
                 throw new IOException(this.getErrorMessage(response));
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.error("Error sendind log trace message {} ", data);
             throw new IOException("Error sendind log trace message " + data);
-         
+
         } finally {
             if (response != null) {
                 response.close();

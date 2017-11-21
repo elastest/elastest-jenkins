@@ -37,42 +37,44 @@ import net.sf.json.JSONObject;
  * @since 1.0.0
  */
 public interface ElasTestIndexerDao {
-  static enum IndexerType {    
-    LOGSTASH
-  }
+    static enum IndexerType {
+        LOGSTASH
+    }
 
-  String getDescription();
+    String getDescription();
 
-  IndexerType getIndexerType();
+    IndexerType getIndexerType();
 
-  /**
-   * Sends the log data to the Logstash indexer.
-   *
-   * @param data
-   *          The serialized data, not null
-   * @throws java.io.IOException
-   *          The data is not written to the server
-   */
-  void push(String data) throws IOException;
+    /**
+     * Sends the log data to the Logstash indexer.
+     *
+     * @param data
+     *            The serialized data, not null
+     * @throws java.io.IOException
+     *             The data is not written to the server
+     */
+    void push(String data) throws IOException;
 
-  /**
-   * Builds a JSON payload compatible with the Logstash schema.
-   *
-   * @param buildData
-   *          Metadata about the current build, not null
-   * @param jenkinsUrl
-   *          The host name of the Jenkins instance, not null
-   * @param logLines
-   *          The log data to transmit, not null
-   * @return The formatted JSON object, never null
-   */
-  JSONObject buildPayload(BuildData buildData, String jenkinsUrl, List<String> logLines, ExternalJob externalJjob);
-  
- /**
-  * Bulds a String playload compatible con the Logstash input.
-  * @param logLines
-  * @param externalJob
-  * @return
-  */
-  String buildPayload(List<String> logLines, ExternalJob externalJob);
+    /**
+     * Builds a JSON payload compatible with the Logstash schema.
+     *
+     * @param buildData
+     *            Metadata about the current build, not null
+     * @param jenkinsUrl
+     *            The host name of the Jenkins instance, not null
+     * @param logLines
+     *            The log data to transmit, not null
+     * @return The formatted JSON object, never null
+     */
+    JSONObject buildPayload(BuildData buildData, String jenkinsUrl,
+            List<String> logLines, ExternalJob externalJjob);
+
+    /**
+     * Bulds a String playload compatible con the Logstash input.
+     * 
+     * @param logLines
+     * @param externalJob
+     * @return
+     */
+    String buildPayload(List<String> logLines, ExternalJob externalJob);
 }

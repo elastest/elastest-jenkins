@@ -43,50 +43,52 @@ import com.michelin.cio.hudson.plugins.maskpasswords.MaskPasswordsOutputStream;
  * @author Rusty Gerard
  */
 public class ElasTestOutputStream extends LineTransformationOutputStream {
-  final OutputStream delegate;
-  final ElasTestWriter logstash;
+    final OutputStream delegate;
+    final ElasTestWriter logstash;
 
-  public ElasTestOutputStream(OutputStream delegate, ElasTestWriter logstash) {
-    super();
-    this.delegate = delegate;
-    this.logstash = logstash;
-  }
-
-  public MaskPasswordsOutputStream maskPasswords(List<VarPasswordPair> passwords) {
-    List<String> passwordStrings = new ArrayList<String>();
-    for (VarPasswordPair password: passwords) {
-      passwordStrings.add(password.getPassword());
+    public ElasTestOutputStream(OutputStream delegate,
+            ElasTestWriter logstash) {
+        super();
+        this.delegate = delegate;
+        this.logstash = logstash;
     }
-    return new MaskPasswordsOutputStream(this, passwordStrings);
-  }
 
-  @Override
-  protected void eol(byte[] b, int len) throws IOException {
-    delegate.write(b, 0, len);
-    this.flush();
-
-    if(!logstash.isConnectionBroken()) {
-      String line = new String(b, 0, len).trim();
-      line = ConsoleNote.removeNotes(line);
-      logstash.write(line);
+    public MaskPasswordsOutputStream maskPasswords(
+            List<VarPasswordPair> passwords) {
+        List<String> passwordStrings = new ArrayList<String>();
+        for (VarPasswordPair password : passwords) {
+            passwordStrings.add(password.getPassword());
+        }
+        return new MaskPasswordsOutputStream(this, passwordStrings);
     }
-  }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void flush() throws IOException {
-    delegate.flush();
-    super.flush();
-  }
+    @Override
+    protected void eol(byte[] b, int len) throws IOException {
+        delegate.write(b, 0, len);
+        this.flush();
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void close() throws IOException {
-    delegate.close();
-    super.close();
-  }
+        if (!logstash.isConnectionBroken()) {
+            String line = new String(b, 0, len).trim();
+            line = ConsoleNote.removeNotes(line);
+            logstash.write(line);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void flush() throws IOException {
+        delegate.flush();
+        super.flush();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void close() throws IOException {
+        delegate.close();
+        super.close();
+    }
 }

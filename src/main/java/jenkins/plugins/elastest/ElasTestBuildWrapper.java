@@ -47,72 +47,74 @@ import jenkins.tasks.SimpleBuildWrapper;
  * @author Francisco R. Díaz
  */
 public class ElasTestBuildWrapper extends SimpleBuildWrapper {
-	private static final Logger LOG = Logger.getLogger(ElasTestBuildWrapper.class.getName());	
-	
-	/**
-	 * Create a new {@link ElasTestBuildWrapper}.
-	 */
-	@DataBoundConstructor
-	public ElasTestBuildWrapper() {
-		super();
-		LOG.info("ElasTestBuildWrapper Constructor");
-	}
+    private static final Logger LOG = Logger
+            .getLogger(ElasTestBuildWrapper.class.getName());
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setUp(Context context, Run<?, ?> build, FilePath workspace, Launcher launcher, TaskListener listener,
-			EnvVars initialEnvironment) throws IOException, InterruptedException {				
-		// nothing to do
-		LOG.info("ElasTestBuildWrapper SetUp");
-	}
+    /**
+     * Create a new {@link ElasTestBuildWrapper}.
+     */
+    @DataBoundConstructor
+    public ElasTestBuildWrapper() {
+        super();
+        LOG.info("ElasTestBuildWrapper Constructor");
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public ConsoleLogFilter createLoggerDecorator(Run<?, ?> build) {
-		LOG.info("ElasTestBuildWrapper CreateLoggerDecorator");
-		ElasTestService elasTestService = ElasTestService.getInstance();
-		try {
-			elasTestService.asociateToElasTestTJob(build);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}		
-		return new ConsoleLogFilterImpl(build, elasTestService);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setUp(Context context, Run<?, ?> build, FilePath workspace,
+            Launcher launcher, TaskListener listener,
+            EnvVars initialEnvironment)
+            throws IOException, InterruptedException {
+        // nothing to do
+        LOG.info("ElasTestBuildWrapper SetUp");
+    }
 
-	public DescriptorImpl getDescriptor() {
-		return (DescriptorImpl) super.getDescriptor();
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ConsoleLogFilter createLoggerDecorator(Run<?, ?> build) {
+        LOG.info("ElasTestBuildWrapper CreateLoggerDecorator");
+        ElasTestService elasTestService = ElasTestService.getInstance();
+        try {
+            elasTestService.asociateToElasTestTJob(build);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ConsoleLogFilterImpl(build, elasTestService);
+    }
 
-	/**
-	 * Registers {@link ElasTestBuildWrapper} as a {@link BuildWrapper}.
-	 */
-	@Extension
-	public static class DescriptorImpl extends BuildWrapperDescriptor {
+    public DescriptorImpl getDescriptor() {
+        return (DescriptorImpl) super.getDescriptor();
+    }
 
-		public DescriptorImpl() {
-			super(ElasTestBuildWrapper.class);
-			load();
-		}
+    /**
+     * Registers {@link ElasTestBuildWrapper} as a {@link BuildWrapper}.
+     */
+    @Extension
+    public static class DescriptorImpl extends BuildWrapperDescriptor {
 
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
-		public String getDisplayName() {
-			return Messages.DisplayName();
-		}
+        public DescriptorImpl() {
+            super(ElasTestBuildWrapper.class);
+            load();
+        }
 
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
-		public boolean isApplicable(AbstractProject<?, ?> item) {
-			return true;
-		}
-	}
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String getDisplayName() {
+            return Messages.DisplayName();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean isApplicable(AbstractProject<?, ?> item) {
+            return true;
+        }
+    }
 }

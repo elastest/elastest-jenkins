@@ -17,55 +17,63 @@ import hudson.model.Run;
 import hudson.tasks.BuildWrapper;
 import jenkins.plugins.elastest.json.ExternalJob;
 
-public class ConsoleLogFilterImpl extends ConsoleLogFilter implements Serializable {
-	private static final long serialVersionUID = 1;
-	private static final Logger LOG = Logger.getLogger(ConsoleLogFilterImpl.class.getName());
-	
-	private final transient Run<?, ?> build;	
-	private ElasTestService elasTestService;
+public class ConsoleLogFilterImpl extends ConsoleLogFilter
+        implements Serializable {
+    private static final long serialVersionUID = 1;
+    private static final Logger LOG = Logger
+            .getLogger(ConsoleLogFilterImpl.class.getName());
 
-	public ConsoleLogFilterImpl(Run<?, ?> build, ElasTestService elasTestService) {		
-		this.build = build;
-		this.elasTestService = elasTestService;	
-	}
+    private final transient Run<?, ?> build;
+    private ElasTestService elasTestService;
 
-	@SuppressWarnings("rawtypes")
-	@Override
-	public OutputStream decorateLogger(Run _ignore, OutputStream logger)
-			throws IOException, InterruptedException {
-						
-		ElasTestWriter logstash = getLogStashWriter(build, logger, elasTestService.getExternalJobByBuildId(build.getId()));
-		ElasTestOutputStream los = new ElasTestOutputStream(logger, logstash);		
+    public ConsoleLogFilterImpl(Run<?, ?> build,
+            ElasTestService elasTestService) {
+        this.build = build;
+        this.elasTestService = elasTestService;
+    }
 
-		if (build.getParent() instanceof BuildableItemWithBuildWrappers) {
-			BuildableItemWithBuildWrappers project = (BuildableItemWithBuildWrappers) build.getParent();
-			for (BuildWrapper wrapper : project.getBuildWrappersList()) {
-				if (wrapper instanceof MaskPasswordsBuildWrapper) {
-					List<VarPasswordPair> allPasswordPairs = new ArrayList<VarPasswordPair>();
+    @SuppressWarnings("rawtypes")
+    @Override
+    public OutputStream decorateLogger(Run _ignore, OutputStream logger)
+            throws IOException, InterruptedException {
 
-					MaskPasswordsBuildWrapper maskPasswordsWrapper = (MaskPasswordsBuildWrapper) wrapper;
-					List<VarPasswordPair> jobPasswordPairs = maskPasswordsWrapper.getVarPasswordPairs();
-					if (jobPasswordPairs != null) {
-						allPasswordPairs.addAll(jobPasswordPairs);
-					}
+        ElasTestWriter logstash = getLogStashWriter(build, logger,
+                elasTestService.getExternalJobByBuildId(build.getId()));
+        ElasTestOutputStream los = new ElasTestOutputStream(logger, logstash);
 
-					MaskPasswordsConfig config = MaskPasswordsConfig.getInstance();
-					List<VarPasswordPair> globalPasswordPairs = config.getGlobalVarPasswordPairs();
-					if (globalPasswordPairs != null) {
-						allPasswordPairs.addAll(globalPasswordPairs);
-					}
+        if (build.getParent() instanceof BuildableItemWithBuildWrappers) {
+            BuildableItemWithBuildWrappers project = (BuildableItemWithBuildWrappers) build
+                    .getParent();
+            for (BuildWrapper wrapper : project.getBuildWrappersList()) {
+                if (wrapper instanceof MaskPasswordsBuildWrapper) {
+                    List<VarPasswordPair> allPasswordPairs = new ArrayList<VarPasswordPair>();
 
-					return los.maskPasswords(allPasswordPairs);
-				}
-			}
-		}
+                    MaskPasswordsBuildWrapper maskPasswordsWrapper = (MaskPasswordsBuildWrapper) wrapper;
+                    List<VarPasswordPair> jobPasswordPairs = maskPasswordsWrapper
+                            .getVarPasswordPairs();
+                    if (jobPasswordPairs != null) {
+                        allPasswordPairs.addAll(jobPasswordPairs);
+                    }
 
-		return los;
-	}
-	
+                    MaskPasswordsConfig config = MaskPasswordsConfig
+                            .getInstance();
+                    List<VarPasswordPair> globalPasswordPairs = config
+                            .getGlobalVarPasswordPairs();
+                    if (globalPasswordPairs != null) {
+                        allPasswordPairs.addAll(globalPasswordPairs);
+                    }
 
-	// Method to encapsulate calls for unit-testing
-	ElasTestWriter getLogStashWriter(Run<?, ?> build, OutputStream errorStream, ExternalJob externalJob) {
-		return new ElasTestWriter(build, errorStream, null, externalJob);
-	}
+                    return los.maskPasswords(allPasswordPairs);
+                }
+            }
+        }
+
+        return los;
+    }
+
+    // Method to encapsulate calls for unit-testing
+    ElasTestWriter getLogStashWriter(Run<?, ?> build, OutputStream errorStream,
+            ExternalJob externalJob) {
+        return new ElasTestWriter(build, errorStream, null, externalJob);
+    }
 }

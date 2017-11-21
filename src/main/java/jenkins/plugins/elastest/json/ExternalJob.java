@@ -37,41 +37,42 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  *
  */
 public class ExternalJob implements Serializable {
-	private static final long serialVersionUID = 1;
-	
-	@JsonProperty("jobName")
-	private String jobName;
+    private static final long serialVersionUID = 1;
 
-	@JsonProperty("executionUrl")
-	private String executionUrl;
-	
-	@JsonProperty("analyzerUrl")
-	private String logAnalyzerUrl;
-	
-	@JsonProperty("tJobExecId")
-	private Long tJobExecId;	
-	
-	@JsonProperty("logstashPort")
-	private String logstashPort;
-	
-	@JsonProperty("servicesIp")	
-	private String servicesIp;
-	
-	@JsonProperty("tSServices")
-	private List<TestSupportServices> tSServices;
-	
-	@JsonProperty("tSSEnvVars")
+    @JsonProperty("jobName")
+    private String jobName;
+
+    @JsonProperty("executionUrl")
+    private String executionUrl;
+
+    @JsonProperty("analyzerUrl")
+    private String logAnalyzerUrl;
+
+    @JsonProperty("tJobExecId")
+    private Long tJobExecId;
+
+    @JsonProperty("logstashPort")
+    private String logstashPort;
+
+    @JsonProperty("servicesIp")
+    private String servicesIp;
+
+    @JsonProperty("tSServices")
+    private List<TestSupportServices> tSServices;
+
+    @JsonProperty("tSSEnvVars")
     private Map<String, String> tSSEnvVars;
-	
-	@JsonProperty("result")
-	private int result;
-		
-	public ExternalJob(){}
-	
-	public ExternalJob(String jobName){
-		this.jobName = jobName;
-	}
-	
+
+    @JsonProperty("result")
+    private int result;
+
+    public ExternalJob() {
+    }
+
+    public ExternalJob(String jobName) {
+        this.jobName = jobName;
+    }
+
     public ExternalJob(String jobName, String executionUrl,
             String logAnalyzerUrl, Long tJobExecId, String logstashPort,
             String servicesIp, List<TestSupportServices> tSServices,
@@ -89,66 +90,66 @@ public class ExternalJob implements Serializable {
     }
 
     public String getJobName() {
-		return jobName;
-	}
-	
-	public void setJobName(String jobName) {
-		this.jobName = jobName;
-	}
-	
-	public String getExecutionUrl() {
-		return executionUrl;
-	}
-	public void setExecutionUrl(String executionUrl) {
-		this.executionUrl = executionUrl;
-	}
-	
-	public String getLogAnalyzerUrl() {
-		return logAnalyzerUrl;
-	}
+        return jobName;
+    }
 
-	public void setLogAnalyzerUrl(String logAnalyzerUrl) {
-		this.logAnalyzerUrl = logAnalyzerUrl;
-	}
+    public void setJobName(String jobName) {
+        this.jobName = jobName;
+    }
 
-	public Long gettJobExecId() {
-		return tJobExecId;
-	}
+    public String getExecutionUrl() {
+        return executionUrl;
+    }
 
-	public void settJobExecId(Long tJobExecId) {
-		this.tJobExecId = tJobExecId;
-	}		
-	
-		
-	public String getLogstashPort() {
-		return logstashPort;
-	}
+    public void setExecutionUrl(String executionUrl) {
+        this.executionUrl = executionUrl;
+    }
 
-	public void setLogstashPort(String logstashPort) {
-		this.logstashPort = logstashPort;
-	}
-	
-	public String getServicesIp() {
-		return servicesIp;
-	}
+    public String getLogAnalyzerUrl() {
+        return logAnalyzerUrl;
+    }
 
-	public void setServicesIp(String servicesIp) {
-		this.servicesIp = servicesIp;
-	}
-	
-	public List<TestSupportServices> gettSServices() {
+    public void setLogAnalyzerUrl(String logAnalyzerUrl) {
+        this.logAnalyzerUrl = logAnalyzerUrl;
+    }
+
+    public Long gettJobExecId() {
+        return tJobExecId;
+    }
+
+    public void settJobExecId(Long tJobExecId) {
+        this.tJobExecId = tJobExecId;
+    }
+
+    public String getLogstashPort() {
+        return logstashPort;
+    }
+
+    public void setLogstashPort(String logstashPort) {
+        this.logstashPort = logstashPort;
+    }
+
+    public String getServicesIp() {
+        return servicesIp;
+    }
+
+    public void setServicesIp(String servicesIp) {
+        this.servicesIp = servicesIp;
+    }
+
+    public List<TestSupportServices> getTSServices() {
         return tSServices;
     }
 
-    public void settSServices(List<TestSupportServices> tSServices) {
+    public void setTSServices(List<TestSupportServices> tSServices) {
         this.tSServices = tSServices;
     }
 
-    public Map<String, String> gettSSEnvVars() {
+    public Map<String, String> getTSSEnvVars() {
         return tSSEnvVars;
     }
 
-    public void settSSEnvVars(Map<String, String> tSSEnvVars) {
+    public void setTSSEnvVars(Map<String, String> tSSEnvVars) {
         this.tSSEnvVars = tSSEnvVars;
     }
 
@@ -161,73 +162,83 @@ public class ExternalJob implements Serializable {
     }
 
     @Override
-	public boolean equals(java.lang.Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
-		ExternalJob externalJob = (ExternalJob) o;
-		return Objects.equals(this.jobName, externalJob.jobName) && Objects.equals(this.executionUrl, externalJob.executionUrl)
-				&& Objects.equals(this.logAnalyzerUrl, externalJob.logAnalyzerUrl)
-				&& Objects.equals(this.tJobExecId, externalJob.tJobExecId) 
-				&& Objects.equals(this.logstashPort, externalJob.logstashPort)
-				&& Objects.equals(this.servicesIp, externalJob.servicesIp)
-				&& Objects.equals(this.tSServices, externalJob.tSServices)
-				&& Objects.equals(this.result, externalJob.result)
+    public boolean equals(java.lang.Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ExternalJob externalJob = (ExternalJob) o;
+        return Objects.equals(this.jobName, externalJob.jobName)
+                && Objects.equals(this.executionUrl, externalJob.executionUrl)
+                && Objects.equals(this.logAnalyzerUrl,
+                        externalJob.logAnalyzerUrl)
+                && Objects.equals(this.tJobExecId, externalJob.tJobExecId)
+                && Objects.equals(this.logstashPort, externalJob.logstashPort)
+                && Objects.equals(this.servicesIp, externalJob.servicesIp)
+                && Objects.equals(this.tSServices, externalJob.tSServices)
+                && Objects.equals(this.result, externalJob.result)
                 && Objects.equals(this.tSSEnvVars, externalJob.tSSEnvVars);
-	}
+    }
 
-	@Override
-	public int hashCode() {
-	    return Objects.hash(jobName, executionUrl, logAnalyzerUrl, tJobExecId, logstashPort, servicesIp, tSServices, tSSEnvVars, result);
-	}
+    @Override
+    public int hashCode() {
+        return Objects.hash(jobName, executionUrl, logAnalyzerUrl, tJobExecId,
+                logstashPort, servicesIp, tSServices, tSSEnvVars, result);
+    }
 
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("class DeployConfig {\n");
-		sb.append("    jobName: ").append(toIndentedString(jobName)).append("\n");
-		sb.append("    executionUrl: ").append(toIndentedString(executionUrl)).append("\n");
-		sb.append("    logAnalyzerUrl: ").append(toIndentedString(logAnalyzerUrl)).append("\n");
-		sb.append("    tJobExecId: ").append(toIndentedString(tJobExecId)).append("\n");
-		sb.append("    logstashPort: ").append(toIndentedString(logstashPort)).append("\n");
-		sb.append("    servicesIp: ").append(toIndentedString(servicesIp)).append("\n");
-		sb.append("    tSServices: ").append(toIndentedString(tSServices)).append("\n");
-        sb.append("    tSSEnvVars: ").append(toIndentedString(tSSEnvVars)).append("\n");
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("class DeployConfig {\n");
+        sb.append("    jobName: ").append(toIndentedString(jobName))
+                .append("\n");
+        sb.append("    executionUrl: ").append(toIndentedString(executionUrl))
+                .append("\n");
+        sb.append("    logAnalyzerUrl: ")
+                .append(toIndentedString(logAnalyzerUrl)).append("\n");
+        sb.append("    tJobExecId: ").append(toIndentedString(tJobExecId))
+                .append("\n");
+        sb.append("    logstashPort: ").append(toIndentedString(logstashPort))
+                .append("\n");
+        sb.append("    servicesIp: ").append(toIndentedString(servicesIp))
+                .append("\n");
+        sb.append("    tSServices: ").append(toIndentedString(tSServices))
+                .append("\n");
+        sb.append("    tSSEnvVars: ").append(toIndentedString(tSSEnvVars))
+                .append("\n");
         sb.append("    result: ").append(toIndentedString(result)).append("\n");
-		sb.append("}");
-		
-		return sb.toString();
-	}
+        sb.append("}");
 
-	/**
-	 * Convert the given object to string with each line indented by 4 spaces
-	 * (except the first line).
-	 */
-	private String toIndentedString(java.lang.Object o) {
-		if (o == null) {
-			return "null";
-		}
-		return o.toString().replace("\n", "\n    ");
-	}
-	
-	public String toJSON(){
-		ObjectMapper mapper = new ObjectMapper();
+        return sb.toString();
+    }
 
-		//Object to JSON in String
-		String jsonInString;
-		try {
-			jsonInString = mapper.writeValueAsString(this);
-			return jsonInString;
+    /**
+     * Convert the given object to string with each line indented by 4 spaces
+     * (except the first line).
+     */
+    private String toIndentedString(java.lang.Object o) {
+        if (o == null) {
+            return "null";
+        }
+        return o.toString().replace("\n", "\n    ");
+    }
 
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return "";
-	}
-	
-	
+    public String toJSON() {
+        ObjectMapper mapper = new ObjectMapper();
+
+        // Object to JSON in String
+        String jsonInString;
+        try {
+            jsonInString = mapper.writeValueAsString(this);
+            return jsonInString;
+
+        } catch (JsonProcessingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return "";
+    }
+
 }

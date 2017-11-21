@@ -28,9 +28,11 @@ import hudson.Plugin;
 import java.util.logging.Logger;
 
 public class PluginImpl extends Plugin {
-  private final static Logger LOG = Logger.getLogger(PluginImpl.class.getName());
+    private final static Logger LOG = Logger
+            .getLogger(PluginImpl.class.getName());
 
-  public void start() throws Exception {
-    LOG.info("ElasTest Plugin: A client to integrate Jenkins with The ElasTest Platform.");
-  }
+    public void start() throws Exception {
+        LOG.info(
+                "ElasTest Plugin: A client to integrate Jenkins with The ElasTest Platform.");
+    }
 }

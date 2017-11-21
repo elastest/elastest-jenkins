@@ -37,48 +37,50 @@ import jenkins.plugins.elastest.Messages;
  *
  */
 public class ElasTestItemMenuAction extends Actionable implements Action {
-	
-	private final static Logger log =LoggerFactory.getLogger(ElasTestItemMenuAction.class);
-	private static final String ICON_IMAGE ="/plugin/elastest/images/icon.png";
-	
-	private String elasTestLogAnalyzerUrl = "http://localhost:4200/#/logmanager";
-	private String elasTestTJobExecutionUrl = "";
-			
-	public ElasTestItemMenuAction(@SuppressWarnings("rawtypes") Run<?,?> build, String elasTestLogAnalyzerUrl, String elasTestTJobExecutionUrl) {
-		super();
-		log.info("ElasTest Log Analayser URL: {}", elasTestLogAnalyzerUrl);
-		log.info("ElasTest TJob execution URL: {}", elasTestTJobExecutionUrl);
-		this.elasTestLogAnalyzerUrl = elasTestLogAnalyzerUrl;
-		this.elasTestTJobExecutionUrl = elasTestTJobExecutionUrl;
-	}
 
-	@Override
-	public String getDisplayName() {		
-		return Messages.MenuItemLabel();
-	}
+    private final static Logger log = LoggerFactory
+            .getLogger(ElasTestItemMenuAction.class);
+    private static final String ICON_IMAGE = "/plugin/elastest/images/icon.png";
 
-	@Override
-	public String getSearchUrl() {		
-		return null;
-	}
+    private String elasTestLogAnalyzerUrl = "http://localhost:4200/#/logmanager";
+    private String elasTestTJobExecutionUrl = "";
 
-	@Override
-	public String getIconFileName() {		
-		return ICON_IMAGE;
-	}
+    public ElasTestItemMenuAction(@SuppressWarnings("rawtypes") Run<?, ?> build,
+            String elasTestLogAnalyzerUrl, String elasTestTJobExecutionUrl) {
+        super();
+        log.info("ElasTest Log Analayser URL: {}", elasTestLogAnalyzerUrl);
+        log.info("ElasTest TJob execution URL: {}", elasTestTJobExecutionUrl);
+        this.elasTestLogAnalyzerUrl = elasTestLogAnalyzerUrl;
+        this.elasTestTJobExecutionUrl = elasTestTJobExecutionUrl;
+    }
 
-	@Override
-	public String getUrlName() {
-		return elasTestTJobExecutionUrl;
-	}
+    @Override
+    public String getDisplayName() {
+        return Messages.MenuItemLabel();
+    }
 
-	public String getElasTestLogAnalyzerUrl() {
-		return elasTestLogAnalyzerUrl;
-	}
+    @Override
+    public String getSearchUrl() {
+        return null;
+    }
 
-	public void setElasTestLogAnalyzerUrl(String elasTestLogAnalyzerUrl) {
-		this.elasTestLogAnalyzerUrl = elasTestLogAnalyzerUrl;
-	}
+    @Override
+    public String getIconFileName() {
+        return ICON_IMAGE;
+    }
+
+    @Override
+    public String getUrlName() {
+        return elasTestTJobExecutionUrl;
+    }
+
+    public String getElasTestLogAnalyzerUrl() {
+        return elasTestLogAnalyzerUrl;
+    }
+
+    public void setElasTestLogAnalyzerUrl(String elasTestLogAnalyzerUrl) {
+        this.elasTestLogAnalyzerUrl = elasTestLogAnalyzerUrl;
+    }
 
     public String getElasTestTJobExecutionUrl() {
         return elasTestTJobExecutionUrl;
