@@ -60,8 +60,7 @@ public class ElasTestInstallation extends ToolInstallation {
     @Extension
     public static final class Descriptor
             extends ToolDescriptor<ElasTestInstallation> {
-        public String elasTestUrl;
-        public String logstashPath;
+        public String elasTestUrl;        
         public String username;
         public String password;
 
