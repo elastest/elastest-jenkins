@@ -75,7 +75,7 @@ public class LogstashDao extends AbstractElasTestIndexerDao {
 
         try {
             uri = new URIBuilder("http://" + host).setPort(port)
-                    .setPath("/" + key).build();
+                    .setPath("/" + key +"/").build();
             logger.info("Logstash URI: {}", uri);
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("Could not create uri", e);

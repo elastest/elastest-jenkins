@@ -1,6 +1,7 @@
 package jenkins.plugins.elastest.pipeline;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
@@ -8,10 +9,12 @@ import javax.inject.Inject;
 
 import org.jenkinsci.plugins.workflow.steps.AbstractStepExecutionImpl;
 import org.jenkinsci.plugins.workflow.steps.BodyExecutionCallback;
+import org.jenkinsci.plugins.workflow.steps.EnvironmentExpander;
 import org.jenkinsci.plugins.workflow.steps.StepContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import hudson.EnvVars;
 import hudson.console.ConsoleLogFilter;
 import hudson.model.Run;
 import jenkins.plugins.elastest.ConsoleLogFilterImpl;
@@ -42,7 +45,6 @@ public class ExecutionImpl extends AbstractStepExecutionImpl {
         StepContext context = getContext();
         Run<?, ?> build = context.get(Run.class);
         try {
-
             elasTestService.asociateToElasTestTJob(build, elasTestStep);
             addEnvVars(build);
         } catch (Exception e) {
@@ -51,11 +53,30 @@ public class ExecutionImpl extends AbstractStepExecutionImpl {
             throw e;
         }
 
+        ExpanderImpl expanderImpl = new ExpanderImpl();
+        expanderImpl.setOverrides(elasTestStep.envVars);
+        expanderImpl.expand(getContext().get(EnvVars.class));
+        
         context.newBodyInvoker()
                 .withContext(createConsoleLogFilter(context, build))
-                .withContext(elasTestStep.envVars)
-                .withCallback(BodyExecutionCallback.wrap(context)).start();
+                .withContext(EnvironmentExpander.merge(getContext().get(EnvironmentExpander.class), expanderImpl))
+                .withCallback(BodyExecutionCallback.wrap(getContext())).start();
         return false;
+    }
+    
+    private static final class ExpanderImpl extends EnvironmentExpander {
+        private static final long serialVersionUID = 1;
+        private Map<String,String> overrides = new HashMap<>();
+        
+        @Override
+        public void expand(EnvVars env)
+                throws IOException, InterruptedException {
+            env.overrideAll(overrides);
+        }
+        
+        public void setOverrides(Map<String, String> overrides){
+            this.overrides = overrides;
+        }
     }
 
     private ConsoleLogFilter createConsoleLogFilter(StepContext context,
@@ -79,7 +100,7 @@ public class ExecutionImpl extends AbstractStepExecutionImpl {
         elasTestStep.envVars.putAll(externalJob.getTSSEnvVars());
         for (Map.Entry<String, String> entry : elasTestStep.envVars
                 .entrySet()) {
-            logger.debug("Environment variable => key: {}, value: {}",
+            logger.info("Environment variable => key: {}, value: {}",
                     entry.getKey(), entry.getValue());
         }
     }

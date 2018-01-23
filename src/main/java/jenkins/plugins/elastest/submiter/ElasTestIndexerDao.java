@@ -38,8 +38,22 @@ import net.sf.json.JSONObject;
  */
 public interface ElasTestIndexerDao {
     static enum IndexerType {
-        LOGSTASH
-    }
+        LOGSTASH ("logstash");
+        
+        private final String name;       
+
+        private IndexerType(String s) {
+            name = s;
+        }
+
+        public boolean equalsName(String otherName) {             
+            return name.equals(otherName);
+        }
+
+        public String toString() {
+           return this.name;
+        }
+    }    
 
     String getDescription();
 

@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,23 +37,24 @@ public class ElasTestService implements Serializable {
     private Map<String, String> tSServicesCatalog;
     private String elasTestApiUrl;
     private String elasTestUrl;
+    private String credentialsB64;
     private transient Client client;
 
     public ElasTestService() {
         this.externalJobs = new HashMap<>();
         elasTestUrl = ElasTestInstallation.getLogstashDescriptor().elasTestUrl;
-        elasTestApiUrl = elasTestUrl + "/api/external/tjob";
+        elasTestApiUrl = elasTestUrl + "/api/external/tjob";        
         client = Client.create();
-        client.addFilter(new HTTPBasicAuthFilter(
-                ElasTestInstallation.getLogstashDescriptor().username,
-                ElasTestInstallation.getLogstashDescriptor().password));
-
+        String name = ElasTestInstallation.getLogstashDescriptor().username;
+        String password = ElasTestInstallation.getLogstashDescriptor().password;
+        String authString = name + ":" + password;
+        credentialsB64 = new Base64().encodeAsString(authString.getBytes());
+        
         tSServicesCatalog = loadTSSCatalog();
     }
 
     private Map<String, String> loadTSSCatalog() {
         Map<String, String> tSSCatalog = new HashMap<>();
-
         tSSCatalog.put("EUS", "29216b91-497c-43b7-a5c4-6613f13fa0e9");
         tSSCatalog.put("EBS", "a1920b13-7d11-4ebc-a732-f86a108ea49c");
         tSSCatalog.put("EMS", "bab3ae67-8c1d-46ec-a940-94183a443825");
@@ -77,19 +79,7 @@ public class ElasTestService implements Serializable {
                 build.getParent().getDisplayName());
         externalJob.setTSServices(prepareTSSToSendET(elasTestStep.getTss()));
         externalJob = asociateToElasTestTJob(build, externalJob);
-        // elasTestStep.envVars.putAll(externalJob.gettSSEnvVars());
-        // for (Map.Entry<String, String> entry : elasTestStep.envVars
-        // .entrySet()) {
-        // log.info("Env variable key: {}, value: {}", entry.getKey(),
-        // entry.getValue());
-        // }
-        //
-        // for (Map.Entry<String, String> entry : envVarsAM
-        // .entrySet()) {
-        // log.info("Another Vars =>Env variable key: {}, value: {}",
-        // entry.getKey(), entry.getValue());
-        // }
-
+        
         return externalJob;
     }
 
@@ -111,6 +101,7 @@ public class ElasTestService implements Serializable {
 
         try {
             ClientResponse response = webResource.type("application/json")
+                    .header("Authorization", "Basic " + credentialsB64)
                     .post(ClientResponse.class, externalJob.toJSON());
             externalJob = objetMapper.readValue(
                     response.getEntity(String.class), ExternalJob.class);
@@ -129,7 +120,8 @@ public class ElasTestService implements Serializable {
         WebResource webResource = client.resource(elasTestApiUrl);
         try {
             ClientResponse response = webResource.type("application/json")
-                    .put(ClientResponse.class, externalJob.toJSON());
+                    .header("Authorization", "Basic " + credentialsB64)
+                    .post(ClientResponse.class, externalJob.toJSON());
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
