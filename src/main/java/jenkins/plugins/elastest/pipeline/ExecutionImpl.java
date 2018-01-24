@@ -40,13 +40,13 @@ public class ExecutionImpl extends AbstractStepExecutionImpl {
      */
     @Override
     public boolean start() throws Exception {
-
         elasTestService = ElasTestService.getInstance();
         StepContext context = getContext();
         Run<?, ?> build = context.get(Run.class);
         try {
             elasTestService.asociateToElasTestTJob(build, elasTestStep);
             addEnvVars(build);
+            addActionToMenu(build);
         } catch (Exception e) {
             logger.error("Error trying to bind the build with a TJob.");
             e.printStackTrace();
@@ -56,10 +56,12 @@ public class ExecutionImpl extends AbstractStepExecutionImpl {
         ExpanderImpl expanderImpl = new ExpanderImpl();
         expanderImpl.setOverrides(elasTestStep.envVars);
         expanderImpl.expand(getContext().get(EnvVars.class));
-        
+
         context.newBodyInvoker()
                 .withContext(createConsoleLogFilter(context, build))
-                .withContext(EnvironmentExpander.merge(getContext().get(EnvironmentExpander.class), expanderImpl))
+                .withContext(EnvironmentExpander.merge(
+                        getContext().get(EnvironmentExpander.class),
+                        expanderImpl))
                 .withCallback(BodyExecutionCallback.wrap(getContext())).start();
         return false;
     }
@@ -78,19 +80,22 @@ public class ExecutionImpl extends AbstractStepExecutionImpl {
             this.overrides = overrides;
         }
     }
-
-    private ConsoleLogFilter createConsoleLogFilter(StepContext context,
-            Run<?, ?> build) throws IOException, InterruptedException {
-        logger.info("Creatin console log filter.");
-        ConsoleLogFilterImpl logFilterImpl = new ConsoleLogFilterImpl(build,
-                elasTestService);
+    
+    private void addActionToMenu(Run<?, ?> build) {
         ElasTestItemMenuAction action = new ElasTestItemMenuAction(build,
                 elasTestService.getExternalJobByBuildId(build.getId())
                         .getLogAnalyzerUrl(),
                 elasTestService.getExternalJobByBuildId(build.getId())
                         .getExecutionUrl());
         build.addAction(action);
+        
+    }
 
+    private ConsoleLogFilter createConsoleLogFilter(StepContext context,
+            Run<?, ?> build) throws IOException, InterruptedException {
+        logger.info("Creatin console log filter.");
+        ConsoleLogFilterImpl logFilterImpl = new ConsoleLogFilterImpl(build,
+                elasTestService);
         return logFilterImpl;
     }
 
@@ -98,11 +103,6 @@ public class ExecutionImpl extends AbstractStepExecutionImpl {
         ExternalJob externalJob = elasTestService
                 .getExternalJobByBuildId(build.getId());
         elasTestStep.envVars.putAll(externalJob.getTSSEnvVars());
-        for (Map.Entry<String, String> entry : elasTestStep.envVars
-                .entrySet()) {
-            logger.info("Environment variable => key: {}, value: {}",
-                    entry.getKey(), entry.getValue());
-        }
     }
 
     /**
