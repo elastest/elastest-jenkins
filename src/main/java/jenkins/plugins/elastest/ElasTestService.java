@@ -14,9 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 
-import hudson.EnvVars;
 import hudson.model.Run;
 import jenkins.plugins.elastest.json.ExternalJob;
 import jenkins.plugins.elastest.json.TestSupportServices;
@@ -47,8 +45,11 @@ public class ElasTestService implements Serializable {
         client = Client.create();
         String name = ElasTestInstallation.getLogstashDescriptor().username;
         String password = ElasTestInstallation.getLogstashDescriptor().password;
-        String authString = name + ":" + password;
-        credentialsB64 = new Base64().encodeAsString(authString.getBytes());
+        if ((name != null && !name.equals("")) &&
+                (password != null && !password.equals(""))) {
+            String authString = name + ":" + password;
+            credentialsB64 = new Base64().encodeAsString(authString.getBytes());            
+        }        
         
         tSServicesCatalog = loadTSSCatalog();
     }
@@ -100,9 +101,12 @@ public class ElasTestService implements Serializable {
         WebResource webResource = client.resource(elasTestApiUrl);
 
         try {
-            ClientResponse response = webResource.type("application/json")
-                    .header("Authorization", "Basic " + credentialsB64)
-                    .post(ClientResponse.class, externalJob.toJSON());
+            ClientResponse response = credentialsB64 != null
+                    ? webResource.type("application/json")
+                            .header("Authorization", "Basic " + credentialsB64)
+                            .post(ClientResponse.class, externalJob.toJSON())
+                    : webResource.type("application/json")
+                            .post(ClientResponse.class, externalJob.toJSON());
             externalJob = objetMapper.readValue(
                     response.getEntity(String.class), ExternalJob.class);
         } catch (Exception e) {
@@ -119,9 +123,12 @@ public class ElasTestService implements Serializable {
         ObjectMapper objetMapper = new ObjectMapper();
         WebResource webResource = client.resource(elasTestApiUrl);
         try {
-            ClientResponse response = webResource.type("application/json")
-                    .header("Authorization", "Basic " + credentialsB64)
-                    .post(ClientResponse.class, externalJob.toJSON());
+            ClientResponse response = credentialsB64 != null
+                    ? webResource.type("application/json")
+                            .header("Authorization", "Basic " + credentialsB64)
+                            .put(ClientResponse.class, externalJob.toJSON())
+                    : webResource.type("application/json")
+                            .put(ClientResponse.class, externalJob.toJSON());
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
@@ -143,7 +150,9 @@ public class ElasTestService implements Serializable {
     public static synchronized ElasTestService getInstance() {
         if (instance == null) {
             instance = new ElasTestService();
-        }
+        } else {
+            instance.updateInstance();
+        }        
 
         return instance;
     }
@@ -159,5 +168,25 @@ public class ElasTestService implements Serializable {
             }
         }
         return eTTSServices;
+    }
+    
+    private void updateInstance() {
+        log.info("Updating ElasTest service instance");
+        instance.elasTestUrl = ElasTestInstallation.getLogstashDescriptor().elasTestUrl;
+        instance.elasTestApiUrl = elasTestUrl + "/api/external/tjob";
+        instance.client = Client.create();
+        String name = ElasTestInstallation.getLogstashDescriptor().username;
+        String password = ElasTestInstallation.getLogstashDescriptor().password;
+        if ((name != null && !name.equals("")) &&
+                (password != null && !password.equals(""))) {
+            String authString = name + ":" + password;
+            instance.credentialsB64 = new Base64().encodeAsString(authString.getBytes());
+            log.info("Now access to ElasTest is with username and password.");
+        } else {
+            instance.credentialsB64 = null;
+            log.info("Now access to ElasTest is without username and password.");
+        }
+                
+        instance.tSServicesCatalog = loadTSSCatalog();
     }
 }
