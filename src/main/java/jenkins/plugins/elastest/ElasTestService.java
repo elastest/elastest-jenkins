@@ -48,8 +48,8 @@ public class ElasTestService implements Serializable {
         if ((name != null && !name.equals("")) &&
                 (password != null && !password.equals(""))) {
             String authString = name + ":" + password;
-            credentialsB64 = new Base64().encodeAsString(authString.getBytes());            
-        }        
+            credentialsB64 = new Base64().encodeAsString(authString.getBytes());
+        }
         
         tSServicesCatalog = loadTSSCatalog();
     }
@@ -107,6 +107,30 @@ public class ElasTestService implements Serializable {
                             .post(ClientResponse.class, externalJob.toJSON())
                     : webResource.type("application/json")
                             .post(ClientResponse.class, externalJob.toJSON());
+            externalJob = objetMapper.readValue(
+                    response.getEntity(String.class), ExternalJob.class);
+        } catch (Exception e) {
+            log.error("Error in the creation of a TJob in ElasTest: {}",
+                    e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
+        return externalJob;
+    }
+    
+    public ExternalJob isReadyTJobForExternalExecution(ExternalJob externalJob)
+            throws Exception {
+        ObjectMapper objetMapper = new ObjectMapper();
+        WebResource webResource = client.resource(elasTestApiUrl)
+                .path(externalJob.gettJobExecId().toString());
+
+        try {
+            ClientResponse response = credentialsB64 != null
+                    ? webResource.type("application/json")
+                            .header("Authorization", "Basic " + credentialsB64)
+                            .get(ClientResponse.class)
+                    : webResource.type("application/json")
+                            .get(ClientResponse.class);
             externalJob = objetMapper.readValue(
                     response.getEntity(String.class), ExternalJob.class);
         } catch (Exception e) {

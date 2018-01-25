@@ -27,6 +27,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -65,6 +66,9 @@ public class ExternalJob implements Serializable {
 
     @JsonProperty("result")
     private int result;
+    
+    @JsonProperty("isReady")
+    private boolean isReady;
 
     public ExternalJob() {
     }
@@ -76,7 +80,7 @@ public class ExternalJob implements Serializable {
     public ExternalJob(String jobName, String executionUrl,
             String logAnalyzerUrl, Long tJobExecId, String logstashPort,
             String servicesIp, List<TestSupportServices> tSServices,
-            Map<String, String> tSSEnvVars, int result) {
+            Map<String, String> tSSEnvVars, int result, boolean isReady) {
         super();
         this.jobName = jobName;
         this.executionUrl = executionUrl;
@@ -87,6 +91,7 @@ public class ExternalJob implements Serializable {
         this.tSServices = tSServices;
         this.tSSEnvVars = tSSEnvVars;
         this.result = result;
+        this.isReady = isReady;
     }
 
     public String getJobName() {
@@ -161,6 +166,14 @@ public class ExternalJob implements Serializable {
         this.result = result;
     }
 
+    public boolean isReady() {
+        return isReady;
+    }
+
+    public void setReady(boolean isReady) {
+        this.isReady = isReady;
+    }
+
     @Override
     public boolean equals(java.lang.Object o) {
         if (this == o) {
@@ -178,14 +191,15 @@ public class ExternalJob implements Serializable {
                 && Objects.equals(this.logstashPort, externalJob.logstashPort)
                 && Objects.equals(this.servicesIp, externalJob.servicesIp)
                 && Objects.equals(this.tSServices, externalJob.tSServices)
-                && Objects.equals(this.result, externalJob.result)
-                && Objects.equals(this.tSSEnvVars, externalJob.tSSEnvVars);
+                && this.result == externalJob.result
+                && Objects.equals(this.tSSEnvVars, externalJob.tSSEnvVars)
+                && this.isReady == externalJob.isReady;
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(jobName, executionUrl, logAnalyzerUrl, tJobExecId,
-                logstashPort, servicesIp, tSServices, tSSEnvVars, result);
+                logstashPort, servicesIp, tSServices, tSSEnvVars, result, isReady);
     }
 
     @Override
@@ -209,6 +223,8 @@ public class ExternalJob implements Serializable {
         sb.append("    tSSEnvVars: ").append(toIndentedString(tSSEnvVars))
                 .append("\n");
         sb.append("    result: ").append(toIndentedString(result)).append("\n");
+        sb.append("    isReady: ").append(toIndentedString(isReady))
+                .append("\n");
         sb.append("}");
 
         return sb.toString();

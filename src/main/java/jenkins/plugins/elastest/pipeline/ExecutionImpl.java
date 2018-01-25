@@ -44,7 +44,11 @@ public class ExecutionImpl extends AbstractStepExecutionImpl {
         StepContext context = getContext();
         Run<?, ?> build = context.get(Run.class);
         try {
-            elasTestService.asociateToElasTestTJob(build, elasTestStep);
+            ExternalJob externalJob = elasTestService.asociateToElasTestTJob(build, elasTestStep);
+            while(!externalJob.isReady()){
+                externalJob = elasTestService.isReadyTJobForExternalExecution(externalJob);
+                elasTestService.getExternalJobs().put(build.getId(), externalJob);
+            }
             addEnvVars(build);
             addActionToMenu(build);
         } catch (Exception e) {
