@@ -25,6 +25,7 @@
 package jenkins.plugins.elastest;
 
 import java.io.IOException;
+import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -39,6 +40,8 @@ import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.tasks.BuildWrapper;
 import hudson.tasks.BuildWrapperDescriptor;
+import jenkins.plugins.elastest.action.ElasTestItemMenuAction;
+import jenkins.plugins.elastest.json.ExternalJob;
 import jenkins.tasks.SimpleBuildWrapper;
 
 /**
@@ -49,6 +52,8 @@ import jenkins.tasks.SimpleBuildWrapper;
 public class ElasTestBuildWrapper extends SimpleBuildWrapper {
     private static final Logger LOG = Logger
             .getLogger(ElasTestBuildWrapper.class.getName());
+
+    private ElasTestService elasTestService;
 
     /**
      * Create a new {@link ElasTestBuildWrapper}.
@@ -67,8 +72,31 @@ public class ElasTestBuildWrapper extends SimpleBuildWrapper {
             Launcher launcher, TaskListener listener,
             EnvVars initialEnvironment)
             throws IOException, InterruptedException {
-        // nothing to do
         LOG.info("ElasTestBuildWrapper SetUp");
+        ElasTestItemMenuAction.addActionToMenu(build);
+        ExternalJob externalJob = elasTestService
+                .getExternalJobByBuildId(build.getId());
+        while (!externalJob.isReady()) {
+            try {
+                externalJob = elasTestService
+                        .isReadyTJobForExternalExecution(externalJob);
+                elasTestService.getExternalJobs().put(build.getId(),
+                        externalJob);
+            } catch (Exception e) {
+                LOG.info("Error checking the status of the TJob.");
+                e.printStackTrace();
+                throw new InterruptedException();
+            }
+        }
+
+        if (elasTestService.getExternalJobByBuildId(build.getId())
+                .getTSSEnvVars() != null) {
+            for (Entry<String, String> entry : elasTestService
+                    .getExternalJobByBuildId(build.getId()).getTSSEnvVars()
+                    .entrySet()) {
+                context.env(entry.getKey(), entry.getValue());
+            }
+        }
     }
 
     /**
@@ -77,7 +105,7 @@ public class ElasTestBuildWrapper extends SimpleBuildWrapper {
     @Override
     public ConsoleLogFilter createLoggerDecorator(Run<?, ?> build) {
         LOG.info("ElasTestBuildWrapper CreateLoggerDecorator");
-        ElasTestService elasTestService = ElasTestService.getInstance();
+        elasTestService = ElasTestService.getInstance();
         try {
             elasTestService.asociateToElasTestTJob(build);
         } catch (Exception e) {
