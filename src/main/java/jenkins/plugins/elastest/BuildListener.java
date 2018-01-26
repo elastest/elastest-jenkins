@@ -37,6 +37,12 @@ public class BuildListener extends RunListener<Run> {
     }
 
     @Override
+    public void onStarted(Run r, TaskListener listener) {
+        LOG.info("Listener on started");
+        super.onStarted(r, listener);
+    }
+
+    @Override
     public Environment setUpEnvironment(AbstractBuild build, Launcher launcher,
             hudson.model.BuildListener listener)
             throws IOException, InterruptedException, RunnerAbortedException {
