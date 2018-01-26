@@ -1,7 +1,9 @@
 package jenkins.plugins.elastest;
 
 import java.io.IOException;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import hudson.Extension;
 import hudson.Launcher;
@@ -11,7 +13,6 @@ import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.model.Run.RunnerAbortedException;
 import hudson.model.listeners.RunListener;
-import jenkins.plugins.elastest.action.ElasTestItemMenuAction;
 import jenkins.plugins.elastest.json.ExternalJob;
 
 /**
@@ -22,8 +23,8 @@ import jenkins.plugins.elastest.json.ExternalJob;
  */
 @Extension
 public class BuildListener extends RunListener<Run> {
-    private static final Logger LOG = Logger
-            .getLogger(BuildListener.class.getName());
+    private static final Logger LOG = LoggerFactory
+            .getLogger(BuildListener.class);
 
     private String elasTestApiURL;
     // @Inject
@@ -47,13 +48,7 @@ public class BuildListener extends RunListener<Run> {
             hudson.model.BuildListener listener)
             throws IOException, InterruptedException, RunnerAbortedException {
         LOG.info("Set up environment");
-        ElasTestItemMenuAction action = new ElasTestItemMenuAction(build,
-                /*elasTestService.getExternalJobByBuildId(build.getId())
-                        .getLogAnalyzerUrl()*/ null,
-                /*elasTestService.getExternalJobByBuildId(build.getId())
-                        .getExecutionUrl()*/ null);
-        build.addAction(action);
-        // action.setElasTestLogAnalyzerUrl(elasTestService.getExternalJobByBuildId(build.getId()).getLogAnalyzerUrl());
+        
         return super.setUpEnvironment(build, launcher, listener);
     }
 
@@ -94,5 +89,4 @@ public class BuildListener extends RunListener<Run> {
 
         LOG.info("Finalized all");
     }
-
 }
