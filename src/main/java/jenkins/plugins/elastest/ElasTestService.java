@@ -65,11 +65,16 @@ public class ElasTestService implements Serializable {
         return tSSCatalog;
     }
 
-    public ExternalJob asociateToElasTestTJob(Run<?, ?> build)
+    public ExternalJob asociateToElasTestTJob(Run<?, ?> build, ElasTestBuildWrapper elasTestBuilder)
             throws Exception {
         log.info("Associate a Job to a TJob {}", build.getParent().getDisplayName());
         ExternalJob externalJob = new ExternalJob(
                 build.getParent().getDisplayName());
+        if (elasTestBuilder.isEus()) {
+            List<String> tss = new ArrayList<>();
+            tss.add("EUS");
+            externalJob.setTSServices(prepareTSSToSendET(tss));
+        }
         externalJob = asociateToElasTestTJob(build, externalJob);
         return externalJob;
     }

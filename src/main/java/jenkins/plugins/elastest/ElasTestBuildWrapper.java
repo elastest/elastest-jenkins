@@ -29,6 +29,7 @@ import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 
 import hudson.EnvVars;
 import hudson.Extension;
@@ -54,6 +55,8 @@ public class ElasTestBuildWrapper extends SimpleBuildWrapper {
             .getLogger(ElasTestBuildWrapper.class.getName());
 
     private ElasTestService elasTestService;
+    
+    private boolean eus;
 
     /**
      * Create a new {@link ElasTestBuildWrapper}.
@@ -62,6 +65,15 @@ public class ElasTestBuildWrapper extends SimpleBuildWrapper {
     public ElasTestBuildWrapper() {
         super();
         LOG.info("ElasTestBuildWrapper Constructor");
+    }
+    
+    public boolean isEus() {
+        return eus;
+    }
+
+    @DataBoundSetter
+    public void setEus(boolean eus) {
+        this.eus = eus;
     }
 
     /**
@@ -107,7 +119,7 @@ public class ElasTestBuildWrapper extends SimpleBuildWrapper {
         LOG.info("ElasTestBuildWrapper CreateLoggerDecorator");
         elasTestService = ElasTestService.getInstance();
         try {
-            elasTestService.asociateToElasTestTJob(build);
+            elasTestService.asociateToElasTestTJob(build, this);
         } catch (Exception e) {
             e.printStackTrace();
         }
