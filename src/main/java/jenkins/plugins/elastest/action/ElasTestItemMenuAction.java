@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import hudson.model.Action;
 import hudson.model.Actionable;
 import hudson.model.Run;
+import jenkins.plugins.elastest.ElasTestService;
 import jenkins.plugins.elastest.Messages;
 
 /**
@@ -52,6 +53,16 @@ public class ElasTestItemMenuAction extends Actionable implements Action {
         log.info("ElasTest TJob execution URL: {}", elasTestTJobExecutionUrl);
         this.elasTestLogAnalyzerUrl = elasTestLogAnalyzerUrl;
         this.elasTestTJobExecutionUrl = elasTestTJobExecutionUrl;
+    }
+    
+    public static void addActionToMenu(Run<?, ?> build) {
+        ElasTestService elasTestService = ElasTestService.getInstance();
+        ElasTestItemMenuAction action = new ElasTestItemMenuAction(build,
+                elasTestService.getExternalJobByBuildId(build.getId())
+                        .getLogAnalyzerUrl(),
+                elasTestService.getExternalJobByBuildId(build.getId())
+                        .getExecutionUrl());
+        build.addAction(action);
     }
 
     @Override
