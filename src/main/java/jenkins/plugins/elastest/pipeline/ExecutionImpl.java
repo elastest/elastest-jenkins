@@ -44,13 +44,16 @@ public class ExecutionImpl extends AbstractStepExecutionImpl {
         StepContext context = getContext();
         Run<?, ?> build = context.get(Run.class);
         try {
-            ExternalJob externalJob = elasTestService.asociateToElasTestTJob(build, elasTestStep);
-            while(!externalJob.isReady()){
-                externalJob = elasTestService.isReadyTJobForExternalExecution(externalJob);
-                elasTestService.getExternalJobs().put(build.getId(), externalJob);
+            ExternalJob externalJob = elasTestService
+                    .asociateToElasTestTJob(build, elasTestStep);
+            ElasTestItemMenuAction.addActionToMenu(build);
+            while (!externalJob.isReady()) {
+                externalJob = elasTestService
+                        .isReadyTJobForExternalExecution(externalJob);
+                elasTestService.getExternalJobs().put(build.getId(),
+                        externalJob);
             }
             addEnvVars(build);
-            addActionToMenu(build);
         } catch (Exception e) {
             logger.error("Error trying to bind the build with a TJob.");
             e.printStackTrace();
@@ -69,30 +72,20 @@ public class ExecutionImpl extends AbstractStepExecutionImpl {
                 .withCallback(BodyExecutionCallback.wrap(getContext())).start();
         return false;
     }
-    
+
     private static final class ExpanderImpl extends EnvironmentExpander {
         private static final long serialVersionUID = 1;
-        private Map<String,String> overrides = new HashMap<>();
-        
+        private Map<String, String> overrides = new HashMap<>();
+
         @Override
         public void expand(EnvVars env)
                 throws IOException, InterruptedException {
             env.overrideAll(overrides);
         }
-        
-        public void setOverrides(Map<String, String> overrides){
+
+        public void setOverrides(Map<String, String> overrides) {
             this.overrides = overrides;
         }
-    }
-    
-    private void addActionToMenu(Run<?, ?> build) {
-        ElasTestItemMenuAction action = new ElasTestItemMenuAction(build,
-                elasTestService.getExternalJobByBuildId(build.getId())
-                        .getLogAnalyzerUrl(),
-                elasTestService.getExternalJobByBuildId(build.getId())
-                        .getExecutionUrl());
-        build.addAction(action);
-        
     }
 
     private ConsoleLogFilter createConsoleLogFilter(StepContext context,
@@ -106,7 +99,8 @@ public class ExecutionImpl extends AbstractStepExecutionImpl {
     private void addEnvVars(Run<?, ?> build) {
         ExternalJob externalJob = elasTestService
                 .getExternalJobByBuildId(build.getId());
-        elasTestStep.envVars.putAll(externalJob.getTSSEnvVars());
+        elasTestStep.envVars.putAll(externalJob.getTSSEnvVars() != null
+                ? externalJob.getTSSEnvVars() : new HashMap<String, String>());
     }
 
     /**
