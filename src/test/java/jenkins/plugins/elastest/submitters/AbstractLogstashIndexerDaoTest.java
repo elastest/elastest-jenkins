@@ -1,4 +1,4 @@
-package jenkins.plugins.elastest.persistence;
+package jenkins.plugins.elastest.submitters;
 
 import static net.sf.json.test.JSONAssert.assertEquals;
 import static org.mockito.Mockito.when;
@@ -15,8 +15,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import jenkins.plugins.elastest.submiter.AbstractElasTestIndexerDao;
-import jenkins.plugins.elastest.submiter.BuildData;
+import jenkins.plugins.elastest.submitters.AbstractElasTestSubmitter;
+import jenkins.plugins.elastest.submitters.BuildData;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AbstractLogstashIndexerDaoTest {
@@ -34,7 +34,7 @@ public class AbstractLogstashIndexerDaoTest {
 
   @Test
   public void buildPayloadSuccessEmpty() throws Exception {
-    AbstractElasTestIndexerDao dao = getInstance();
+    AbstractElasTestSubmitter dao = getInstance();
 
     // Unit under test
     JSONObject result = dao.buildPayload(mockBuildData, "http://localhost:8080/jenkins", new ArrayList<String>(), null);
@@ -46,7 +46,7 @@ public class AbstractLogstashIndexerDaoTest {
 
   @Test
   public void buildPayloadSuccessOneLine() throws Exception {
-    AbstractElasTestIndexerDao dao = getInstance();
+    AbstractElasTestSubmitter dao = getInstance();
 
     // Unit under test
     JSONObject result = dao.buildPayload(mockBuildData, "http://localhost:8080/jenkins", Arrays.asList("LINE 1"), null);
@@ -58,7 +58,7 @@ public class AbstractLogstashIndexerDaoTest {
 
   @Test
   public void buildPayloadSuccessTwoLines() throws Exception {
-    AbstractElasTestIndexerDao dao = getInstance();
+    AbstractElasTestSubmitter dao = getInstance();
 
     // Unit under test
     JSONObject result = dao.buildPayload(mockBuildData, "http://localhost:8080/jenkins", Arrays.asList("LINE 1", "LINE 2"), null);
@@ -68,11 +68,11 @@ public class AbstractLogstashIndexerDaoTest {
     assertEquals("Results don't match", JSONObject.fromObject(TWO_LINE_STRING), result);
   }
 
-  private AbstractElasTestIndexerDao getInstance() {
-    return new AbstractElasTestIndexerDao("localhost", -1, "", "", "") {
+  private AbstractElasTestSubmitter getInstance() {
+    return new AbstractElasTestSubmitter("localhost", -1, "", "", "") {
 
-      public IndexerType getIndexerType() {
-        return IndexerType.LOGSTASH;
+      public SubmitterType getSubmitterType() {
+        return SubmitterType.LOGSTASH;
       }
 
       public void push(String data) throws IOException {}

@@ -33,13 +33,13 @@ import jenkins.plugins.elastest.ElasTestService;
 import jenkins.plugins.elastest.Messages;
 
 /**
- * 
+ * Through this you can access to the Job execution in ElasTest 
  * @author Francisco R. Díaz
  *
  */
 public class ElasTestItemMenuAction extends Actionable implements Action {
 
-    private final static Logger log = LoggerFactory
+    private final static Logger LOG = LoggerFactory
             .getLogger(ElasTestItemMenuAction.class);
     private static final String ICON_IMAGE = "/plugin/elastest/images/icon.png";
 
@@ -49,8 +49,8 @@ public class ElasTestItemMenuAction extends Actionable implements Action {
     public ElasTestItemMenuAction(@SuppressWarnings("rawtypes") Run<?, ?> build,
             String elasTestLogAnalyzerUrl, String elasTestTJobExecutionUrl) {
         super();
-        log.info("ElasTest Log Analayser URL: {}", elasTestLogAnalyzerUrl);
-        log.info("ElasTest TJob execution URL: {}", elasTestTJobExecutionUrl);
+        LOG.info("ElasTest Log Analayser URL: {}", elasTestLogAnalyzerUrl);
+        LOG.info("ElasTest TJob execution URL: {}", elasTestTJobExecutionUrl);
         this.elasTestLogAnalyzerUrl = elasTestLogAnalyzerUrl;
         this.elasTestTJobExecutionUrl = elasTestTJobExecutionUrl;
     }

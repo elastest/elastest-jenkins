@@ -1,28 +1,47 @@
+/*
+ * The MIT License
+ *
+ * (C) Copyright 2017-2019 ElasTest (http://elastest.io/)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package jenkins.plugins.elastest;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Logger;
-
-import com.michelin.cio.hudson.plugins.maskpasswords.MaskPasswordsBuildWrapper;
-import com.michelin.cio.hudson.plugins.maskpasswords.MaskPasswordsConfig;
-import com.michelin.cio.hudson.plugins.maskpasswords.MaskPasswordsBuildWrapper.VarPasswordPair;
 
 import hudson.console.ConsoleLogFilter;
-import hudson.model.BuildableItemWithBuildWrappers;
 import hudson.model.Run;
-import hudson.tasks.BuildWrapper;
 import jenkins.plugins.elastest.json.ExternalJob;
 
+/**
+ * This allows to set a new decorate logger that sends the logs of a 
+ * build to ElasTest.
+ * 
+ * @author Francisco R. Díaz
+ * @since 0.0.1
+ *
+ */
 public class ConsoleLogFilterImpl extends ConsoleLogFilter
         implements Serializable {
-    private static final long serialVersionUID = 1;
-    private static final Logger LOG = Logger
-            .getLogger(ConsoleLogFilterImpl.class.getName());
-
+    private static final long serialVersionUID = 1L;
     private final transient Run<?, ?> build;
     private ElasTestService elasTestService;
 
@@ -37,42 +56,16 @@ public class ConsoleLogFilterImpl extends ConsoleLogFilter
     public OutputStream decorateLogger(Run _ignore, OutputStream logger)
             throws IOException, InterruptedException {
 
-        ElasTestWriter logstash = getLogStashWriter(build, logger,
+        ElasTestWriter elasTestWriter = getElasTestWriter(build, logger,
                 elasTestService.getExternalJobByBuildId(build.getId()));
-        ElasTestOutputStream los = new ElasTestOutputStream(logger, logstash);
-
-        if (build.getParent() instanceof BuildableItemWithBuildWrappers) {
-            BuildableItemWithBuildWrappers project = (BuildableItemWithBuildWrappers) build
-                    .getParent();
-            for (BuildWrapper wrapper : project.getBuildWrappersList()) {
-                if (wrapper instanceof MaskPasswordsBuildWrapper) {
-                    List<VarPasswordPair> allPasswordPairs = new ArrayList<VarPasswordPair>();
-
-                    MaskPasswordsBuildWrapper maskPasswordsWrapper = (MaskPasswordsBuildWrapper) wrapper;
-                    List<VarPasswordPair> jobPasswordPairs = maskPasswordsWrapper
-                            .getVarPasswordPairs();
-                    if (jobPasswordPairs != null) {
-                        allPasswordPairs.addAll(jobPasswordPairs);
-                    }
-
-                    MaskPasswordsConfig config = MaskPasswordsConfig
-                            .getInstance();
-                    List<VarPasswordPair> globalPasswordPairs = config
-                            .getGlobalVarPasswordPairs();
-                    if (globalPasswordPairs != null) {
-                        allPasswordPairs.addAll(globalPasswordPairs);
-                    }
-
-                    return los.maskPasswords(allPasswordPairs);
-                }
-            }
-        }
+        ElasTestOutputStream los = new ElasTestOutputStream(logger,
+                elasTestWriter);
 
         return los;
     }
 
     // Method to encapsulate calls for unit-testing
-    ElasTestWriter getLogStashWriter(Run<?, ?> build, OutputStream errorStream,
+    ElasTestWriter getElasTestWriter(Run<?, ?> build, OutputStream errorStream,
             ExternalJob externalJob) {
         return new ElasTestWriter(build, errorStream, null, externalJob);
     }

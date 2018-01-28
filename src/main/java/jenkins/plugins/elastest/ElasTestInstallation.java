@@ -40,11 +40,12 @@ import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 
 /**
- * POJO for storing global configurations shared between components.
+ * Stores global configuration of the ElasTest plugin, shared between
+ * components.
  */
 public class ElasTestInstallation extends ToolInstallation {
 
-    private static final long serialVersionUID = -5730780734005293851L;
+    private static final long serialVersionUID = 1L;
 
     @DataBoundConstructor
     public ElasTestInstallation(String name, String home,
@@ -60,7 +61,7 @@ public class ElasTestInstallation extends ToolInstallation {
     @Extension
     public static final class Descriptor
             extends ToolDescriptor<ElasTestInstallation> {
-        public String elasTestUrl;        
+        public String elasTestUrl;
         public String username;
         public String password;
 
@@ -72,7 +73,7 @@ public class ElasTestInstallation extends ToolInstallation {
         @Override
         public boolean configure(StaplerRequest req, JSONObject formData)
                 throws FormException {
-            req.bindJSON(this, formData.getJSONObject("logstash"));
+            req.bindJSON(this, formData.getJSONObject("elastest"));
             save();
             return super.configure(req, formData);
         }
@@ -80,7 +81,7 @@ public class ElasTestInstallation extends ToolInstallation {
         @Override
         public ToolInstallation newInstance(StaplerRequest req,
                 JSONObject formData) throws FormException {
-            req.bindJSON(this, formData.getJSONObject("logstash"));
+            req.bindJSON(this, formData.getJSONObject("elastest"));
             save();
             return super.newInstance(req, formData);
         }

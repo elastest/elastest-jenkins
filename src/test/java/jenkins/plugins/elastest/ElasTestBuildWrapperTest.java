@@ -17,7 +17,7 @@ import jenkins.plugins.elastest.ElasTestBuildWrapper;
 import jenkins.plugins.elastest.ElasTestOutputStream;
 import jenkins.plugins.elastest.ElasTestWriter;
 import jenkins.plugins.elastest.json.ExternalJob;
-import jenkins.plugins.elastest.submiter.BuildData;
+import jenkins.plugins.elastest.submitters.BuildData;
 
 import org.junit.After;
 import org.junit.Before;
@@ -38,7 +38,7 @@ public class ElasTestBuildWrapperTest {
     }
 
     @Override
-    ElasTestWriter getLogStashWriter(AbstractBuild<?, ?> build, OutputStream errorStream, ExternalJob externalJob) {
+    ElasTestWriter getElasTestWriter(Run<?, ?> build, OutputStream errorStream, ExternalJob externalJob) {
       // Simulate bad Writer
       if(writer.isConnectionBroken()) {
         try {
@@ -81,7 +81,7 @@ public class ElasTestBuildWrapperTest {
     // Verify results
     assertNotNull("Result was null", result);
     assertTrue("Result is not the right type", result instanceof ElasTestOutputStream);
-    assertSame("Result has wrong writer", mockWriter, ((ElasTestOutputStream) result).logstash);
+    assertSame("Result has wrong writer", mockWriter, ((ElasTestOutputStream) result).elasTestWriter);
     assertEquals("Results don't match", "", buffer.toString());
     verify(mockWriter).isConnectionBroken();
   }
@@ -98,7 +98,7 @@ public class ElasTestBuildWrapperTest {
     // Verify results
     assertNotNull("Result was null", result);
     assertTrue("Result is not the right type", result instanceof ElasTestOutputStream);
-    assertSame("Result has wrong writer", mockWriter, ((ElasTestOutputStream) result).logstash);
+    assertSame("Result has wrong writer", mockWriter, ((ElasTestOutputStream) result).elasTestWriter);
     assertEquals("Error was not written", "Mocked Constructor failure", buffer.toString());
     verify(mockWriter).isConnectionBroken();
   }

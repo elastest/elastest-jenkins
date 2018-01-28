@@ -1,4 +1,4 @@
-package jenkins.plugins.elastest.persistence;
+package jenkins.plugins.elastest.submitters;
 
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.times;
@@ -13,8 +13,8 @@ import hudson.model.Node;
 import hudson.model.Project;
 import hudson.tasks.test.AbstractTestResultAction;
 import hudson.tasks.test.TestResult;
-import jenkins.plugins.elastest.submiter.BuildData;
-import jenkins.plugins.elastest.submiter.BuildData.TestData;
+import jenkins.plugins.elastest.submitters.BuildData;
+import jenkins.plugins.elastest.submitters.BuildData.TestData;
 
 import java.util.Arrays;
 import java.util.Collections;

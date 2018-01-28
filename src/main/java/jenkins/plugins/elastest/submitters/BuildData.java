@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2014 Rusty Gerard
+ * (C) Copyright 2017-2019 ElasTest (http://elastest.io/)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,8 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
-package jenkins.plugins.elastest.submiter;
+package jenkins.plugins.elastest.submitters;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -52,12 +51,6 @@ import hudson.tasks.test.AbstractTestResultAction;
 import hudson.tasks.test.TestResult;
 import net.sf.json.JSONObject;
 
-/**
- * POJO for mapping build info to JSON.
- *
- * @author Rusty Gerard
- * @since 1.0.0
- */
 public class BuildData {
   // ISO 8601 date format
   public transient static final DateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");

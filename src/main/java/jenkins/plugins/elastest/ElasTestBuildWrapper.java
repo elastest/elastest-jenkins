@@ -25,6 +25,7 @@
 package jenkins.plugins.elastest;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
@@ -46,7 +47,8 @@ import jenkins.plugins.elastest.json.ExternalJob;
 import jenkins.tasks.SimpleBuildWrapper;
 
 /**
- * Build wrapper that decorates the build's logger to send to ElasTest
+ * Build wrapper that decorates the build's logger to send to ElasTest and allow you to use
+ * the EUS(ElasTest User Impersonation Service) from a Jenkins Job.
  * 
  * @author Francisco R. Díaz
  */
@@ -128,6 +130,11 @@ public class ElasTestBuildWrapper extends SimpleBuildWrapper {
 
     public DescriptorImpl getDescriptor() {
         return (DescriptorImpl) super.getDescriptor();
+    }
+    
+    // Method to encapsulate calls for unit-testing
+    ElasTestWriter getElasTestWriter(Run<?, ?> build, OutputStream errorStream, ExternalJob externalJob) {
+      return new ElasTestWriter(build, errorStream, null, externalJob);
     }
 
     /**

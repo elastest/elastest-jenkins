@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2014 K Jonathan Harker & Rusty Gerard
+ * (C) Copyright 2017-2019 ElasTest (http://elastest.io/)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,42 +24,28 @@
 
 package jenkins.plugins.elastest;
 
+import java.io.IOException;
+import java.io.OutputStream;
+
 import hudson.console.ConsoleNote;
 import hudson.console.LineTransformationOutputStream;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
-
-import com.michelin.cio.hudson.plugins.maskpasswords.MaskPasswordsBuildWrapper.VarPasswordPair;
-import com.michelin.cio.hudson.plugins.maskpasswords.MaskPasswordsOutputStream;
-
 /**
  * Output stream that writes each line to the provided delegate output stream
- * and also sends it to an indexer for logstash to consume.
+ * and also sends it to ElasTest.
  *
- * @author K Jonathan Harker
- * @author Rusty Gerard
+ * @author Francisco R Díaz
+ * @since 0.0.1
  */
 public class ElasTestOutputStream extends LineTransformationOutputStream {
     final OutputStream delegate;
-    final ElasTestWriter logstash;
+    final ElasTestWriter elasTestWriter;
 
     public ElasTestOutputStream(OutputStream delegate,
-            ElasTestWriter logstash) {
+            ElasTestWriter elasTestWriter) {
         super();
         this.delegate = delegate;
-        this.logstash = logstash;
-    }
-
-    public MaskPasswordsOutputStream maskPasswords(
-            List<VarPasswordPair> passwords) {
-        List<String> passwordStrings = new ArrayList<String>();
-        for (VarPasswordPair password : passwords) {
-            passwordStrings.add(password.getPassword());
-        }
-        return new MaskPasswordsOutputStream(this, passwordStrings);
+        this.elasTestWriter = elasTestWriter;
     }
 
     @Override
@@ -67,10 +53,10 @@ public class ElasTestOutputStream extends LineTransformationOutputStream {
         delegate.write(b, 0, len);
         this.flush();
 
-        if (!logstash.isConnectionBroken()) {
+        if (!elasTestWriter.isConnectionBroken()) {
             String line = new String(b, 0, len).trim();
             line = ConsoleNote.removeNotes(line);
-            logstash.write(line);
+            elasTestWriter.write(line);
         }
     }
 

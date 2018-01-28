@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2014 Rusty Gerard
+ * (C) Copyright 2017-2019 ElasTest (http://elastest.io/)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,31 +21,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+package jenkins.plugins.elastest.submitters;
 
-package jenkins.plugins.elastest.submiter;
-
-import java.util.Calendar;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
 import jenkins.plugins.elastest.json.ExternalJob;
-import net.sf.json.JSONObject;
 
 /**
- * Abstract data access object for Logstash indexers.
- *
- * @author Rusty Gerard
- * @since 1.0.0
+ * 
+ * @author Francisco R Díaz
+ * @since 0.0.1
  */
-abstract class AbstractElasTestIndexerDao implements ElasTestIndexerDao {
+abstract class AbstractElasTestSubmitter implements ElasTestSubmitter {
     protected final String host;
     protected final int port;
     protected final String key;
     protected final String username;
     protected final String password;
 
-    AbstractElasTestIndexerDao(String host, int port, String key,
+    AbstractElasTestSubmitter(String host, int port, String key,
             String username, String password) {
         this.host = host;
         this.port = port;
@@ -56,25 +52,6 @@ abstract class AbstractElasTestIndexerDao implements ElasTestIndexerDao {
         if (StringUtils.isBlank(host)) {
             throw new IllegalArgumentException("host name is required");
         }
-    }
-
-    @Override
-    public JSONObject buildPayload(BuildData buildData, String jenkinsUrl,
-            List<String> logLines, ExternalJob externalJob) {
-        JSONObject payload = new JSONObject();
-        payload.put("tjobexec", externalJob.gettJobExecId());
-        payload.put("component_type", "test");
-        payload.put("trace_type", "log");
-        payload.put("data", buildData.toJson());
-        payload.put("message", logLines);
-        payload.put("source", "jenkins");
-        payload.put("source_host", jenkinsUrl);
-        payload.put("@buildTimestamp", buildData.getTimestamp());
-        payload.put("@timestamp", BuildData.DATE_FORMATTER
-                .format(Calendar.getInstance().getTime()));
-        payload.put("@version", 1);
-
-        return payload;
     }
 
     @Override
