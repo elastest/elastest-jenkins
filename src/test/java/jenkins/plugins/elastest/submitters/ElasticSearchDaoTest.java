@@ -1,4 +1,4 @@
-package jenkins.plugins.elastest.persistence;
+package jenkins.plugins.elastest.submitters;
 
 import org.apache.commons.lang.CharEncoding;
 import org.apache.http.HttpEntity;
@@ -16,7 +16,7 @@ import org.junit.runner.RunWith;
 import org.mockito.*;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import jenkins.plugins.elastest.submiter.LogstashDao;
+import jenkins.plugins.elastest.submitters.LogstashSubmitter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -28,15 +28,15 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ElasticSearchDaoTest {
-  LogstashDao dao;
+  LogstashSubmitter dao;
   @Mock HttpClientBuilder mockClientBuilder;
   @Mock CloseableHttpClient mockHttpClient;
   @Mock StatusLine mockStatusLine;
   @Mock CloseableHttpResponse mockResponse;
   @Mock HttpEntity mockEntity;
 
-  LogstashDao createDao(String host, int port, String key, String username, String password) {
-    return new LogstashDao(mockClientBuilder, host, port, key, username, password);
+  LogstashSubmitter createDao(String host, int port, String key, String username, String password) {
+    return new LogstashSubmitter(mockClientBuilder, host, port, key, username, password);
   }
 
   @Before

@@ -36,9 +36,9 @@ import hudson.model.Project;
 import hudson.model.Result;
 import hudson.tasks.test.AbstractTestResultAction;
 import jenkins.plugins.elastest.json.ExternalJob;
-import jenkins.plugins.elastest.submiter.BuildData;
-import jenkins.plugins.elastest.submiter.ElasTestIndexerDao;
-import jenkins.plugins.elastest.submiter.ElasTestIndexerDao.IndexerType;
+import jenkins.plugins.elastest.submitters.BuildData;
+import jenkins.plugins.elastest.submitters.ElasTestSubmitter;
+import jenkins.plugins.elastest.submitters.ElasTestSubmitter.SubmitterType;
 import net.java.sezpoz.impl.Indexer6;
 import net.sf.json.JSONObject;
 
@@ -48,11 +48,11 @@ public class LogstashWriterTest {
   static ElasTestWriter createElasTestWriter(final AbstractBuild<?, ?> testBuild,
                                              OutputStream error,
                                              final String url,
-                                             final ElasTestIndexerDao indexer,
+                                             final ElasTestSubmitter indexer,
                                              final BuildData data) {
     return new ElasTestWriter(testBuild, error, null, null) {
       @Override
-      ElasTestIndexerDao getDao(IndexerType type) throws InstantiationException {
+      ElasTestSubmitter getSubmitter(SubmitterType type) throws InstantiationException {
         if (indexer == null) {
           throw new InstantiationException("DoaTestInstantiationException");
         }
@@ -80,7 +80,7 @@ public class LogstashWriterTest {
 
   ByteArrayOutputStream errorBuffer;
 
-  @Mock ElasTestIndexerDao mockDao;
+  @Mock ElasTestSubmitter mockDao;
   @Mock AbstractBuild mockBuild;
   @Mock AbstractTestResultAction mockTestResultAction;
   @Mock Project mockProject;
@@ -119,7 +119,7 @@ public class LogstashWriterTest {
       .thenReturn("");
 
     Mockito.doNothing().when(mockDao).push(Matchers.anyString());
-    when(mockDao.getIndexerType()).thenReturn(IndexerType.LOGSTASH);
+    when(mockDao.getSubmitterType()).thenReturn(SubmitterType.LOGSTASH);
     when(mockDao.getDescription()).thenReturn("localhost:8080");
 
     errorBuffer = new ByteArrayOutputStream();
@@ -286,7 +286,7 @@ public class LogstashWriterTest {
     //Verify calls were made to the dao logging twice, not three times.
     verify(mockDao, times(2)).buildPayload(Matchers.anyListOf(String.class), Matchers.any(ExternalJob.class));
     verify(mockDao, times(2)).push("");
-    verify(mockDao).getIndexerType();
+    verify(mockDao).getSubmitterType();
     verify(mockDao, times(2)).getDescription();
   }
 

@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2014 Rusty Gerard
+ * (C) Copyright 2017-2019 ElasTest (http://elastest.io/)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,43 +21,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
-package jenkins.plugins.elastest.submiter;
+package jenkins.plugins.elastest.submitters;
 
 import java.io.IOException;
 import java.util.List;
 
 import jenkins.plugins.elastest.json.ExternalJob;
-import net.sf.json.JSONObject;
 
 /**
- * Interface describing data access objects for Logstash indexers.
- *
- * @author Rusty Gerard
- * @since 1.0.0
+ * 
+ * @author Francisco R. Díaz
+ * @since 0.0.1
  */
-public interface ElasTestIndexerDao {
-    static enum IndexerType {
-        LOGSTASH ("logstash");
-        
-        private final String name;       
+public interface ElasTestSubmitter {
+    static enum SubmitterType {
+        LOGSTASH("logstash");
 
-        private IndexerType(String s) {
+        private final String name;
+
+        private SubmitterType(String s) {
             name = s;
         }
 
-        public boolean equalsName(String otherName) {             
+        public boolean equalsName(String otherName) {
             return name.equals(otherName);
         }
 
         public String toString() {
-           return this.name;
+            return this.name;
         }
-    }    
+    }
 
     String getDescription();
 
-    IndexerType getIndexerType();
+    SubmitterType getSubmitterType();
 
     /**
      * Sends the log data to the Logstash indexer.
@@ -68,20 +65,6 @@ public interface ElasTestIndexerDao {
      *             The data is not written to the server
      */
     void push(String data) throws IOException;
-
-    /**
-     * Builds a JSON payload compatible with the Logstash schema.
-     *
-     * @param buildData
-     *            Metadata about the current build, not null
-     * @param jenkinsUrl
-     *            The host name of the Jenkins instance, not null
-     * @param logLines
-     *            The log data to transmit, not null
-     * @return The formatted JSON object, never null
-     */
-    JSONObject buildPayload(BuildData buildData, String jenkinsUrl,
-            List<String> logLines, ExternalJob externalJjob);
 
     /**
      * Bulds a String playload compatible con the Logstash input.

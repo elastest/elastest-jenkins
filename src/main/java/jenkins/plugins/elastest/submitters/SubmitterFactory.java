@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2014 Rusty Gerard
+ * (C) Copyright 2017-2019 ElasTest (http://elastest.io/)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,8 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
-package jenkins.plugins.elastest.submiter;
+package jenkins.plugins.elastest.submitters;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -33,22 +32,22 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 
-import jenkins.plugins.elastest.submiter.ElasTestIndexerDao.IndexerType;
+import jenkins.plugins.elastest.submitters.ElasTestSubmitter.SubmitterType;
 
 /**
- * Factory for AbstractLogstashIndexerDao objects.
+ * Factory for AbstractElasTestSubmitter objects.
  *
- * @author Rusty Gerard
- * @since 1.0.0
+ * @author Francisco R. Díaz
+ * @since 0.0.1
  */
-public final class IndexerDaoFactory {
-    private static AbstractElasTestIndexerDao instance = null;
+public final class SubmitterFactory {
+    private static AbstractElasTestSubmitter instance = null;
 
-    private static final Map<IndexerType, Class<?>> INDEXER_MAP;
+    private static final Map<SubmitterType, Class<?>> INDEXER_MAP;
     static {
-        Map<IndexerType, Class<?>> indexerMap = new HashMap<IndexerType, Class<?>>();
+        Map<SubmitterType, Class<?>> indexerMap = new HashMap<SubmitterType, Class<?>>();
 
-        indexerMap.put(IndexerType.LOGSTASH, LogstashDao.class);
+        indexerMap.put(SubmitterType.LOGSTASH, LogstashSubmitter.class);
 
         INDEXER_MAP = Collections.unmodifiableMap(indexerMap);
     }
@@ -57,7 +56,7 @@ public final class IndexerDaoFactory {
      * Singleton instance accessor.
      *
      * @param type
-     *            The type of indexer, not null
+     *            The type of submitter, not null
      * @param host
      *            The host name or IP address of the indexer, not null
      * @param port
@@ -71,7 +70,7 @@ public final class IndexerDaoFactory {
      * @return The instance of the appropriate indexer DAO, never null
      * @throws InstantiationException
      */
-    public static synchronized ElasTestIndexerDao getInstance(IndexerType type,
+    public static synchronized ElasTestSubmitter getInstance(SubmitterType type,
             String host, Integer port, String key, String username,
             String password) throws InstantiationException {
         if (type == null || !INDEXER_MAP.containsKey(type)) {
@@ -89,7 +88,7 @@ public final class IndexerDaoFactory {
                 Constructor<?> constructor = indexerClass.getConstructor(
                         String.class, int.class, String.class, String.class,
                         String.class);
-                instance = (AbstractElasTestIndexerDao) constructor
+                instance = (AbstractElasTestSubmitter) constructor
                         .newInstance(host, port, key, username, password);
             } catch (NoSuchMethodException e) {
                 throw new InstantiationException(
@@ -106,13 +105,13 @@ public final class IndexerDaoFactory {
         return instance;
     }
 
-    private static boolean shouldRefreshInstance(IndexerType type, String host,
+    private static boolean shouldRefreshInstance(SubmitterType type, String host,
             int port, String key, String username, String password) {
         if (instance == null) {
             return true;
         }
 
-        boolean matches = (instance.getIndexerType() == type)
+        boolean matches = (instance.getSubmitterType() == type)
                 && StringUtils.equals(instance.host, host)
                 && (instance.port == port)
                 && StringUtils.equals(instance.key, key)

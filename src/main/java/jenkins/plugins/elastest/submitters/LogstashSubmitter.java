@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2014 Barnes and Noble College
+ * (C) Copyright 2017-2019 ElasTest (http://elastest.io/)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-package jenkins.plugins.elastest.submiter;
+package jenkins.plugins.elastest.submitters;
 
 import static com.google.common.collect.Ranges.closedOpen;
 
@@ -48,14 +48,14 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Range;
 
 /**
- * Elastic Search Data Access Object.
+ * Logstash submitter.
  *
- * @author Liam Newman
- * @since 1.0.4
+ * @author Francisco R. Díaz
+ * @since 0.0.1
  */
-public class LogstashDao extends AbstractElasTestIndexerDao {
+public class LogstashSubmitter extends AbstractElasTestSubmitter {
     private static final Logger logger = LoggerFactory
-            .getLogger(LogstashDao.class);
+            .getLogger(LogstashSubmitter.class);
 
     final HttpClientBuilder clientBuilder;
     final URI uri;
@@ -63,13 +63,13 @@ public class LogstashDao extends AbstractElasTestIndexerDao {
     final Range<Integer> successCodes = closedOpen(200, 300);
 
     // primary constructor used by indexer factory
-    public LogstashDao(String host, int port, String key, String username,
+    public LogstashSubmitter(String host, int port, String key, String username,
             String password) {
         this(null, host, port, key, username, password);
     }
 
     // Factored for unit testing
-    LogstashDao(HttpClientBuilder factory, String host, int port, String key,
+    LogstashSubmitter(HttpClientBuilder factory, String host, int port, String key,
             String username, String password) {
         super(host, port, key, username, password);
 
@@ -167,7 +167,7 @@ public class LogstashDao extends AbstractElasTestIndexerDao {
     }
 
     @Override
-    public IndexerType getIndexerType() {
-        return IndexerType.LOGSTASH;
+    public SubmitterType getSubmitterType() {
+        return SubmitterType.LOGSTASH;
     }
 }

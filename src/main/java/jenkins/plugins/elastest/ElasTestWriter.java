@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2014 Rusty Gerard and Liam Newman
+ * (C) Copyright 2017-2019 ElasTest (http://elastest.io/)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -40,21 +40,16 @@ import hudson.model.TaskListener;
 import jenkins.model.Jenkins;
 import jenkins.plugins.elastest.action.ElasTestItemMenuAction;
 import jenkins.plugins.elastest.json.ExternalJob;
-import jenkins.plugins.elastest.submiter.BuildData;
-import jenkins.plugins.elastest.submiter.ElasTestIndexerDao;
-import jenkins.plugins.elastest.submiter.ElasTestIndexerDao.IndexerType;
-import jenkins.plugins.elastest.submiter.IndexerDaoFactory;
+import jenkins.plugins.elastest.submitters.BuildData;
+import jenkins.plugins.elastest.submitters.ElasTestSubmitter;
+import jenkins.plugins.elastest.submitters.SubmitterFactory;
+import jenkins.plugins.elastest.submitters.ElasTestSubmitter.SubmitterType;
 
 /**
- * A writer that wraps all Logstash DAOs. Handles error reporting and per build
- * connection state. Each call to write (one line or multiple lines) sends a
- * Logstash payload to the DAO. If any write fails, writer will not attempt to
- * send any further messages to logstash during this build.
+ * A writer that wraps all submitters.
  *
- * @author Rusty Gerard
- * @author Liam Newman
  * @author Francisco R. Díaz
- * @since ElasTest Plugin 0.0.1
+ * @since 0.0.1
  */
 public class ElasTestWriter {
     private static final Logger LOG = Logger
@@ -65,7 +60,7 @@ public class ElasTestWriter {
     final TaskListener listener;
     final BuildData buildData;
     final String jenkinsUrl;
-    final ElasTestIndexerDao elasticSearchDao;
+    final ElasTestSubmitter elastestSubmiter;
 
     private boolean connectionBroken;
     final ExternalJob externalJob;
@@ -76,9 +71,9 @@ public class ElasTestWriter {
         this.build = run;
         this.listener = listener;
         this.externalJob = externalJob;
-        this.elasticSearchDao = this.getDaoOrNull(IndexerType.LOGSTASH);
+        this.elastestSubmiter = this.getSubmitterOrNull(SubmitterType.LOGSTASH);
 
-        if (this.elasticSearchDao == null) {
+        if (this.elastestSubmiter == null) {
             this.jenkinsUrl = "";
             this.buildData = null;
         } else {
@@ -89,7 +84,7 @@ public class ElasTestWriter {
 
     /**
      * Sends a logstash payload for a single line to the indexer. Call will be
-     * ignored if the line is empty or if the connection to the indexer is
+     * ignored if the line is empty or if the connection to ElasTest is
      * broken. If write fails, errors will logged to errorStream and
      * connectionBroken will be set to true.
      *
@@ -103,58 +98,24 @@ public class ElasTestWriter {
     }
 
     /**
-     * Sends a logstash payload containing log lines from the current build.
-     * Call will be ignored if the connection to the indexer is broken. If write
-     * fails, errors will logged to errorStream and connectionBroken will be set
-     * to true.
-     *
-     * @param maxLines
-     *            Maximum number of lines to be written. Negative numbers mean
-     *            "all lines".
-     */
-    public void writeBuildLog(int maxLines/* , ExternalJob externalJob */) {
-        if (!isConnectionBroken()) {
-            // FIXME: build.getLog() won't have the last few lines like
-            // "Finished: SUCCESS" because this hasn't returned yet...
-            List<String> logLines;
-            try {
-                if (maxLines < 0) {
-                    logLines = build.getLog(Integer.MAX_VALUE);
-                } else {
-                    logLines = build.getLog(maxLines);
-                }
-            } catch (IOException e) {
-                String msg = "[logstash-plugin]: Unable to serialize log data.\n"
-                        + ExceptionUtils.getStackTrace(e);
-                logErrorMessage(msg);
-
-                // Continue with error info as logstash payload
-                logLines = Arrays.asList(msg.split("\n"));
-            }
-
-            write(logLines);
-        }
-    }
-
-    /**
      * @return True if errors have occurred during initialization or write.
      */
     public boolean isConnectionBroken() {
-        return connectionBroken || build == null || elasticSearchDao == null
+        return connectionBroken || build == null || elastestSubmiter == null
                 || buildData == null;
     }
 
     // Method to encapsulate calls for unit-testing
-    ElasTestIndexerDao getDao(IndexerType type) throws InstantiationException {
+    ElasTestSubmitter getSubmitter(SubmitterType type) throws InstantiationException {
         ElasTestInstallation.Descriptor descriptor = ElasTestInstallation
                 .getLogstashDescriptor();
         String key = "";
 
-        if (type.compareTo(IndexerType.LOGSTASH) == 0) {
-            key = IndexerType.LOGSTASH.toString();
+        if (type.compareTo(SubmitterType.LOGSTASH) == 0) {
+            key = SubmitterType.LOGSTASH.toString();
         }
 
-        return IndexerDaoFactory.getInstance(type, externalJob.getServicesIp(),
+        return SubmitterFactory.getInstance(type, externalJob.getServicesIp(),
                 new Integer(externalJob.getLogstashPort()), key,
                 descriptor.username, descriptor.password);
 
@@ -175,18 +136,18 @@ public class ElasTestWriter {
     /**
      * Write a list of lines to the indexer as one Logstash payload.
      */
-    private void write(List<String> lines/* , ExternalJob externalJob */) {
+    private void write(List<String> lines) {
         if (build.getAction(ElasTestItemMenuAction.class) != null) {
-            String payload = elasticSearchDao.buildPayload(lines, externalJob);
+            String payload = elastestSubmiter.buildPayload(lines, externalJob);
             try {
                 LOG.info("Send message: " + payload.toString());
-                elasticSearchDao.push(payload.toString());
+                elastestSubmiter.push(payload.toString());
             } catch (IOException e) {
                 String msg = "[logstash-plugin]: Failed to send log data to "
-                        + elasticSearchDao.getIndexerType() + ":"
-                        + elasticSearchDao.getDescription() + ".\n"
+                        + elastestSubmiter.getSubmitterType() + ":"
+                        + elastestSubmiter.getDescription() + ".\n"
                         + "[logstash-plugin]: No Further logs will be sent to "
-                        + elasticSearchDao.getDescription() + ".\n"
+                        + elastestSubmiter.getDescription() + ".\n"
                         + ExceptionUtils.getStackTrace(e);
                 logErrorMessage(msg);
             }
@@ -197,11 +158,11 @@ public class ElasTestWriter {
      * Construct a valid indexerDao or return null. Writes errors to errorStream
      * if dao constructor fails.
      *
-     * @return valid {@link ElasTestIndexerDao} or return null.
+     * @return valid {@link ElasTestSubmitter} or return null.
      */
-    private ElasTestIndexerDao getDaoOrNull(IndexerType type) {
+    private ElasTestSubmitter getSubmitterOrNull(SubmitterType type) {
         try {
-            return getDao(type);
+            return getSubmitter(type);
         } catch (InstantiationException e) {
             String msg = ExceptionUtils.getMessage(e) + "\n"
                     + "[logstash-plugin]: Unable to instantiate LogstashIndexerDao with current configuration.\n";
