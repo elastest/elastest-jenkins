@@ -52,24 +52,6 @@ public final class SubmitterFactory {
         INDEXER_MAP = Collections.unmodifiableMap(indexerMap);
     }
 
-    /**
-     * Singleton instance accessor.
-     *
-     * @param type
-     *            The type of submitter, not null
-     * @param host
-     *            The host name or IP address of the indexer, not null
-     * @param port
-     *            The port the indexer listens on
-     * @param key
-     *            The subcollection to write to in the indexer, not null
-     * @param username
-     *            The user name to authenticate with the indexer, nullable
-     * @param password
-     *            The password to authenticate with the indexer, nullable
-     * @return The instance of the appropriate indexer DAO, never null
-     * @throws InstantiationException
-     */
     public static synchronized ElasTestSubmitter getInstance(SubmitterType type,
             String host, Integer port, String key, String username,
             String password) throws InstantiationException {
@@ -79,7 +61,6 @@ public final class SubmitterFactory {
                             + "'. Did you forget to configure the plugin?");
         }
 
-        // Prevent NPE
         port = (port == null ? -1 : port.intValue());
 
         if (shouldRefreshInstance(type, host, port, key, username, password)) {

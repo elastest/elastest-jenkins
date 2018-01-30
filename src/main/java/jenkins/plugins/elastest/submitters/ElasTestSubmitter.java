@@ -57,7 +57,7 @@ public interface ElasTestSubmitter {
     SubmitterType getSubmitterType();
 
     /**
-     * Sends the log data to the Logstash indexer.
+     * Sends the log data to ElasTest.
      *
      * @param data
      *            The serialized data, not null
@@ -67,7 +67,7 @@ public interface ElasTestSubmitter {
     void push(String data) throws IOException;
 
     /**
-     * Bulds a String playload compatible con the Logstash input.
+     * Bulds a String playload compatible with the Logstash input.
      * 
      * @param logLines
      * @param externalJob

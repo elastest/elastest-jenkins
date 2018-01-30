@@ -68,10 +68,10 @@ public class LogstashSubmitter extends AbstractElasTestSubmitter {
         this(null, host, port, key, username, password);
     }
 
-    // Factored for unit testing
     LogstashSubmitter(HttpClientBuilder factory, String host, int port, String key,
             String username, String password) {
         super(host, port, key, username, password);
+        logger.info("Creating a Logstash submitter.");
 
         try {
             uri = new URIBuilder("http://" + host).setPort(port)
@@ -81,19 +81,13 @@ public class LogstashSubmitter extends AbstractElasTestSubmitter {
             throw new IllegalArgumentException("Could not create uri", e);
         }
 
-        if (StringUtils.isBlank(uri.getScheme())) {
-            throw new IllegalArgumentException(
-                    "host field must specify scheme, such as 'http://'");
-        }
-
         if (StringUtils.isNotBlank(username)
                 && StringUtils.isNotBlank(password)) {
-            logger.info("Basic authentication is used");
+            logger.info("Using basic authentication.");
             auth = Base64.encodeBase64String(
                     (username + ":" + StringUtils.defaultString(password))
                             .getBytes());
         } else {
-            logger.info("Basic authentication is not used");
             auth = null;
         }
 
@@ -127,8 +121,8 @@ public class LogstashSubmitter extends AbstractElasTestSubmitter {
                 throw new IOException(this.getErrorMessage(response));
             }
         } catch (Exception e) {
-            logger.error("Error sendind log trace message {} ", data);
-            throw new IOException("Error sendind log trace message " + data);
+            logger.info("Error sendind log trace message {} ", data);
+            throw new IOException("Error sendind log trace message " + data + ". " + e.getMessage());
 
         } finally {
             if (response != null) {

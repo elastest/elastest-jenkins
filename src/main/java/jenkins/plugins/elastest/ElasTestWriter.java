@@ -27,23 +27,20 @@ package jenkins.plugins.elastest;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 
-import hudson.model.AbstractBuild;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import jenkins.model.Jenkins;
 import jenkins.plugins.elastest.action.ElasTestItemMenuAction;
 import jenkins.plugins.elastest.json.ExternalJob;
-import jenkins.plugins.elastest.submitters.BuildData;
 import jenkins.plugins.elastest.submitters.ElasTestSubmitter;
-import jenkins.plugins.elastest.submitters.SubmitterFactory;
 import jenkins.plugins.elastest.submitters.ElasTestSubmitter.SubmitterType;
+import jenkins.plugins.elastest.submitters.SubmitterFactory;
 
 /**
  * A writer that wraps all submitters.
@@ -58,7 +55,6 @@ public class ElasTestWriter {
     final OutputStream errorStream;
     final Run<?, ?> build;
     final TaskListener listener;
-    final BuildData buildData;
     final String jenkinsUrl;
     final ElasTestSubmitter elastestSubmiter;
 
@@ -75,18 +71,16 @@ public class ElasTestWriter {
 
         if (this.elastestSubmiter == null) {
             this.jenkinsUrl = "";
-            this.buildData = null;
         } else {
             this.jenkinsUrl = getJenkinsUrl();
-            this.buildData = getBuildData();
         }
     }
 
     /**
      * Sends a logstash payload for a single line to the indexer. Call will be
-     * ignored if the line is empty or if the connection to ElasTest is
-     * broken. If write fails, errors will logged to errorStream and
-     * connectionBroken will be set to true.
+     * ignored if the line is empty or if the connection to ElasTest is broken.
+     * If write fails, errors will logged to errorStream and connectionBroken
+     * will be set to true.
      *
      * @param line
      *            Message, not null
@@ -101,12 +95,12 @@ public class ElasTestWriter {
      * @return True if errors have occurred during initialization or write.
      */
     public boolean isConnectionBroken() {
-        return connectionBroken || build == null || elastestSubmiter == null
-                || buildData == null;
+        return connectionBroken || build == null || elastestSubmiter == null;
     }
 
     // Method to encapsulate calls for unit-testing
-    ElasTestSubmitter getSubmitter(SubmitterType type) throws InstantiationException {
+    ElasTestSubmitter getSubmitter(SubmitterType type)
+            throws InstantiationException {
         ElasTestInstallation.Descriptor descriptor = ElasTestInstallation
                 .getLogstashDescriptor();
         String key = "";
@@ -119,14 +113,6 @@ public class ElasTestWriter {
                 new Integer(externalJob.getLogstashPort()), key,
                 descriptor.username, descriptor.password);
 
-    }
-
-    BuildData getBuildData() {
-        if (build instanceof AbstractBuild) {
-            return new BuildData((AbstractBuild) build, new Date());
-        } else {
-            return new BuildData(build, new Date(), listener);
-        }
     }
 
     String getJenkinsUrl() {
