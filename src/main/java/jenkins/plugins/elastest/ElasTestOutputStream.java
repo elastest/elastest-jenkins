@@ -26,6 +26,7 @@ package jenkins.plugins.elastest;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 
 import hudson.console.ConsoleNote;
 import hudson.console.LineTransformationOutputStream;
@@ -54,7 +55,7 @@ public class ElasTestOutputStream extends LineTransformationOutputStream {
         this.flush();
 
         if (!elasTestWriter.isConnectionBroken()) {
-            String line = new String(b, 0, len).trim();
+            String line = new String(b, 0, len, StandardCharsets.UTF_8.name()).trim();
             line = ConsoleNote.removeNotes(line);
             elasTestWriter.write(line);
         }

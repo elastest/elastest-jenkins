@@ -152,7 +152,7 @@ public class LogstashSubmitter extends AbstractElasTestSubmitter {
                 stream.println(ExceptionUtils.getStackTrace(e));
             }
             stream.flush();
-            return byteStream.toString();
+            return byteStream.toString(StandardCharsets.UTF_8.name());
         } catch (IOException e) {
             return "Error creating error message.";
         } finally {
