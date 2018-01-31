@@ -84,7 +84,7 @@ public class BuildListener extends RunListener<Run> {
         super.onFinalized(build);
 
         if (elasTestService.getExternalJobs().size() > 0
-                && (build != null && build.getId() != null)) {
+                && (build != null && build.getId() != null && build.getResult() != null)) {
             ExternalJob externalJob = elasTestService
                     .getExternalJobByBuildId(build.getId());
             switch (build.getResult().ordinal) {
