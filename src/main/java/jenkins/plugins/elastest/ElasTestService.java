@@ -176,12 +176,15 @@ public class ElasTestService implements Serializable {
         log.info("Finalization message.");
         WebResource webResource = client.resource(elasTestApiUrl);
         try {
-            ClientResponse response = credentialsB64 != null
-                    ? webResource.type("application/json")
-                            .header("Authorization", "Basic " + credentialsB64)
-                            .put(ClientResponse.class, externalJob.toJSON())
-                    : webResource.type("application/json")
-                            .put(ClientResponse.class, externalJob.toJSON());
+            if (credentialsB64 != null){
+            webResource.type("application/json")
+                    .header("Authorization", "Basic " + credentialsB64)
+                    .put(ClientResponse.class, externalJob.toJSON());
+            } else {
+                webResource.type("application/json").put(ClientResponse.class,
+                        externalJob.toJSON());
+            }
+            
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
@@ -233,7 +236,7 @@ public class ElasTestService implements Serializable {
         if ((name != null && !name.equals("")) &&
                 (password != null && !password.equals(""))) {
             String authString = name + ":" + password;
-            instance.credentialsB64 = new Base64().encodeAsString(authString.getBytes());
+            instance.credentialsB64 = new Base64().encodeAsString(authString.getBytes(StandardCharsets.UTF_8));
             log.info("Now access to ElasTest is with username and password.");
         } else {
             instance.credentialsB64 = null;

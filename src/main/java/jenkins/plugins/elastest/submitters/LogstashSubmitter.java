@@ -140,8 +140,7 @@ public class LogstashSubmitter extends AbstractElasTestSubmitter {
         PrintStream stream = null;
         try {
             byteStream = new ByteArrayOutputStream();
-            stream = new PrintStream(byteStream);
-
+            stream = new PrintStream(byteStream, false, StandardCharsets.UTF_8.name());
             try {
                 stream.print("HTTP error code: ");
                 stream.println(response.getStatusLine().getStatusCode());
@@ -154,6 +153,8 @@ public class LogstashSubmitter extends AbstractElasTestSubmitter {
             }
             stream.flush();
             return byteStream.toString();
+        } catch (IOException e) {
+            return "Error creating error message.";
         } finally {
             if (stream != null) {
                 stream.close();

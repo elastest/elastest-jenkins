@@ -26,6 +26,7 @@ package jenkins.plugins.elastest;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
@@ -164,7 +165,7 @@ public class ElasTestWriter {
     private void logErrorMessage(String msg) {
         try {
             connectionBroken = true;
-            errorStream.write(msg.getBytes());
+            errorStream.write(msg.getBytes(StandardCharsets.UTF_8));
             errorStream.flush();
         } catch (IOException ex) {
             // This should never happen, but if it does we just have to let it

@@ -128,5 +128,29 @@ public class ElasTestInstallation extends ToolInstallation {
 
             return FormValidation.ok();
         }
+
+        public String getElasTestUrl() {
+            return elasTestUrl;
+        }
+
+        public void setElasTestUrl(String elasTestUrl) {
+            this.elasTestUrl = elasTestUrl;
+        }
+
+        public String getUsername() {
+            return username;
+        }
+
+        public void setUsername(String username) {
+            this.username = username;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
     }
 }
