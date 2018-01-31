@@ -107,7 +107,6 @@ public class BuildListener extends RunListener<Run> {
             elasTestService.sendJobInformationToElasTest(
                     elasTestService.getExternalJobByBuildId(build.getId()));
             elasTestService.removeExternalJobs(build.getId());
-            LOG.info("Resultado:  " + build.getResult().ordinal);
         }
 
         LOG.info("Finalized all");
