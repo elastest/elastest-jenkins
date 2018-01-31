@@ -73,17 +73,23 @@ public class ElasTestInstallation extends ToolInstallation {
         @Override
         public boolean configure(StaplerRequest req, JSONObject formData)
                 throws FormException {
-            req.bindJSON(this, formData.getJSONObject("elastest"));
-            save();
+            if (req != null){
+                req.bindJSON(this, formData.getJSONObject("elastest"));
+                save();
+            }
             return super.configure(req, formData);
         }
 
         @Override
         public ToolInstallation newInstance(StaplerRequest req,
                 JSONObject formData) throws FormException {
+            if (req != null){
             req.bindJSON(this, formData.getJSONObject("elastest"));
             save();
             return super.newInstance(req, formData);
+            } else {
+                throw new FormException("Stapler request values null.", "No field.");
+            }
         }
 
         @Override

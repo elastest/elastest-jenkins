@@ -76,14 +76,15 @@ public class BuildListener extends RunListener<Run> {
 
     @Override
     public void onCompleted(Run run, TaskListener listener) {
-        LOG.info("Resultado:  " + run.getResult().ordinal);
+        LOG.info("Resultado:  " + (run != null ? run.getResult().ordinal : "Not available."));
     }
 
     @Override
     public void onFinalized(Run build) {
         super.onFinalized(build);
 
-        if (elasTestService.getExternalJobs().size() > 0) {
+        if (elasTestService.getExternalJobs().size() > 0
+                && build != null) {
             ExternalJob externalJob = elasTestService
                     .getExternalJobByBuildId(build.getId());
             switch (build.getResult().ordinal) {

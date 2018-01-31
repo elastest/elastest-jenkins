@@ -110,7 +110,7 @@ public class ElasTestWriter {
         }
 
         return SubmitterFactory.getInstance(type, externalJob.getServicesIp(),
-                new Integer(externalJob.getLogstashPort()), key,
+                Integer.valueOf(externalJob.getLogstashPort()), key,
                 descriptor.username, descriptor.password);
 
     }

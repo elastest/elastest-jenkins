@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
@@ -86,7 +87,7 @@ public class LogstashSubmitter extends AbstractElasTestSubmitter {
             logger.info("Using basic authentication.");
             auth = Base64.encodeBase64String(
                     (username + ":" + StringUtils.defaultString(password))
-                            .getBytes());
+                            .getBytes(StandardCharsets.UTF_8));
         } else {
             auth = null;
         }

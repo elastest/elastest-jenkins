@@ -38,7 +38,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  *
  */
 public class ExternalJob implements Serializable {
-    private static final long serialVersionUID = 1;
+    private static final long serialVersionUID = 1L;
 
     @JsonProperty("jobName")
     private String jobName;

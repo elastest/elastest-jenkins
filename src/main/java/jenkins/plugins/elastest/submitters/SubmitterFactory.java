@@ -61,7 +61,7 @@ public final class SubmitterFactory {
                             + "'. Did you forget to configure the plugin?");
         }
 
-        port = (port == null ? -1 : port.intValue());
+        port = (port == null ? Integer.valueOf(-1) : port);
 
         if (shouldRefreshInstance(type, host, port, key, username, password)) {
             try {

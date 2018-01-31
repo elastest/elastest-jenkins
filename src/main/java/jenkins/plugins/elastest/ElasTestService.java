@@ -24,6 +24,7 @@
 package jenkins.plugins.elastest;
 
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -72,7 +73,7 @@ public class ElasTestService implements Serializable {
         if ((name != null && !name.equals("")) &&
                 (password != null && !password.equals(""))) {
             String authString = name + ":" + password;
-            credentialsB64 = new Base64().encodeAsString(authString.getBytes());
+            credentialsB64 = new Base64().encodeAsString(authString.getBytes(StandardCharsets.UTF_8));
         }
         
         tSServicesCatalog = loadTSSCatalog();
@@ -173,7 +174,6 @@ public class ElasTestService implements Serializable {
 
     public void sendJobInformationToElasTest(ExternalJob externalJob) {
         log.info("Finalization message.");
-        ObjectMapper objetMapper = new ObjectMapper();
         WebResource webResource = client.resource(elasTestApiUrl);
         try {
             ClientResponse response = credentialsB64 != null
