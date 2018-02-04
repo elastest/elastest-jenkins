@@ -24,12 +24,15 @@
 
 package jenkins.plugins.elastest;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import hudson.Extension;
 import hudson.tools.ToolDescriptor;
@@ -44,8 +47,9 @@ import net.sf.json.JSONObject;
  * components.
  */
 public class ElasTestInstallation extends ToolInstallation {
-
     private static final long serialVersionUID = 1L;
+    private static final Logger LOG = LoggerFactory
+            .getLogger(ElasTestInstallation.class);
 
     @DataBoundConstructor
     public ElasTestInstallation(String name, String home,
@@ -64,16 +68,18 @@ public class ElasTestInstallation extends ToolInstallation {
         public String elasTestUrl;
         public String username;
         public String password;
+        public String elasTestVersion;
 
         public Descriptor() {
             super();
             load();
+            loadElasTestVersion();
         }
 
         @Override
         public boolean configure(StaplerRequest req, JSONObject formData)
                 throws FormException {
-            if (req != null){
+            if (req != null) {
                 req.bindJSON(this, formData.getJSONObject("elastest"));
                 save();
             }
@@ -83,12 +89,61 @@ public class ElasTestInstallation extends ToolInstallation {
         @Override
         public ToolInstallation newInstance(StaplerRequest req,
                 JSONObject formData) throws FormException {
-            if (req != null){
-            req.bindJSON(this, formData.getJSONObject("elastest"));
-            save();
-            return super.newInstance(req, formData);
+            if (req != null) {
+                req.bindJSON(this, formData.getJSONObject("elastest"));
+                save();
+                return super.newInstance(req, formData);
             } else {
-                throw new FormException("Stapler request values null.", "No field.");
+                throw new FormException("Stapler request values null.",
+                        "No field.");
+            }
+        }
+
+        public FormValidation doTestElasTestConnection(
+                @QueryParameter("elasTestUrl") final String elasTestUrl,
+                @QueryParameter("username") final String username,
+                @QueryParameter("password") final String password) {
+            this.elasTestUrl = elasTestUrl;
+            this.username = username;
+            this.password = password;
+
+            if ((!username.equals("") && !password.equals(""))
+                    || (username.equals("") && password.equals(""))) {
+                loadElasTestVersion();
+                try {
+                    ElasTestService elasTestService = ElasTestService
+                            .getInstance();
+                    if (elasTestService.getElasTestVersion()
+                            .equals(elasTestVersion)) {
+                        return FormValidation.ok("Success");
+                    } else {
+                        return FormValidation
+                                .error("Your installed ElasTest version is not compatible"
+                                        + " with this plugin version. You need to get "
+                                        + "installed ElasTest "
+                                        + elasTestVersion);
+                    }
+                } catch (Exception e) {
+                    return FormValidation
+                            .error("Connection error: " + e.getMessage());
+                }
+            } else {
+                return FormValidation.error(
+                        "To use credentials to access ElasTest, it is necessary to complete both fields, username and password.");
+            }
+        }
+
+        private void loadElasTestVersion() {
+            if (elasTestVersion == null || elasTestVersion.equals("")) {
+                try {
+                    elasTestVersion = PropertiesService
+                            .getCompatibleElasTestVersion();
+                    LOG.info(
+                            "ElasTest version compatible with this plugin version: "
+                                    + elasTestVersion);
+                } catch (IOException e) {
+                    elasTestVersion = "Error reading the compatible ElasTest version.";
+                }
             }
         }
 
@@ -151,6 +206,14 @@ public class ElasTestInstallation extends ToolInstallation {
 
         public void setPassword(String password) {
             this.password = password;
+        }
+
+        public String getElasTestVersion() {
+            return elasTestVersion;
+        }
+
+        public void setElasTestVersion(String elasTestVersion) {
+            this.elasTestVersion = elasTestVersion;
         }
     }
 }

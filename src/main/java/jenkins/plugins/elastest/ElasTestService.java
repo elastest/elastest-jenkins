@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 
 import hudson.model.Run;
@@ -52,13 +53,14 @@ import jenkins.plugins.elastest.pipeline.ElasTestStep;
  */
 public class ElasTestService implements Serializable {
     private static final long serialVersionUID = 1;
-    private static final Logger log = LoggerFactory
+    private static final Logger LOG = LoggerFactory
             .getLogger(ElasTestService.class);
     private static ElasTestService instance;
 
     private HashMap<String, ExternalJob> externalJobs;
     private Map<String, String> tSServicesCatalog;
-    private String elasTestApiUrl;
+    private String elasTestTJobApiUrl;
+    private String elasTestVersionApiUrl;
     private String elasTestUrl;
     private String credentialsB64;
     private transient Client client;
@@ -66,7 +68,8 @@ public class ElasTestService implements Serializable {
     public ElasTestService() {
         this.externalJobs = new HashMap<>();
         elasTestUrl = ElasTestInstallation.getLogstashDescriptor().elasTestUrl;
-        elasTestApiUrl = elasTestUrl + "/api/external/tjob";        
+        elasTestTJobApiUrl = elasTestUrl + "/api/external/tjob";
+        elasTestVersionApiUrl = "/api/external/elastest/version";
         client = Client.create();
         String name = ElasTestInstallation.getLogstashDescriptor().username;
         String password = ElasTestInstallation.getLogstashDescriptor().password;
@@ -92,7 +95,7 @@ public class ElasTestService implements Serializable {
 
     public ExternalJob asociateToElasTestTJob(Run<?, ?> build, ElasTestBuildWrapper elasTestBuilder)
             throws Exception {
-        log.info("Associate a Job to a TJob {}", build.getParent().getDisplayName());
+        LOG.info("Associate a Job to a TJob {}", build.getParent().getDisplayName());
         ExternalJob externalJob = new ExternalJob(
                 build.getParent().getDisplayName());
         if (elasTestBuilder.isEus()) {
@@ -128,7 +131,7 @@ public class ElasTestService implements Serializable {
     private ExternalJob createTJobOnElasTest(ExternalJob externalJob)
             throws Exception {
         ObjectMapper objetMapper = new ObjectMapper();
-        WebResource webResource = client.resource(elasTestApiUrl);
+        WebResource webResource = client.resource(elasTestTJobApiUrl);
 
         try {
             ClientResponse response = credentialsB64 != null
@@ -140,7 +143,7 @@ public class ElasTestService implements Serializable {
             externalJob = objetMapper.readValue(
                     response.getEntity(String.class), ExternalJob.class);
         } catch (Exception e) {
-            log.error("Error in the creation of a TJob in ElasTest: {}",
+            LOG.error("Error in the creation of a TJob in ElasTest: {}",
                     e.getMessage());
             e.printStackTrace();
             throw e;
@@ -151,7 +154,7 @@ public class ElasTestService implements Serializable {
     public ExternalJob isReadyTJobForExternalExecution(ExternalJob externalJob)
             throws Exception {
         ObjectMapper objetMapper = new ObjectMapper();
-        WebResource webResource = client.resource(elasTestApiUrl)
+        WebResource webResource = client.resource(elasTestTJobApiUrl)
                 .path(externalJob.gettJobExecId().toString());
 
         try {
@@ -164,7 +167,7 @@ public class ElasTestService implements Serializable {
             externalJob = objetMapper.readValue(
                     response.getEntity(String.class), ExternalJob.class);
         } catch (Exception e) {
-            log.error("Error in the creation of a TJob in ElasTest: {}",
+            LOG.error("Error in the creation of a TJob in ElasTest: {}",
                     e.getMessage());
             e.printStackTrace();
             throw e;
@@ -173,8 +176,8 @@ public class ElasTestService implements Serializable {
     }
 
     public void sendJobInformationToElasTest(ExternalJob externalJob) {
-        log.info("Finalization message.");
-        WebResource webResource = client.resource(elasTestApiUrl);
+        LOG.info("Finalization message.");
+        WebResource webResource = client.resource(elasTestTJobApiUrl);
         try {
             if (credentialsB64 != null){
             webResource.type("application/json")
@@ -189,6 +192,35 @@ public class ElasTestService implements Serializable {
             e.printStackTrace();
             throw e;
         }
+    }
+    
+    public String getElasTestVersion() {
+        String result = "KO";        
+        WebResource webResource = client.resource(elasTestUrl)
+                .path(elasTestVersionApiUrl);
+
+        try {
+            ClientResponse response = credentialsB64 != null
+                    ? webResource.type("text/plain")
+                            .header("Authorization", "Basic " + credentialsB64)
+                            .get(ClientResponse.class)
+                    : webResource.type("text/plain")
+                            .get(ClientResponse.class);
+            
+                    result = response.getEntity(String.class);
+                    LOG.info("ElasTest version installed: " + result);
+        } catch (UniformInterfaceException uie) {
+            LOG.error("Error invoking ElasTest.");
+            result = "The connection to ElasTest could not be established.";
+            throw uie;
+        } catch (Exception e) {
+            LOG.error("Unknown error: {}",
+                    e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
+        
+        return result;
     }
 
     public ExternalJob getExternalJobByBuildId(String id) {
@@ -227,9 +259,9 @@ public class ElasTestService implements Serializable {
     }
     
     private void updateInstance() {
-        log.info("Updating ElasTest service instance");
+        LOG.info("Updating ElasTest service instance");
         instance.elasTestUrl = ElasTestInstallation.getLogstashDescriptor().elasTestUrl;
-        instance.elasTestApiUrl = elasTestUrl + "/api/external/tjob";
+        instance.elasTestTJobApiUrl = elasTestUrl + "/api/external/tjob";
         instance.client = Client.create();
         String name = ElasTestInstallation.getLogstashDescriptor().username;
         String password = ElasTestInstallation.getLogstashDescriptor().password;
@@ -237,10 +269,10 @@ public class ElasTestService implements Serializable {
                 (password != null && !password.equals(""))) {
             String authString = name + ":" + password;
             instance.credentialsB64 = new Base64().encodeAsString(authString.getBytes(StandardCharsets.UTF_8));
-            log.info("Now access to ElasTest is with username and password.");
+            LOG.info("Now access to ElasTest is with username and password.");
         } else {
             instance.credentialsB64 = null;
-            log.info("Now access to ElasTest is without username and password.");
+            LOG.info("Now access to ElasTest is without username and password.");
         }
                 
         instance.tSServicesCatalog = loadTSSCatalog();
