@@ -40,6 +40,7 @@ import hudson.tools.ToolInstallation;
 import hudson.tools.ToolProperty;
 import hudson.util.FormValidation;
 import jenkins.model.Jenkins;
+import jenkins.plugins.elastest.utils.Utils;
 import net.sf.json.JSONObject;
 
 /**
@@ -113,19 +114,19 @@ public class ElasTestInstallation extends ToolInstallation {
                 try {
                     ElasTestService elasTestService = ElasTestService
                             .getInstance();
-                    if (elasTestService.getElasTestVersion()
-                            .equals(elasTestVersion)) {
+                    if (Utils.isCompatibleVersions(elasTestVersion,
+                            elasTestService.getElasTestVersion())) {
                         return FormValidation.ok("Success");
                     } else {
                         return FormValidation
                                 .error("Your installed ElasTest version is not compatible"
                                         + " with this plugin version. You need to get "
-                                        + "installed ElasTest "
-                                        + elasTestVersion);
+                                        + "installed ElasTest v."
+                                        + elasTestVersion + "or later.");
                     }
                 } catch (Exception e) {
-                    return FormValidation
-                            .error("Connection error: " + e.getMessage());
+                    return FormValidation.error(
+                            "Connection error. Check the ElasTest health and the plugin configuration.");
                 }
             } else {
                 return FormValidation.error(

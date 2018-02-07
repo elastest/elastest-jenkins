@@ -21,7 +21,7 @@ import jenkins.plugins.elastest.ElasTestWriter;
 
 @SuppressWarnings("resource")
 @RunWith(MockitoJUnitRunner.class)
-public class LogstashOutputStreamTest {
+public class ElasTestOutputStreamTest {
   // Extension of the unit under test that avoids making calls to getInstance() to get the DAO singleton
   static ElasTestOutputStream createLogstashOutputStream(OutputStream delegate, ElasTestWriter logstash) {
     return new ElasTestOutputStream(delegate, logstash);
