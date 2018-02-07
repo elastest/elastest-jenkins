@@ -104,7 +104,7 @@ public class BuildListener extends RunListener<Run> {
                 break;
             }
 
-            elasTestService.sendJobInformationToElasTest(
+            elasTestService.finishElasTestTJobExecution(
                     elasTestService.getExternalJobByBuildId(build.getId()));
             elasTestService.removeExternalJobs(build.getId());
         }
