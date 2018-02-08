@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2017 Hewlett-Packard Development Company, L.P.
+ * (C) Copyright 2017-2019 ElasTest (http://elastest.io/)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
