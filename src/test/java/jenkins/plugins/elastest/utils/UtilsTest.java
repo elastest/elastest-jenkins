@@ -10,6 +10,7 @@ public class UtilsTest {
     @Test
     public void isCompatibleVersionsOKTest() {
         assertTrue(Utils.isCompatibleVersions("1.1.0", "1.1.2-beta4"));
+        assertTrue(Utils.isCompatibleVersions("1.1.2-beta4", "1.1.2-beta4"));
     }
     
     @Test
