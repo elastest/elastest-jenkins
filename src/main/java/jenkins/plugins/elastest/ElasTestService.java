@@ -72,6 +72,7 @@ public class ElasTestService implements Serializable {
         elasTestTJobApiUrl = elasTestUrl + "/api/external/tjob";
         elasTestVersionApiUrl = "/api/external/elastest/version";
         client = Client.create();
+        client.setConnectTimeout(5000);
         String name = ElasTestInstallation.getLogstashDescriptor().username;
         String password = ElasTestInstallation.getLogstashDescriptor().password;
         if ((name != null && !name.equals(""))
