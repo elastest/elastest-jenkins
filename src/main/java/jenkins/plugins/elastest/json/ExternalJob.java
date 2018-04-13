@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2017 ElasTest
+ * (C) Copyright 2017-2019 ElasTest (http://elastest.io/)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,8 +34,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * 
- * @author frdiaz
- *
+ * @author Francisco R Díaz
+ * @since 0.0.1
  */
 public class ExternalJob implements Serializable {
     private static final long serialVersionUID = 1L;

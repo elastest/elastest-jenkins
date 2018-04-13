@@ -44,8 +44,11 @@ import jenkins.plugins.elastest.utils.Utils;
 import net.sf.json.JSONObject;
 
 /**
- * Stores global configuration of the ElasTest plugin, shared between
+ * Stores global configuration of the ElasTest plugin that is shared between
  * components.
+ * 
+ * @author Francisco R Díaz
+ * @since 0.0.1
  */
 public class ElasTestInstallation extends ToolInstallation {
     private static final long serialVersionUID = 1L;

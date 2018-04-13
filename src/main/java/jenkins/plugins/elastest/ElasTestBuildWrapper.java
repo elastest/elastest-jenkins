@@ -51,6 +51,7 @@ import jenkins.tasks.SimpleBuildWrapper;
  * the EUS(ElasTest User Impersonation Service) from a Jenkins Job.
  * 
  * @author Francisco R. Díaz
+ * @since 0.0.1
  */
 public class ElasTestBuildWrapper extends SimpleBuildWrapper {
     private static final Logger LOG = Logger

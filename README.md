@@ -1,42 +1,38 @@
+[![][ElasTest Logo]][ElasTest]
+
 ElasTest Plugin
 =======================
 
-This plugin adds support for sending the console log of a Job Build of Jenkins to ElasTest Platform, so that you can store, compare and analyze it.
+Plugin to integrate Jenkins with ElasTest, an elastic platform to ease end to end testing. Using this plugin you will be able to send logs of a build to ElasTest to store and analyze them with advanced tools. Also, you can make use of several services provide by ElasTest (currently ElasTest provide browsers on demand).
 
-Install
-=======
-
-* Download the sources from GitHub Repository `https://github.com/elastest/elastest-jenkins.git`
-* Generate the `hpi` file with the command: `mvn package`
-* Put the `hpi` file in the directory `$JENKINS_HOME/plugins`
-* Restart jenkins
-
-Configure
-=========
-1. To configure this plugin, you must go to "Manage Jenkins => Global Tool Configuration" and in the section `ElasTest Plugin` fill the `ElasTest URL` field (e.g. http://localhost:8090/).   
-
-2. Check the checkbox with the description `Send console log to ElasTest` in the configuration of the job whose logs you want to send to ElasTest.
-
-Pipeline
-========
-
-ElasTest plugin can be used to send logs in pipeline jobs:
-
-```Groovy
- node('master') {
-        sh'''
-        echo 'Hello, world!'
-        '''
-        elastest{
-            ......
-        } 
- }
-```
+For more information visit the [wiki](https://wiki.jenkins.io/display/JENKINS/ElasTest+Plugin) page
 
 License
 =======
 
-The Logstash Plugin is licensed under the MIT License.
+ElasTest Plugin is licensed under the MIT License.
 
+    The MIT License
 
+    (C) Copyright 2017-2019 ElasTest (http://elastest.io/)
 
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in
+    all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+    THE SOFTWARE.
+    
+[ElasTest]: http://elastest.io/
+[ElasTest Logo]: http://elastest.io/images/logos_elastest/elastest-logo-gray-small.png

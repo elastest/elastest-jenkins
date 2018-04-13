@@ -44,7 +44,7 @@ import jenkins.YesNoMaybe;
 import jenkins.plugins.elastest.Messages;
 
 /**
- * Pipeline Step that allows to send send log traces to ElasTest and use the EUS
+ * Pipeline Step that allows to send log traces to ElasTest and use the EUS
  * TSS.
  * 
  * @author Francisco R. Díaz

@@ -32,7 +32,7 @@ import hudson.model.Run;
 import jenkins.plugins.elastest.json.ExternalJob;
 
 /**
- * This allows to set a new decorate logger that sends the logs of a 
+ * Allows to set a new decorate logger that sends the logs of a 
  * build to ElasTest.
  * 
  * @author Francisco R. Díaz

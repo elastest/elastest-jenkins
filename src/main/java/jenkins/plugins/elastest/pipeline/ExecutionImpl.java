@@ -47,6 +47,9 @@ import jenkins.plugins.elastest.json.ExternalJob;
 
 /**
  * Execution for {@link ElasTestStep}.
+ 
+ * @author Francisco R. Díaz
+ * @since 0.0.1
  */
 public class ExecutionImpl extends AbstractStepExecutionImpl {
 

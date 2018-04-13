@@ -33,7 +33,7 @@ import jenkins.plugins.elastest.ElasTestService;
 import jenkins.plugins.elastest.Messages;
 
 /**
- * Through this you can access to the Job execution in ElasTest 
+ * This class creates the icon that allows access to the Job execution in ElasTest 
  * @author Francisco R. Díaz
  *
  */
