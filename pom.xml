@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -27,7 +28,7 @@
         <connection>scm:git:git://github.com/jenkinsci/elastest-plugin.git</connection>
         <developerConnection>scm:git:git@github.com:jenkinsci/elastest-plugin.git</developerConnection>
         <url>https://github.com/jenkinsci/elastest-plugin</url>
-        <tag>elastest-0.9.1-beta-2</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <properties>
@@ -50,7 +51,7 @@
 
     <artifactId>elastest</artifactId>
     <packaging>hpi</packaging>
-    <version>0.9.1-beta-2</version>
+    <version>0.9.1-beta-2-SNAPSHOT</version>
 	<name>ElasTest Plugin</name>
 	<description>Plugin to integrate Jenkins with ElasTest, an elastic platform to ease end to end testing.
 	 Using this plugin you will be able to send logs of a build to ElasTest to store and analyze them.
