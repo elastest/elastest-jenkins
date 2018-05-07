@@ -84,9 +84,9 @@ public class BuildListener extends RunListener<Run> {
         super.onFinalized(build);
 
         if (elasTestService.getExternalJobs().size() > 0
-                && (build != null && build.getId() != null && build.getResult() != null)) {
+                && (build != null && build.getFullDisplayName() != null && build.getResult() != null)) {
             ExternalJob externalJob = elasTestService
-                    .getExternalJobByBuildId(build.getId());
+                    .getExternalJobByBuildFullName(build.getFullDisplayName());
             switch (build.getResult().ordinal) {
             case 0:
                 externalJob.setResult(0);
@@ -105,8 +105,8 @@ public class BuildListener extends RunListener<Run> {
             }
 
             elasTestService.finishElasTestTJobExecution(
-                    elasTestService.getExternalJobByBuildId(build.getId()));
-            elasTestService.removeExternalJobs(build.getId());
+                    elasTestService.getExternalJobByBuildFullName(build.getFullDisplayName()));
+            elasTestService.removeExternalJobs(build.getFullDisplayName());
         }
 
         LOG.info("Finalized all");

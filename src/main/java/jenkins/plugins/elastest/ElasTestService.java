@@ -127,7 +127,7 @@ public class ElasTestService implements Serializable {
         externalJob = createTJobOnElasTest(externalJob);
         externalJob.setExecutionUrl(externalJob.getExecutionUrl());
         externalJob.setLogAnalyzerUrl(externalJob.getLogAnalyzerUrl());
-        externalJobs.put(build.getId(), externalJob);
+        externalJobs.put(build.getFullDisplayName(), externalJob);
 
         return externalJob;
     }
@@ -227,8 +227,8 @@ public class ElasTestService implements Serializable {
         return result;
     }
 
-    public ExternalJob getExternalJobByBuildId(String id) {
-        return externalJobs.get(id);
+    public ExternalJob getExternalJobByBuildFullName(String buildFullName) {
+        return externalJobs.get(buildFullName);
     }
 
     public HashMap<String, ExternalJob> getExternalJobs() {

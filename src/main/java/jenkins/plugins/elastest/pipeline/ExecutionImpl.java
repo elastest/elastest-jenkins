@@ -76,7 +76,7 @@ public class ExecutionImpl extends AbstractStepExecutionImpl {
             while (!externalJob.isReady()) {
                 externalJob = elasTestService
                         .isReadyTJobForExternalExecution(externalJob);
-                elasTestService.getExternalJobs().put(build.getId(),
+                elasTestService.getExternalJobs().put(build.getFullDisplayName(),
                         externalJob);
             }
             addEnvVars(build);
@@ -124,7 +124,7 @@ public class ExecutionImpl extends AbstractStepExecutionImpl {
 
     private void addEnvVars(Run<?, ?> build) {
         ExternalJob externalJob = elasTestService
-                .getExternalJobByBuildId(build.getId());
+                .getExternalJobByBuildFullName(build.getFullDisplayName());
         elasTestStep.envVars.putAll(externalJob.getTSSEnvVars() != null
                 ? externalJob.getTSSEnvVars() : new HashMap<String, String>());
     }

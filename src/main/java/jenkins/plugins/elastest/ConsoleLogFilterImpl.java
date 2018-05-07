@@ -57,7 +57,7 @@ public class ConsoleLogFilterImpl extends ConsoleLogFilter
             throws IOException, InterruptedException {
 
         ElasTestWriter elasTestWriter = getElasTestWriter(build, logger,
-                elasTestService.getExternalJobByBuildId(build.getId()));
+                elasTestService.getExternalJobByBuildFullName(build.getFullDisplayName()));
         ElasTestOutputStream los = new ElasTestOutputStream(logger,
                 elasTestWriter);
 

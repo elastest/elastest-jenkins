@@ -58,9 +58,9 @@ public class ElasTestItemMenuAction extends Actionable implements Action {
     public static void addActionToMenu(Run<?, ?> build) {
         ElasTestService elasTestService = ElasTestService.getInstance();
         ElasTestItemMenuAction action = new ElasTestItemMenuAction(build,
-                elasTestService.getExternalJobByBuildId(build.getId())
+                elasTestService.getExternalJobByBuildFullName(build.getFullDisplayName())
                         .getLogAnalyzerUrl(),
-                elasTestService.getExternalJobByBuildId(build.getId())
+                elasTestService.getExternalJobByBuildFullName(build.getFullDisplayName())
                         .getExecutionUrl());
         build.addAction(action);
     }

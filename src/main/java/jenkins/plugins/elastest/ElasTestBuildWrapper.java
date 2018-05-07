@@ -90,12 +90,12 @@ public class ElasTestBuildWrapper extends SimpleBuildWrapper {
         LOG.info("ElasTestBuildWrapper SetUp");
         ElasTestItemMenuAction.addActionToMenu(build);
         ExternalJob externalJob = elasTestService
-                .getExternalJobByBuildId(build.getId());
+                .getExternalJobByBuildFullName(build.getFullDisplayName());
         while (!externalJob.isReady()) {
             try {
                 externalJob = elasTestService
                         .isReadyTJobForExternalExecution(externalJob);
-                elasTestService.getExternalJobs().put(build.getId(),
+                elasTestService.getExternalJobs().put(build.getFullDisplayName(),
                         externalJob);
             } catch (Exception e) {
                 LOG.info("Error checking the status of the TJob.");
@@ -104,10 +104,10 @@ public class ElasTestBuildWrapper extends SimpleBuildWrapper {
             }
         }
 
-        if (elasTestService.getExternalJobByBuildId(build.getId())
+        if (elasTestService.getExternalJobByBuildFullName(build.getFullDisplayName())
                 .getTSSEnvVars() != null) {
             for (Entry<String, String> entry : elasTestService
-                    .getExternalJobByBuildId(build.getId()).getTSSEnvVars()
+                    .getExternalJobByBuildFullName(build.getFullDisplayName()).getTSSEnvVars()
                     .entrySet()) {
                 context.env(entry.getKey(), entry.getValue());
             }
