@@ -1,0 +1,13 @@
+node{ 
+    elastest() {
+        stage ('Executing Test') {
+            echo 'Print env variables'
+            sh 'env'
+            mvnHome = tool 'M3.3.9'
+            echo 'Cloning repository'
+            git 'https://github.com/elastest/demo-projects'
+            echo 'Run test'
+            sh "cd ./unit-java-test/;'${mvnHome}/bin/mvn' test"
+        }    
+    }
+} 
