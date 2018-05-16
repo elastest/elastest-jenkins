@@ -2,6 +2,7 @@ package jenkins.plugins.elastest.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.StringTokenizer;
 
@@ -40,8 +41,9 @@ public class FileManager {
 
         if (!file.isDirectory()) {
             try {
-                content = new String(Files.readAllBytes(file.toPath()));
-            } catch (IOException e) {                
+                content = new String(Files.readAllBytes(file.toPath()), Charset.forName("UTF-8"));
+            } catch (IOException e) {
+                e.printStackTrace();
                 throw e;
             }
         }
