@@ -63,6 +63,9 @@ public class ElasTestStep extends AbstractStepImpl {
 
     @Nonnull
     private Long tJobId = -1L;
+    
+    @Nonnull
+    private String surefireReportsPattern = "";
 
     /**
      * Constructor.
@@ -95,6 +98,15 @@ public class ElasTestStep extends AbstractStepImpl {
     @DataBoundSetter
     public void setTJobId(Long tJobId) {
         this.tJobId = tJobId;
+    }
+
+    public String getSurefireReportsPattern() {
+        return surefireReportsPattern;
+    }
+
+    @DataBoundSetter
+    public void setSurefireReportsPattern(String surefireReportsPattern) {
+        this.surefireReportsPattern = surefireReportsPattern;
     }
 
     /**

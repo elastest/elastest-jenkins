@@ -116,6 +116,12 @@ public class ElasTestService implements Serializable {
         ExternalJob externalJob = new ExternalJob(
                 build.getParent().getDisplayName());
         externalJob.setTSServices(prepareTSSToSendET(elasTestStep.getTss()));
+        LOG.info("TestResutlPatter: " + elasTestStep.getSurefireReportsPattern());
+        externalJob.setTestResultFilePattern(
+                (elasTestStep.getSurefireReportsPattern() != null
+                        && !elasTestStep.getSurefireReportsPattern().isEmpty())
+                                ? elasTestStep.getSurefireReportsPattern()
+                                : null);
         externalJob = asociateToElasTestTJob(build, externalJob);
 
         return externalJob;
