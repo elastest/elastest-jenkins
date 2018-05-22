@@ -14,17 +14,14 @@ public class TestResultParser {
     private static final Logger LOG = LoggerFactory
             .getLogger(TestResultParser.class);
     
-    public List<String> prepareTestReportsAsString(String rootDir, String jobName,
+    public List<String> prepareTestReportsAsString(String workspacePath,
             String testResultFilePattern) throws Exception {
         List<String> testReportsAsString = new ArrayList<>();
         LOG.info("Preparing test reports to be sended to ElasTest");
 
         try {
             FileManager fm = new FileManager();
-            String workspaceRootPath = rootDir.split("jobs")[0];
-            LOG.info("Workspace path: ", workspaceRootPath);
-            String workspacePath = workspaceRootPath + "workspace/"
-                    + jobName + "/";
+                         
             FileSet fs = fm.createFileSet(new File(workspacePath),
                     testResultFilePattern, null);
             DirectoryScanner ds = fs.getDirectoryScanner();            
@@ -32,7 +29,7 @@ public class TestResultParser {
             List<String> files = Arrays.asList(ds.getIncludedFiles());
             for (String file : files) {
                 LOG.info("Test result file: " + file);
-                String absoluteFilePath = workspacePath + file;
+                String absoluteFilePath = workspacePath + "/" + file;
                 LOG.debug("Content of the test results file: "
                         + fm.readFile(new File(absoluteFilePath)));
                 testReportsAsString

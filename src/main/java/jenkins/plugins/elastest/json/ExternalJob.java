@@ -75,6 +75,9 @@ public class ExternalJob implements Serializable {
 
     @JsonProperty("testResults")
     private List<String> testResults;
+    
+    @JsonProperty("build")
+    private Build build;
 
     public ExternalJob() {
     }
@@ -87,7 +90,8 @@ public class ExternalJob implements Serializable {
             String logAnalyzerUrl, Long tJobExecId, String logstashPort,
             String servicesIp, List<TestSupportServices> tSServices,
             Map<String, String> tSSEnvVars, int result, boolean isReady,
-            String testResultFilePattern, List<String> testResults) {
+            String testResultFilePattern, List<String> testResults,
+            Build build) {
         super();
         this.jobName = jobName;
         this.executionUrl = executionUrl;
@@ -101,6 +105,7 @@ public class ExternalJob implements Serializable {
         this.isReady = isReady;
         this.testResultFilePattern = testResultFilePattern;
         this.testResults = testResults;
+        this.build = build;
     }
 
     public String getJobName() {
@@ -198,6 +203,14 @@ public class ExternalJob implements Serializable {
     public void setTestResults(List<String> testResults) {
         this.testResults = testResults;
     }
+    
+    public Build getBuild() {
+        return build;
+    }
+
+    public void setBuild(Build build) {
+        this.build = build;
+    }
 
     @Override
     public boolean equals(java.lang.Object o) {
@@ -258,6 +271,8 @@ public class ExternalJob implements Serializable {
                 .append(toIndentedString(testResultFilePattern)).append("\n");
         sb.append("    testResults: ")
         .append(toIndentedString(testResults)).append("\n");
+        sb.append("    build: ")
+        .append(toIndentedString(build)).append("\n");
         sb.append("}");
 
         return sb.toString();

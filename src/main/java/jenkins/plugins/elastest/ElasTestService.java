@@ -41,6 +41,7 @@ import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 
 import hudson.model.Run;
+import jenkins.plugins.elastest.json.Build;
 import jenkins.plugins.elastest.json.ExternalJob;
 import jenkins.plugins.elastest.json.TestSupportServices;
 import jenkins.plugins.elastest.pipeline.ElasTestStep;
@@ -115,6 +116,7 @@ public class ElasTestService implements Serializable {
             ElasTestStep elasTestStep) throws Exception {
         ExternalJob externalJob = new ExternalJob(
                 build.getParent().getDisplayName());
+        externalJob.setBuild(new Build(elasTestStep.envVars.get("WORKSPACE")));
         externalJob.setTSServices(prepareTSSToSendET(elasTestStep.getTss()));
         LOG.info("TestResutlPatter: " + elasTestStep.getSurefireReportsPattern());
         externalJob.setTestResultFilePattern(

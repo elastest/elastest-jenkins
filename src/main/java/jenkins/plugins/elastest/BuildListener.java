@@ -113,8 +113,7 @@ public class BuildListener extends RunListener<Run> {
                         && !externalJob.getTestResultFilePattern().isEmpty()) {
                     externalJob.setTestResults(
                             testResultParser.prepareTestReportsAsString(
-                                    build.getRootDir().getAbsolutePath(),
-                                    build.getParent().getDisplayName(),
+                                    externalJob.getBuild().getWorkspace(),
                                     externalJob.getTestResultFilePattern()));
                 }
             } catch (Exception e) {

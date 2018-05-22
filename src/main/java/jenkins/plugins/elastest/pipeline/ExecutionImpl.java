@@ -38,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import hudson.EnvVars;
+import hudson.FilePath;
 import hudson.console.ConsoleLogFilter;
 import hudson.model.Run;
 import jenkins.plugins.elastest.ConsoleLogFilterImpl;
@@ -79,6 +80,7 @@ public class ExecutionImpl extends AbstractStepExecutionImpl {
                 elasTestService.getExternalJobs().put(build.getFullDisplayName(),
                         externalJob);
             }
+            
             addEnvVars(build);
         } catch (Exception e) {
             LOG.error("Error trying to bind the build with a TJob.");
