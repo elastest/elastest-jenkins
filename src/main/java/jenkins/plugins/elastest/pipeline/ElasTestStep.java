@@ -119,7 +119,7 @@ public class ElasTestStep extends AbstractStepImpl {
          * Constructor.
          */
         public DescriptorImpl() {
-            super(ExecutionImpl.class);
+            super(ElasTestStepExecutionImpl.class);
         }
 
         /**

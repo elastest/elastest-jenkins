@@ -43,6 +43,7 @@ import hudson.model.TaskListener;
 import hudson.tasks.BuildWrapper;
 import hudson.tasks.BuildWrapperDescriptor;
 import jenkins.plugins.elastest.action.ElasTestItemMenuAction;
+import jenkins.plugins.elastest.json.ElasTestBuild;
 import jenkins.plugins.elastest.json.ExternalJob;
 import jenkins.tasks.SimpleBuildWrapper;
 
@@ -88,15 +89,19 @@ public class ElasTestBuildWrapper extends SimpleBuildWrapper {
             EnvVars initialEnvironment)
             throws IOException, InterruptedException {
         LOG.info("ElasTestBuildWrapper SetUp");
-        ElasTestItemMenuAction.addActionToMenu(build);
+        ElasTestItemMenuAction.addActionToMenu(build);        
         ExternalJob externalJob = elasTestService
                 .getExternalJobByBuildFullName(build.getFullDisplayName());
-        while (!externalJob.isReady()) {
+        ElasTestBuild elasTestBuild;
+        
+        elasTestBuild = new ElasTestBuild(workspace, externalJob);
+                
+        while (!elasTestBuild.getExternalJob().isReady()) {
             try {
-                externalJob = elasTestService
-                        .isReadyTJobForExternalExecution(externalJob);
-                elasTestService.getExternalJobs().put(build.getFullDisplayName(),
-                        externalJob);
+                elasTestBuild.setExternalJob(elasTestService
+                        .isReadyTJobForExternalExecution(externalJob));
+                elasTestService.getElasTestBuild().put(build.getFullDisplayName(),
+                        elasTestBuild);
             } catch (Exception e) {
                 LOG.info("Error checking the status of the TJob.");
                 e.printStackTrace();
@@ -121,8 +126,9 @@ public class ElasTestBuildWrapper extends SimpleBuildWrapper {
     public ConsoleLogFilter createLoggerDecorator(Run<?, ?> build) {
         LOG.info("ElasTestBuildWrapper CreateLoggerDecorator");
         elasTestService = ElasTestService.getInstance();
+        ElasTestBuild elasTestBuild = new ElasTestBuild();
         try {
-            elasTestService.asociateToElasTestTJob(build, this);
+            elasTestService.asociateToElasTestTJob(build, this, elasTestBuild);
         } catch (Exception e) {
             e.printStackTrace();
         }

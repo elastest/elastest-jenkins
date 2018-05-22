@@ -41,7 +41,7 @@ import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 
 import hudson.model.Run;
-import jenkins.plugins.elastest.json.Build;
+import jenkins.plugins.elastest.json.ElasTestBuild;
 import jenkins.plugins.elastest.json.ExternalJob;
 import jenkins.plugins.elastest.json.TestSupportServices;
 import jenkins.plugins.elastest.pipeline.ElasTestStep;
@@ -59,7 +59,7 @@ public class ElasTestService implements Serializable {
             .getLogger(ElasTestService.class);
     private static ElasTestService instance;
 
-    private HashMap<String, ExternalJob> externalJobs;
+    private HashMap<String, ElasTestBuild> elasTestBuilds;
     private Map<String, String> tSServicesCatalog;
     private String elasTestTJobApiUrl;
     private String elasTestVersionApiUrl;
@@ -68,7 +68,7 @@ public class ElasTestService implements Serializable {
     private transient Client client;
 
     public ElasTestService() {
-        this.externalJobs = new HashMap<>();
+        this.elasTestBuilds = new HashMap<>();
         elasTestUrl = ElasTestInstallation.getLogstashDescriptor().elasTestUrl;
         elasTestTJobApiUrl = elasTestUrl + "/api/external/tjob";
         elasTestVersionApiUrl = "/api/external/elastest/version";
@@ -97,8 +97,8 @@ public class ElasTestService implements Serializable {
         return tSSCatalog;
     }
 
-    public ExternalJob asociateToElasTestTJob(Run<?, ?> build,
-            ElasTestBuildWrapper elasTestBuilder) throws Exception {
+    public void asociateToElasTestTJob(Run<?, ?> build,
+            ElasTestBuildWrapper elasTestBuilder, ElasTestBuild elasTestBuild) throws Exception {
         LOG.info("Associate a Job to a TJob {}",
                 build.getParent().getDisplayName());
         ExternalJob externalJob = new ExternalJob(
@@ -108,15 +108,18 @@ public class ElasTestService implements Serializable {
             tss.add("EUS");
             externalJob.setTSServices(prepareTSSToSendET(tss));
         }
+        
         externalJob = asociateToElasTestTJob(build, externalJob);
-        return externalJob;
+        elasTestBuild.setExternalJob(externalJob);
+        elasTestBuilds.put(build.getFullDisplayName(), elasTestBuild);
+        
     }
 
-    public ExternalJob asociateToElasTestTJob(Run<?, ?> build,
-            ElasTestStep elasTestStep) throws Exception {
+    public void asociateToElasTestTJob(Run<?, ?> build,
+            ElasTestStep elasTestStep, ElasTestBuild elasTestBuild) throws Exception {        
         ExternalJob externalJob = new ExternalJob(
                 build.getParent().getDisplayName());
-        externalJob.setBuild(new Build(elasTestStep.envVars.get("WORKSPACE")));
+        
         externalJob.setTSServices(prepareTSSToSendET(elasTestStep.getTss()));
         LOG.info("TestResutlPatter: " + elasTestStep.getSurefireReportsPattern());
         externalJob.setTestResultFilePattern(
@@ -125,8 +128,8 @@ public class ElasTestService implements Serializable {
                                 ? elasTestStep.getSurefireReportsPattern()
                                 : null);
         externalJob = asociateToElasTestTJob(build, externalJob);
-
-        return externalJob;
+        elasTestBuild.setExternalJob(externalJob);
+        elasTestBuilds.put(build.getFullDisplayName(), elasTestBuild);
     }
 
     public ExternalJob asociateToElasTestTJob(Run<?, ?> build,
@@ -135,7 +138,6 @@ public class ElasTestService implements Serializable {
         externalJob = createTJobOnElasTest(externalJob);
         externalJob.setExecutionUrl(externalJob.getExecutionUrl());
         externalJob.setLogAnalyzerUrl(externalJob.getLogAnalyzerUrl());
-        externalJobs.put(build.getFullDisplayName(), externalJob);
 
         return externalJob;
     }
@@ -236,15 +238,15 @@ public class ElasTestService implements Serializable {
     }
 
     public ExternalJob getExternalJobByBuildFullName(String buildFullName) {
-        return externalJobs.get(buildFullName);
+        return elasTestBuilds.get(buildFullName).getExternalJob();
     }
 
-    public HashMap<String, ExternalJob> getExternalJobs() {
-        return externalJobs;
+    public HashMap<String, ElasTestBuild> getElasTestBuild() {
+        return elasTestBuilds;
     }
 
     public void removeExternalJobs(String buildId) {
-        externalJobs.remove(buildId);
+        elasTestBuilds.remove(buildId);
     }
 
     public static synchronized ElasTestService getInstance() {

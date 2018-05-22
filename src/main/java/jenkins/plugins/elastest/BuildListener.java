@@ -36,8 +36,9 @@ import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.model.Run.RunnerAbortedException;
 import hudson.model.listeners.RunListener;
+import jenkins.plugins.elastest.json.ElasTestBuild;
 import jenkins.plugins.elastest.json.ExternalJob;
-import jenkins.plugins.elastest.utils.TestResultParser;
+import jenkins.plugins.elastest.utils.ParseResultCallable;
 
 /**
  * Listener for the Job life cycle.
@@ -75,17 +76,32 @@ public class BuildListener extends RunListener<Run> {
         return super.setUpEnvironment(build, launcher, listener);
     }
 
-    // @Override
-    // public void onCompleted(Run run, TaskListener listener) {
-    // LOG.info("Resultado: " + (run != null ? run.getResult().ordinal : "Not
-    // available."));
-    // }
+    @Override
+    public void onCompleted(Run run, TaskListener listener) {
+        ExternalJob externalJob = elasTestService
+                .getExternalJobByBuildFullName(run.getFullDisplayName());
+        final long buildTime = run.getTimestamp().getTimeInMillis();
+        final long timeOnMaster = System.currentTimeMillis();
+
+        ElasTestBuild elasTestBuild = elasTestService.getElasTestBuild()
+                .get(run.getFullDisplayName());
+        try {
+            elasTestBuild.getExternalJob()
+                    .setTestResults(elasTestBuild.getWorkspace()
+                            .act(new ParseResultCallable(
+                                    elasTestBuild.getExternalJob()
+                                            .getTestResultFilePattern(),
+                                    buildTime, timeOnMaster)));
+        } catch (Exception e) {
+            listener.getLogger().println("Error sending surefire reports");
+        }
+    }
 
     @Override
     public void onFinalized(Run build) {
         super.onFinalized(build);
 
-        if (elasTestService.getExternalJobs().size() > 0
+        if (elasTestService.getElasTestBuild().size() > 0
                 && (build != null && build.getFullDisplayName() != null
                         && build.getResult() != null)) {
             ExternalJob externalJob = elasTestService
@@ -105,19 +121,6 @@ public class BuildListener extends RunListener<Run> {
             default:
                 externalJob.setResult(0);
                 break;
-            }
-
-            try {
-                TestResultParser testResultParser = new TestResultParser();
-                if (externalJob.getTestResultFilePattern() != null
-                        && !externalJob.getTestResultFilePattern().isEmpty()) {
-                    externalJob.setTestResults(
-                            testResultParser.prepareTestReportsAsString(
-                                    externalJob.getBuild().getWorkspace(),
-                                    externalJob.getTestResultFilePattern()));
-                }
-            } catch (Exception e) {
-                externalJob.setResult(1);
             }
 
             elasTestService.finishElasTestTJobExecution(elasTestService
