@@ -78,23 +78,24 @@ public class BuildListener extends RunListener<Run> {
 
     @Override
     public void onCompleted(Run run, TaskListener listener) {
-        ExternalJob externalJob = elasTestService
-                .getExternalJobByBuildFullName(run.getFullDisplayName());
+        
         final long buildTime = run.getTimestamp().getTimeInMillis();
         final long timeOnMaster = System.currentTimeMillis();
 
         ElasTestBuild elasTestBuild = elasTestService.getElasTestBuild()
                 .get(run.getFullDisplayName());
-        try {
-            elasTestBuild.getExternalJob()
-                    .setTestResults(elasTestBuild.getWorkspace()
-                            .act(new ParseResultCallable(
-                                    elasTestBuild.getExternalJob()
-                                            .getTestResultFilePattern(),
-                                    buildTime, timeOnMaster)));
-        } catch (Exception e) {
-            listener.getLogger().println("Error sending surefire reports");
-        }
+        
+            try {
+                elasTestBuild.getExternalJob()
+                        .setTestResults(elasTestBuild.getWorkspace()
+                                .act(new ParseResultCallable(
+                                        elasTestBuild.getExternalJob()
+                                                .getTestResultFilePattern(),
+                                        buildTime, timeOnMaster)));
+            } catch (IOException | InterruptedException e) {
+                listener.getLogger().println("Error sending surefire reports");
+            }
+       
     }
 
     @Override
