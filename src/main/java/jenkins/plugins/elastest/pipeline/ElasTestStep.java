@@ -37,6 +37,8 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import hudson.EnvVars;
 import hudson.Extension;
@@ -51,6 +53,9 @@ import jenkins.plugins.elastest.Messages;
  * @since 0.0.1
  */
 public class ElasTestStep extends AbstractStepImpl {
+    
+    private static final Logger LOG = LoggerFactory
+            .getLogger(ElasTestStep.class);
 
     @StepContextParameter
     public EnvVars envVars;
@@ -66,6 +71,9 @@ public class ElasTestStep extends AbstractStepImpl {
     
     @Nonnull
     private String surefireReportsPattern = "";
+    
+    @Nonnull
+    private boolean monitoring = false;
 
     /**
      * Constructor.
@@ -107,6 +115,16 @@ public class ElasTestStep extends AbstractStepImpl {
     @DataBoundSetter
     public void setSurefireReportsPattern(String surefireReportsPattern) {
         this.surefireReportsPattern = surefireReportsPattern;
+    }
+
+    public boolean isMonitoring() {
+        return monitoring;
+    }
+
+    @DataBoundSetter
+    public void setMonitoring(boolean monitoring) {
+        LOG.info("Monitoring value: {}", String.valueOf(monitoring));
+        this.monitoring = monitoring;
     }
 
     /**

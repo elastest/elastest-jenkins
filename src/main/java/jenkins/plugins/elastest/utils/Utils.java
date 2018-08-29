@@ -43,4 +43,8 @@ public class Utils {
         return result;
     }
 
+    public static String scapeCharacters(String charToScape, String message) {
+        return charToScape.equals("\"") ? message.replace(charToScape, "\\\"")
+                : message.replace(charToScape, "\\" + charToScape);
+    }
 }

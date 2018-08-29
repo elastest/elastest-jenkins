@@ -28,6 +28,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 
 import jenkins.plugins.elastest.json.ExternalJob;
+import jenkins.plugins.elastest.utils.Utils;
 
 /**
  * 
@@ -59,8 +60,8 @@ abstract class AbstractElasTestSubmitter implements ElasTestSubmitter {
         String payload = logLines.get(0);
         payload = "{" + "\"component\":\"test\"" + ",\"exec\":\""
                 + externalJob.gettJobExecId() + "\""
-                + ",\"stream\":\"default_log\"" + ",\"message\":\"" + payload
-                + "\"" + "}";
+                + ",\"stream\":\"default_log\"" + ",\"message\":\""
+                + Utils.scapeCharacters("\"", payload) + "\"" + "}";
 
         return payload;
     }

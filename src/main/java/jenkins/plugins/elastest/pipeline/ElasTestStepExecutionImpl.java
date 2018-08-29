@@ -38,18 +38,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import hudson.EnvVars;
-import hudson.FilePath;
 import hudson.console.ConsoleLogFilter;
 import hudson.model.Run;
 import jenkins.plugins.elastest.ConsoleLogFilterImpl;
 import jenkins.plugins.elastest.ElasTestService;
 import jenkins.plugins.elastest.action.ElasTestItemMenuAction;
+import jenkins.plugins.elastest.docker.DockerService;
 import jenkins.plugins.elastest.json.ElasTestBuild;
 import jenkins.plugins.elastest.json.ExternalJob;
 
 /**
  * Execution for {@link ElasTestStep}.
- 
+ * 
  * @author Francisco R. Díaz
  * @since 0.0.1
  */
@@ -60,6 +60,8 @@ public class ElasTestStepExecutionImpl extends AbstractStepExecutionImpl {
     private static final long serialVersionUID = 1L;
 
     private ElasTestService elasTestService;
+    private DockerService dockerService;
+
     @Inject
     transient ElasTestStep elasTestStep;
 
@@ -69,20 +71,29 @@ public class ElasTestStepExecutionImpl extends AbstractStepExecutionImpl {
     @Override
     public boolean start() throws Exception {
         elasTestService = ElasTestService.getInstance();
-        StepContext context = getContext();                
+        StepContext context = getContext();
         Run<?, ?> build = context.get(Run.class);
         ElasTestBuild elasTestBuild = null;
         try {
+            // Init Build Context
             elasTestBuild = new ElasTestBuild(context);
-            elasTestService.asociateToElasTestTJob(build, elasTestStep, elasTestBuild);            
-                        
+            // Associate the Jenkins' Job to an ElasTest Job
+            elasTestService.asociateToElasTestTJob(build, elasTestStep,
+                    elasTestBuild);
+            // Add the ElasTest menu item to the left menu
             ElasTestItemMenuAction.addActionToMenu(build);
+            // Wait until the ElasTest Job is ready
             while (!elasTestBuild.getExternalJob().isReady()) {
-                elasTestBuild.setExternalJob(elasTestService
-                        .isReadyTJobForExternalExecution(elasTestBuild.getExternalJob()));                
+                elasTestBuild.setExternalJob(
+                        elasTestService.isReadyTJobForExternalExecution(
+                                elasTestBuild.getExternalJob()));
             }
-            
+            // Set environment variables
             addEnvVars(build);
+            // If monitoring is true, start monitoring
+            if (elasTestStep.isMonitoring()) {
+                startMonitoringContainers(elasTestStep.envVars, elasTestBuild);
+            }
         } catch (Exception e) {
             LOG.error("Error trying to bind the build with a TJob.");
             e.printStackTrace();
@@ -129,7 +140,58 @@ public class ElasTestStepExecutionImpl extends AbstractStepExecutionImpl {
         ExternalJob externalJob = elasTestService
                 .getExternalJobByBuildFullName(build.getFullDisplayName());
         elasTestStep.envVars.putAll(externalJob.getTSSEnvVars() != null
-                ? externalJob.getTSSEnvVars() : new HashMap<String, String>());
+                ? externalJob.getTSSEnvVars()
+                : new HashMap<String, String>());
+    }
+
+    private void startMonitoringContainers(EnvVars envVars,
+            ElasTestBuild elasTestBuild) {
+        LOG.info("Start container monitoring");
+        dockerService = DockerService
+                .getDockerService(DockerService.DOCKER_HOST_BY_DEFAULT);
+
+        String fileBeatImage = "elastest/etm-filebeat:latest";
+        String dockBeatImage = "elastest/etm-dockbeat:latest";
+
+        String logstashHost = "LOGSTASHHOST="
+                + envVars.get("ET_MON_LSBEATS_HOST");
+        String logstashPort = "LOGSTASHPORT="
+                + envVars.get("ET_MON_INTERNAL_LSBEATS_PORT");
+        String etMonLsbeatsHost = "ET_MON_LSBEATS_HOST="
+                + envVars.get("ET_MON_LSBEATS_HOST");
+        String etMonLsbeatsPort = "ET_MON_LSBEATS_PORT="
+                + envVars.get("ET_MON_LSBEATS_PORT");
+        String etMonContainersName = "ET_MON_CONTAINERS_NAME=" + "^("
+                + envVars.get("ET_SUT_CONTAINER_NAME") + ")(_)?(\\d*)(.*)?";
+
+        if (isRemoteElasTest()) {
+            elasTestBuild.getContainers()
+                    .add(dockerService.executeDockerCommand("docker", "run",
+                            "-d", "-e", etMonLsbeatsHost, "-e",
+                            etMonLsbeatsPort, "-e", etMonContainersName, "-v",
+                            "/var/run/docker.sock:/var/run/docker.sock", "-v",
+                            "/var/lib/docker/containers:/var/lib/docker/containers",
+                            "--network=elastest_elastest", fileBeatImage));
+        }
+
+        elasTestBuild.getContainers()
+                .add(dockerService.executeDockerCommand("docker", "run", "-d",
+                        "-e", logstashHost, "-e", logstashPort, "-v",
+                        "/var/run/docker.sock:/var/run/docker.sock", "-v",
+                        "/var/lib/docker/containers:/var/lib/docker/containers",
+                        "--network=elastest_elastest", dockBeatImage));
+    }
+
+    private boolean isRemoteElasTest() {
+        LOG.info("Checking if ElasTest is running locally.");
+        boolean result = true;
+        String etContainername = "elastest_etm_1";
+        result = !dockerService
+                .executeDockerCommand("docker", "inspect",
+                        "--format=\\\"{{.Name}}\\\"", etContainername)
+                .contains(etContainername);
+        LOG.info("Result of the inspect command: {}", result);
+        return result;
     }
 
     /**
@@ -139,6 +201,5 @@ public class ElasTestStepExecutionImpl extends AbstractStepExecutionImpl {
     public void stop(@Nonnull Throwable cause) throws Exception {
         getContext().onFailure(cause);
     }
-    
-    
+
 }

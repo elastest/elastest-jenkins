@@ -36,6 +36,7 @@ import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.model.Run.RunnerAbortedException;
 import hudson.model.listeners.RunListener;
+import jenkins.plugins.elastest.docker.DockerService;
 import jenkins.plugins.elastest.json.ElasTestBuild;
 import jenkins.plugins.elastest.json.ExternalJob;
 import jenkins.plugins.elastest.utils.ParseResultCallable;
@@ -53,12 +54,16 @@ public class BuildListener extends RunListener<Run> {
 
     private String elasTestApiURL;
     private ElasTestService elasTestService;
+    private DockerService dockerService;
 
     public BuildListener() {
         LOG.info("Initializing Listener");
         elasTestApiURL = ElasTestInstallation
                 .getLogstashDescriptor().elasTestUrl + "/api/external/tjob";
         elasTestService = ElasTestService.getInstance();
+        dockerService = DockerService
+                .getDockerService(DockerService.DOCKER_HOST_BY_DEFAULT);
+
     }
 
     @Override
@@ -85,15 +90,19 @@ public class BuildListener extends RunListener<Run> {
         ElasTestBuild elasTestBuild = elasTestService.getElasTestBuild()
                 .get(run.getFullDisplayName());
 
-        try {
-            elasTestBuild.getExternalJob()
-                    .setTestResults(elasTestBuild.getWorkspace()
-                            .act(new ParseResultCallable(
-                                    elasTestBuild.getExternalJob()
-                                            .getTestResultFilePattern(),
-                                    buildTime, timeOnMaster)));
-        } catch (IOException | InterruptedException e) {
-            listener.getLogger().println("Error sending surefire reports");
+        if (elasTestBuild.getExternalJob().getTestResultFilePattern() != null
+                && !elasTestBuild.getExternalJob().getTestResultFilePattern()
+                        .isEmpty()) {
+            try {
+                elasTestBuild.getExternalJob()
+                        .setTestResults(elasTestBuild.getWorkspace()
+                                .act(new ParseResultCallable(
+                                        elasTestBuild.getExternalJob()
+                                                .getTestResultFilePattern(),
+                                        buildTime, timeOnMaster)));
+            } catch (IOException | InterruptedException e) {
+                listener.getLogger().println("Error sending surefire reports");
+            }
         }
 
     }
@@ -122,6 +131,16 @@ public class BuildListener extends RunListener<Run> {
             default:
                 externalJob.setResult(0);
                 break;
+            }
+
+            // Stop docker containers started locally
+            LOG.info("Stopping aux containers.");
+            dockerService.executeDockerCommand("docker", "ps");
+            for (String containerId : elasTestService.getElasTestBuild()
+                    .get(build.getFullDisplayName()).getContainers()) {
+                LOG.info("Stopping docker container: {}", containerId);
+                dockerService.executeDockerCommand("docker", "rm", "-f",
+                        containerId, "");
             }
 
             elasTestService.finishElasTestTJobExecution(elasTestService

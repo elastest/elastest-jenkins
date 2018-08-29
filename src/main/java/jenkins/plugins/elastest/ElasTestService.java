@@ -98,7 +98,8 @@ public class ElasTestService implements Serializable {
     }
 
     public void asociateToElasTestTJob(Run<?, ?> build,
-            ElasTestBuildWrapper elasTestBuilder, ElasTestBuild elasTestBuild) throws Exception {
+            ElasTestBuildWrapper elasTestBuilder, ElasTestBuild elasTestBuild)
+            throws Exception {
         LOG.info("Associate a Job to a TJob {}",
                 build.getParent().getDisplayName());
         ExternalJob externalJob = new ExternalJob(
@@ -108,20 +109,22 @@ public class ElasTestService implements Serializable {
             tss.add("EUS");
             externalJob.setTSServices(prepareTSSToSendET(tss));
         }
-        
+
         externalJob = asociateToElasTestTJob(build, externalJob);
         elasTestBuild.setExternalJob(externalJob);
         elasTestBuilds.put(build.getFullDisplayName(), elasTestBuild);
-        
+
     }
 
     public void asociateToElasTestTJob(Run<?, ?> build,
-            ElasTestStep elasTestStep, ElasTestBuild elasTestBuild) throws Exception {        
+            ElasTestStep elasTestStep, ElasTestBuild elasTestBuild)
+            throws Exception {
         ExternalJob externalJob = new ExternalJob(
                 build.getParent().getDisplayName());
-        
+
         externalJob.setTSServices(prepareTSSToSendET(elasTestStep.getTss()));
-        LOG.info("TestResutlPatter: " + elasTestStep.getSurefireReportsPattern());
+        LOG.info("TestResutlPatter: "
+                + elasTestStep.getSurefireReportsPattern());
         externalJob.setTestResultFilePattern(
                 (elasTestStep.getSurefireReportsPattern() != null
                         && !elasTestStep.getSurefireReportsPattern().isEmpty())
@@ -181,8 +184,7 @@ public class ElasTestService implements Serializable {
             externalJob = objetMapper.readValue(
                     response.getEntity(String.class), ExternalJob.class);
         } catch (Exception e) {
-            LOG.error("Error cheking if the TJob is ready: {}",
-                    e.getMessage());
+            LOG.error("Error cheking if the TJob is ready: {}", e.getMessage());
             e.printStackTrace();
             throw e;
         }

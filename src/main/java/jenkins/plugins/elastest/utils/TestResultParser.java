@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 public class TestResultParser {
     private static final Logger LOG = LoggerFactory
             .getLogger(TestResultParser.class);
-    
+
     public List<String> prepareTestReportsAsString(String workspacePath,
             String testResultFilePattern) throws Exception {
         List<String> testReportsAsString = new ArrayList<>();
@@ -21,10 +21,10 @@ public class TestResultParser {
 
         try {
             FileManager fm = new FileManager();
-                         
+
             FileSet fs = fm.createFileSet(new File(workspacePath),
                     testResultFilePattern, null);
-            DirectoryScanner ds = fs.getDirectoryScanner();            
+            DirectoryScanner ds = fs.getDirectoryScanner();
 
             List<String> files = Arrays.asList(ds.getIncludedFiles());
             for (String file : files) {
