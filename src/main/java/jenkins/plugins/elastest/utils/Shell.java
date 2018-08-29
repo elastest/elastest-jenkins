@@ -11,7 +11,7 @@ import com.google.common.io.CharStreams;
 
 public class Shell {
 
-    public static Logger log = LoggerFactory.getLogger(Shell.class);
+    public static final Logger log = LoggerFactory.getLogger(Shell.class);
 
     public static Process run(final String... command) {
         return run(true, command);
