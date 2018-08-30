@@ -186,10 +186,11 @@ public class ElasTestStepExecutionImpl extends AbstractStepExecutionImpl {
         LOG.info("Checking if ElasTest is running locally.");
         boolean result = true;
         String etContainername = "elastest_etm_1";
-        result = !dockerService
+        String errorMessage = "No such object: " + etContainername;
+        result = dockerService
                 .executeDockerCommand("docker", "inspect",
                         "--format=\\\"{{.Name}}\\\"", etContainername)
-                .contains(etContainername);
+                .contains(errorMessage);
         LOG.info("Result of the inspect command: {}", result);
         return result;
     }
