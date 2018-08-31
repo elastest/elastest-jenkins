@@ -75,7 +75,10 @@ public class ExternalJob implements Serializable {
 
     @JsonProperty("testResults")
     private List<String> testResults;
- 
+
+    @JsonProperty("sut")
+    private Sut sut;
+
     public ExternalJob() {
     }
 
@@ -87,7 +90,7 @@ public class ExternalJob implements Serializable {
             String logAnalyzerUrl, Long tJobExecId, String logstashPort,
             String servicesIp, List<TestSupportServices> tSServices,
             Map<String, String> tSSEnvVars, int result, boolean isReady,
-            String testResultFilePattern, List<String> testResults) {
+            String testResultFilePattern, List<String> testResults, Sut sut) {
         super();
         this.jobName = jobName;
         this.executionUrl = executionUrl;
@@ -101,6 +104,7 @@ public class ExternalJob implements Serializable {
         this.isReady = isReady;
         this.testResultFilePattern = testResultFilePattern;
         this.testResults = testResults;
+        this.sut = sut;
     }
 
     public String getJobName() {
@@ -198,7 +202,15 @@ public class ExternalJob implements Serializable {
     public void setTestResults(List<String> testResults) {
         this.testResults = testResults;
     }
-    
+
+    public Sut getSut() {
+        return sut;
+    }
+
+    public void setSut(Sut sut) {
+        this.sut = sut;
+    }
+
     @Override
     public boolean equals(java.lang.Object o) {
         if (this == o) {
@@ -221,14 +233,15 @@ public class ExternalJob implements Serializable {
                 && this.isReady == externalJob.isReady
                 && Objects.equals(this.testResultFilePattern,
                         externalJob.testResultFilePattern)
-                && Objects.equals(this.testResults, externalJob.testResults);
+                && Objects.equals(this.testResults, externalJob.testResults)
+                && Objects.equals(this.sut, externalJob.sut);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(jobName, executionUrl, logAnalyzerUrl, tJobExecId,
                 logstashPort, servicesIp, tSServices, tSSEnvVars, result,
-                isReady, testResultFilePattern, testResults);
+                isReady, testResultFilePattern, testResults, sut);
     }
 
     @Override
@@ -256,8 +269,9 @@ public class ExternalJob implements Serializable {
                 .append("\n");
         sb.append("    testResultFilePattern: ")
                 .append(toIndentedString(testResultFilePattern)).append("\n");
-        sb.append("    testResults: ")
-        .append(toIndentedString(testResults)).append("\n");
+        sb.append("    testResults: ").append(toIndentedString(testResults))
+                .append("\n");
+        sb.append("    sut: ").append(toIndentedString(sut)).append("\n");
         sb.append("}");
 
         return sb.toString();

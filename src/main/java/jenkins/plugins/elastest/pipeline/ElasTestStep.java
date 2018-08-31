@@ -95,6 +95,7 @@ public class ElasTestStep extends AbstractStepImpl {
         return sut;
     }
 
+    @DataBoundSetter
     public void setSut(String sut) {
         this.sut = sut;
     }
