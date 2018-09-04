@@ -43,6 +43,7 @@ import com.sun.jersey.api.client.WebResource;
 import hudson.model.Run;
 import jenkins.plugins.elastest.json.ElasTestBuild;
 import jenkins.plugins.elastest.json.ExternalJob;
+import jenkins.plugins.elastest.json.Sut;
 import jenkins.plugins.elastest.json.TestSupportServices;
 import jenkins.plugins.elastest.pipeline.ElasTestStep;
 
@@ -130,6 +131,7 @@ public class ElasTestService implements Serializable {
                         && !elasTestStep.getSurefireReportsPattern().isEmpty())
                                 ? elasTestStep.getSurefireReportsPattern()
                                 : null);
+        externalJob.setSut(new Sut(elasTestStep.getSut()));
         externalJob = asociateToElasTestTJob(build, externalJob);
         elasTestBuild.setExternalJob(externalJob);
         elasTestBuilds.put(build.getFullDisplayName(), elasTestBuild);
@@ -141,6 +143,8 @@ public class ElasTestService implements Serializable {
         externalJob = createTJobOnElasTest(externalJob);
         externalJob.setExecutionUrl(externalJob.getExecutionUrl());
         externalJob.setLogAnalyzerUrl(externalJob.getLogAnalyzerUrl());
+        
+        LOG.info("Content of the external Job returned by ElasTest.");
 
         return externalJob;
     }
