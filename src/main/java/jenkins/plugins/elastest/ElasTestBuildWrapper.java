@@ -110,9 +110,9 @@ public class ElasTestBuildWrapper extends SimpleBuildWrapper {
         }
 
         if (elasTestService.getExternalJobByBuildFullName(build.getFullDisplayName())
-                .getTSSEnvVars() != null) {
+                .getEnvVars() != null) {
             for (Entry<String, String> entry : elasTestService
-                    .getExternalJobByBuildFullName(build.getFullDisplayName()).getTSSEnvVars()
+                    .getExternalJobByBuildFullName(build.getFullDisplayName()).getEnvVars()
                     .entrySet()) {
                 context.env(entry.getKey(), entry.getValue());
             }

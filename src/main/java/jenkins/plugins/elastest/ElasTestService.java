@@ -43,6 +43,7 @@ import com.sun.jersey.api.client.WebResource;
 import hudson.model.Run;
 import jenkins.plugins.elastest.json.ElasTestBuild;
 import jenkins.plugins.elastest.json.ExternalJob;
+import jenkins.plugins.elastest.json.ExternalJob.ExternalJobStatusEnum;
 import jenkins.plugins.elastest.json.Sut;
 import jenkins.plugins.elastest.json.TestSupportServices;
 import jenkins.plugins.elastest.pipeline.ElasTestStep;
@@ -143,7 +144,7 @@ public class ElasTestService implements Serializable {
         externalJob = createTJobOnElasTest(externalJob);
         externalJob.setExecutionUrl(externalJob.getExecutionUrl());
         externalJob.setLogAnalyzerUrl(externalJob.getLogAnalyzerUrl());
-        
+
         LOG.info("Content of the external Job returned by ElasTest.");
 
         return externalJob;
@@ -163,6 +164,9 @@ public class ElasTestService implements Serializable {
                             .post(ClientResponse.class, externalJob.toJSON());
             externalJob = objetMapper.readValue(
                     response.getEntity(String.class), ExternalJob.class);
+            if (externalJob.getStatus() == ExternalJobStatusEnum.ERROR) {
+                throw new Exception(externalJob.getError());
+            }
         } catch (Exception e) {
             LOG.error("Error trying to create a TJob in ElasTest: {}",
                     e.getMessage());
@@ -187,6 +191,9 @@ public class ElasTestService implements Serializable {
                             .get(ClientResponse.class);
             externalJob = objetMapper.readValue(
                     response.getEntity(String.class), ExternalJob.class);
+            if (externalJob.getStatus() == ExternalJobStatusEnum.ERROR) {
+                throw new Exception(externalJob.getError());
+            }
         } catch (Exception e) {
             LOG.error("Error cheking if the TJob is ready: {}", e.getMessage());
             e.printStackTrace();
