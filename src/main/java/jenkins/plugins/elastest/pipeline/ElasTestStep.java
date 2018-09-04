@@ -61,7 +61,7 @@ public class ElasTestStep extends AbstractStepImpl {
     public EnvVars envVars;
 
     @Nonnull
-    private String sut = "";
+    private Long sut = -1L;
 
     @Nonnull
     private List<String> tss = new ArrayList<String>();
@@ -91,12 +91,12 @@ public class ElasTestStep extends AbstractStepImpl {
         this.tss = tss;
     }
 
-    public String getSut() {
+    public Long getSut() {
         return sut;
     }
 
     @DataBoundSetter
-    public void setSut(String sut) {
+    public void setSut(Long sut) {
         this.sut = sut;
     }
 
