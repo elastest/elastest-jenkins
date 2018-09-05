@@ -132,7 +132,15 @@ public class ElasTestService implements Serializable {
                         && !elasTestStep.getSurefireReportsPattern().isEmpty())
                                 ? elasTestStep.getSurefireReportsPattern()
                                 : null);
-        externalJob.setSut(new Sut(elasTestStep.getSut()));
+        externalJob.setSut(
+                elasTestStep.getSut() != -1L ? new Sut(elasTestStep.getSut())
+                        : null);
+        externalJob.setFromIntegratedJenkins(
+                elasTestStep.envVars.get("HOSTNAME") != null);
+        LOG.info("Build URL: {}", elasTestStep.envVars.get("BUILD_URL"));
+        LOG.info("Job URL: {}", elasTestStep.envVars.get("JOB_URL"));
+        externalJob.setBuildUrl(elasTestStep.envVars.get("BUILD_URL"));
+        externalJob.setJobUrl(elasTestStep.envVars.get("JOB_URL"));
         externalJob = asociateToElasTestTJob(build, externalJob);
         elasTestBuild.setExternalJob(externalJob);
         elasTestBuilds.put(build.getFullDisplayName(), elasTestBuild);

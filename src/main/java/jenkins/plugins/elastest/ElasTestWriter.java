@@ -107,7 +107,8 @@ public class ElasTestWriter {
         String key = "";
 
         if (type.compareTo(SubmitterType.LOGSTASH) == 0) {
-            key = SubmitterType.LOGSTASH.toString();
+            key = externalJob.isFromIntegratedJenkins() ? "api/monitoring"
+                    : SubmitterType.LOGSTASH.toString();
         }
 
         return SubmitterFactory.getInstance(type, externalJob.getServicesIp(),

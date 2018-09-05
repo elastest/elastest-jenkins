@@ -71,10 +71,10 @@ public class ExternalJob implements Serializable {
 
     @JsonProperty("isReady")
     private boolean isReady;
-    
+
     @JsonProperty("status")
     private ExternalJobStatusEnum status;
-    
+
     @JsonProperty("error")
     private String error;
 
@@ -86,6 +86,15 @@ public class ExternalJob implements Serializable {
 
     @JsonProperty("sut")
     private Sut sut;
+
+    @JsonProperty("fromIntegratedJenkins")
+    private boolean fromIntegratedJenkins;
+
+    @JsonProperty("buildUrl")
+    private String buildUrl;
+
+    @JsonProperty("jobUrl")
+    private String jobUrl;
 
     public ExternalJob() {
     }
@@ -99,7 +108,8 @@ public class ExternalJob implements Serializable {
             String servicesIp, List<TestSupportServices> tSServices,
             Map<String, String> envVars, int result, boolean isReady,
             ExternalJobStatusEnum status, String error,
-            String testResultFilePattern, List<String> testResults, Sut sut) {
+            String testResultFilePattern, List<String> testResults, Sut sut,
+            boolean fromIntegratedJenkins, String buildUrl, String jobUrl) {
         super();
         this.jobName = jobName;
         this.executionUrl = executionUrl;
@@ -116,12 +126,13 @@ public class ExternalJob implements Serializable {
         this.testResultFilePattern = testResultFilePattern;
         this.testResults = testResults;
         this.sut = sut;
+        this.fromIntegratedJenkins = fromIntegratedJenkins;
+        this.buildUrl = buildUrl;
+        this.jobUrl = jobUrl;
     }
-    
+
     public enum ExternalJobStatusEnum {
-        STARTING("Starting"), 
-        READY("Ready"),
-        ERROR("Error");
+        STARTING("Starting"), READY("Ready"), ERROR("Error");
 
         private String value;
 
@@ -267,6 +278,30 @@ public class ExternalJob implements Serializable {
         this.sut = sut;
     }
 
+    public boolean isFromIntegratedJenkins() {
+        return fromIntegratedJenkins;
+    }
+
+    public String getBuildUrl() {
+        return buildUrl;
+    }
+
+    public String getJobUrl() {
+        return jobUrl;
+    }
+
+    public void setFromIntegratedJenkins(boolean fromIntegratedJenkins) {
+        this.fromIntegratedJenkins = fromIntegratedJenkins;
+    }
+
+    public void setBuildUrl(String buildUrl) {
+        this.buildUrl = buildUrl;
+    }
+
+    public void setJobUrl(String jobUrl) {
+        this.jobUrl = jobUrl;
+    }
+
     @Override
     public boolean equals(java.lang.Object o) {
         if (this == o) {
@@ -292,14 +327,19 @@ public class ExternalJob implements Serializable {
                 && Objects.equals(this.testResults, externalJob.testResults)
                 && Objects.equals(this.sut, externalJob.sut)
                 && Objects.equals(this.status, externalJob.status)
-                && Objects.equals(this.error, externalJob.error);
+                && Objects.equals(this.error, externalJob.error)
+                && this.isFromIntegratedJenkins() == externalJob
+                        .isFromIntegratedJenkins()
+                && Objects.equals(this.buildUrl, externalJob.buildUrl)
+                && Objects.equals(this.jobUrl, externalJob.jobUrl);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(jobName, executionUrl, logAnalyzerUrl, tJobExecId,
-                logstashPort, servicesIp, tSServices, envVars, result,
-                isReady, testResultFilePattern, testResults, sut, status, error);
+                logstashPort, servicesIp, tSServices, envVars, result, isReady,
+                testResultFilePattern, testResults, sut, status, error,
+                fromIntegratedJenkins, buildUrl, jobUrl);
     }
 
     @Override
@@ -332,6 +372,12 @@ public class ExternalJob implements Serializable {
         sb.append("    sut: ").append(toIndentedString(sut)).append("\n");
         sb.append("    status: ").append(toIndentedString(status)).append("\n");
         sb.append("    error: ").append(toIndentedString(error)).append("\n");
+        sb.append("    fromIntegratedJenkins: ")
+                .append(toIndentedString(fromIntegratedJenkins)).append("\n");
+        sb.append("    buildUrl: ").append(toIndentedString(buildUrl))
+                .append("\n");
+        sb.append("    jobBuild: ").append(toIndentedString(jobUrl))
+                .append("\n");
         sb.append("}");
 
         return sb.toString();
