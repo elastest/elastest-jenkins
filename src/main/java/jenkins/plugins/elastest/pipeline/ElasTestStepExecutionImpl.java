@@ -58,6 +58,7 @@ public class ElasTestStepExecutionImpl extends AbstractStepExecutionImpl {
     private static final Logger LOG = LoggerFactory
             .getLogger(ElasTestStepExecutionImpl.class);
     private static final long serialVersionUID = 1L;
+    private static final String ETM_CONTAINER_NAME = "elastest_etm_1";
 
     private ElasTestService elasTestService;
     private DockerService dockerService;
@@ -139,9 +140,9 @@ public class ElasTestStepExecutionImpl extends AbstractStepExecutionImpl {
     private void addEnvVars(Run<?, ?> build) {
         ExternalJob externalJob = elasTestService
                 .getExternalJobByBuildFullName(build.getFullDisplayName());
-        elasTestStep.envVars.putAll(externalJob.getEnvVars() != null
-                ? externalJob.getEnvVars()
-                : new HashMap<String, String>());
+        elasTestStep.envVars.putAll(
+                externalJob.getEnvVars() != null ? externalJob.getEnvVars()
+                        : new HashMap<String, String>());
     }
 
     private void startMonitoringContainers(EnvVars envVars,
@@ -154,7 +155,10 @@ public class ElasTestStepExecutionImpl extends AbstractStepExecutionImpl {
         String dockBeatImage = "elastest/etm-dockbeat:latest";
 
         String logstashHost = "LOGSTASHHOST="
-                + envVars.get("ET_MON_LSBEATS_HOST");
+                + (!envVars.get("ET_MON_LSBEATS_HOST").trim().equals("localhost")
+                        ? envVars.get("ET_MON_LSBEATS_HOST")
+                        : dockerService
+                                .getGatewayFromContainer(ETM_CONTAINER_NAME));
         String logstashPort = "LOGSTASHPORT="
                 + envVars.get("ET_MON_INTERNAL_LSBEATS_PORT");
         String etMonLsbeatsHost = "ET_MON_LSBEATS_HOST="
