@@ -135,6 +135,7 @@ public class ElasTestStep extends AbstractStepImpl {
         return project;
     }
 
+    @DataBoundSetter
     public void setProject(String project) {
         this.project = project;
     }
