@@ -141,6 +141,9 @@ public class ElasTestService implements Serializable {
         LOG.info("Job URL: {}", elasTestStep.envVars.get("JOB_URL"));
         externalJob.setBuildUrl(elasTestStep.envVars.get("BUILD_URL"));
         externalJob.setJobUrl(elasTestStep.envVars.get("JOB_URL"));
+        externalJob.setProject(
+                !elasTestStep.getProject().isEmpty() ? elasTestStep.getProject()
+                        : null);
         externalJob = asociateToElasTestTJob(build, externalJob);
         elasTestBuild.setExternalJob(externalJob);
         elasTestBuilds.put(build.getFullDisplayName(), elasTestBuild);

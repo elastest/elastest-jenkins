@@ -65,6 +65,9 @@ public class ElasTestStep extends AbstractStepImpl {
 
     @Nonnull
     private List<String> tss = new ArrayList<String>();
+    
+    @Nonnull
+    private String project = "";
 
     @Nonnull
     private Long tJobId = -1L;
@@ -126,6 +129,14 @@ public class ElasTestStep extends AbstractStepImpl {
     public void setMonitoring(boolean monitoring) {
         LOG.info("Monitoring value: {}", String.valueOf(monitoring));
         this.monitoring = monitoring;
+    }
+
+    public String getProject() {
+        return project;
+    }
+
+    public void setProject(String project) {
+        this.project = project;
     }
 
     /**
