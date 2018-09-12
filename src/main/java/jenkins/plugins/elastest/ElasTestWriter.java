@@ -105,18 +105,22 @@ public class ElasTestWriter {
         ElasTestInstallation.Descriptor descriptor = ElasTestInstallation
                 .getLogstashDescriptor();
         String key = "";
+        String host = "";
+        Integer port = 0;
 
         if (type.compareTo(SubmitterType.LOGSTASH) == 0) {
+            LOG.info("ElasTest services ip:" + externalJob.getServicesIp());
+
             key = externalJob.isFromIntegratedJenkins()
                     && externalJob.getServicesIp().equals("etm")
                             ? "api/monitoring"
                             : SubmitterType.LOGSTASH.toString();
+            host = externalJob.getServicesIp();
+            port = Integer.valueOf(externalJob.getLogstashPort());
         }
 
-        return SubmitterFactory.getInstance(type, externalJob.getServicesIp(),
-                Integer.valueOf(externalJob.getLogstashPort()), key,
+        return SubmitterFactory.getInstance(type, host, port, key,
                 descriptor.username, descriptor.password);
-
     }
 
     String getJenkinsUrl() {
