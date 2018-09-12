@@ -53,7 +53,7 @@
 
     <artifactId>elastest</artifactId>
     <packaging>hpi</packaging>
-    <version>1.0-beta5-SNAPSHOT</version>
+    <version>1.0.0-beta1-SNAPSHOT</version>
     <name>ElasTest Plugin</name>
     <description>Plugin to integrate Jenkins with ElasTest, an elastic platform to ease end to end testing.
 	 Using this plugin you will be able to send logs of a build to ElasTest to store and analyze them.
