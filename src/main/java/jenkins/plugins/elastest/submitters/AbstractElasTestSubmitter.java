@@ -28,7 +28,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 
 import jenkins.plugins.elastest.json.ExternalJob;
-import jenkins.plugins.elastest.utils.Utils;
+import jenkins.plugins.elastest.json.Trace;
 
 /**
  * 
@@ -57,12 +57,9 @@ abstract class AbstractElasTestSubmitter implements ElasTestSubmitter {
 
     @Override
     public String buildPayload(List<String> logLines, ExternalJob externalJob) {
-        String payload = logLines.get(0);
-        payload = "{" + "\"component\":\"test\"" + ",\"exec\":\""
-                + externalJob.gettJobExecId() + "\""
-                + ",\"stream\":\"default_log\"" + ",\"message\":\""
-                + Utils.scapeCharacters("\"", payload) + "\"" + "}";
-
+        Trace trace = new Trace("test", externalJob.gettJobExecId().toString(),
+                "default_log", logLines.get(0));
+        String payload = trace.toJSON();
         return payload;
     }
 

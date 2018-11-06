@@ -134,8 +134,22 @@ public class ElasTestWriter {
         if (build.getAction(ElasTestItemMenuAction.class) != null) {
             String payload = elastestSubmiter.buildPayload(lines, externalJob);
             try {
+                int maxAttempts = 4;
+                int attempt = 0;
+                boolean sended = false;
                 LOG.info("Send message: " + payload.toString());
-                elastestSubmiter.push(payload.toString());
+                while (attempt < maxAttempts && !sended) {
+                    if (attempt >0) {
+                        try {
+                            Thread.sleep(500);
+                            
+                        } catch (InterruptedException ie) {}
+                    }
+                    attempt++;
+                    LOG.info("Attempt: " + attempt);
+                    sended = elastestSubmiter.push(payload.toString());
+                }
+                
             } catch (IOException e) {
                 String msg = "[logstash-plugin]: Failed to send log data to "
                         + elastestSubmiter.getSubmitterType() + ":"

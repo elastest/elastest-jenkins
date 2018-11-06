@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.codec.binary.Base64;
+import org.glassfish.tyrus.client.ClientProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +40,7 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.api.client.config.ClientConfig;
 
 import hudson.model.Run;
 import jenkins.plugins.elastest.json.ElasTestBuild;
@@ -75,7 +77,9 @@ public class ElasTestService implements Serializable {
         elasTestTJobApiUrl = elasTestUrl + "/api/external/tjob";
         elasTestVersionApiUrl = "/api/external/elastest/version";
         client = Client.create();
-        client.setConnectTimeout(5000);
+        client.getProperties().put(ClientConfig.PROPERTY_CONNECT_TIMEOUT, new Integer(5000));
+        client.getProperties().put(ClientConfig.PROPERTY_READ_TIMEOUT, new Integer(5000));
+        //client.setConnectTimeout(5000);
         String name = ElasTestInstallation.getLogstashDescriptor().username;
         String password = ElasTestInstallation.getLogstashDescriptor().password;
         if ((name != null && !name.equals(""))

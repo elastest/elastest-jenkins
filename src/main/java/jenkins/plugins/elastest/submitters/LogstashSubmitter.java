@@ -36,6 +36,7 @@ import java.nio.charset.StandardCharsets;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
@@ -97,7 +98,13 @@ public class LogstashSubmitter extends AbstractElasTestSubmitter {
 
     HttpPost getHttpPost(String data) {
         HttpPost postRequest;
+        RequestConfig.Builder requestConfig = RequestConfig.custom();
+        requestConfig.setConnectTimeout(3 * 1000);
+        requestConfig.setConnectionRequestTimeout(3 * 1000);
+        requestConfig.setSocketTimeout(3 * 1000);
+        
         postRequest = new HttpPost(uri);
+        postRequest.setConfig(requestConfig.build());
         StringEntity input = new StringEntity(data,
                 ContentType.APPLICATION_JSON);
         postRequest.setEntity(input);
@@ -108,7 +115,7 @@ public class LogstashSubmitter extends AbstractElasTestSubmitter {
     }
 
     @Override
-    public void push(String data) throws IOException {
+    public boolean push(String data) throws IOException {
         CloseableHttpClient httpClient = null;
         CloseableHttpResponse response = null;
         HttpPost post = getHttpPost(data);
@@ -121,9 +128,10 @@ public class LogstashSubmitter extends AbstractElasTestSubmitter {
                     .contains(response.getStatusLine().getStatusCode())) {
                 throw new IOException(this.getErrorMessage(response));
             }
+            return true;
         } catch (Exception e) {
             logger.info("Error sendind log trace message {} ", data);
-            throw new IOException("Error sendind log trace message " + data + ". " + e.getMessage());
+            return false;
 
         } finally {
             if (response != null) {

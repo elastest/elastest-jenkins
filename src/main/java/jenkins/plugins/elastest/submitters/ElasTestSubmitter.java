@@ -64,7 +64,7 @@ public interface ElasTestSubmitter {
      * @throws java.io.IOException
      *             The data is not written to the server
      */
-    void push(String data) throws IOException;
+    boolean push(String data) throws IOException;
 
     /**
      * Bulds a String playload compatible with the Logstash input.

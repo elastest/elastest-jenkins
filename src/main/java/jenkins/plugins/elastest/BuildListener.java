@@ -132,22 +132,27 @@ public class BuildListener extends RunListener<Run> {
                 externalJob.setResult(0);
                 break;
             }
-
             // Stop docker containers started locally
             LOG.info("Stopping aux containers.");
-            dockerService.executeDockerCommand("docker", "ps");
-            for (String containerId : elasTestService.getElasTestBuild()
-                    .get(build.getFullDisplayName()).getContainers()) {
-                LOG.info("Stopping docker container: {}", containerId);
-                dockerService.executeDockerCommand("docker", "rm", "-f",
-                        containerId, "");
+            try {
+                dockerService.executeDockerCommand("docker", "ps");
+                for (String containerId : elasTestService.getElasTestBuild()
+                        .get(build.getFullDisplayName()).getContainers()) {
+                    LOG.info("Stopping docker container: {}", containerId);
+                    dockerService.executeDockerCommand("docker", "rm", "-f",
+                            containerId, "");
+                }
+            } catch (RuntimeException io) {
+                LOG.warn(
+                        "Error stopping monitoring containers. It's possible "
+                        + "that you will have to stop them manually");
+                io.printStackTrace();
+            } finally {
+                elasTestService.finishElasTestTJobExecution(elasTestService
+                        .getExternalJobByBuildFullName(build.getFullDisplayName()));
+                elasTestService.removeExternalJobs(build.getFullDisplayName());
             }
-
-            elasTestService.finishElasTestTJobExecution(elasTestService
-                    .getExternalJobByBuildFullName(build.getFullDisplayName()));
-            elasTestService.removeExternalJobs(build.getFullDisplayName());
         }
-
         LOG.info("Finalized all");
     }
 }
