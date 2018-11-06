@@ -140,7 +140,10 @@ public class ElasTestService implements Serializable {
                 elasTestStep.getSut() != -1L ? new Sut(elasTestStep.getSut())
                         : null);
         externalJob.setFromIntegratedJenkins(
-                elasTestStep.envVars.get("HOSTNAME") != null);
+                elasTestStep.envVars.get("INTEGRATED_JENKINS") != null
+                        && elasTestStep.envVars.get("INTEGRATED_JENKINS")
+                                .equals(Boolean.TRUE.toString())
+                        && elasTestUrl.equals("http://etm:8091"));
         LOG.info("Build URL: {}", elasTestStep.envVars.get("BUILD_URL"));
         LOG.info("Job URL: {}", elasTestStep.envVars.get("JOB_URL"));
         externalJob.setBuildUrl(elasTestStep.envVars.get("BUILD_URL"));
