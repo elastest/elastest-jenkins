@@ -23,17 +23,19 @@
  */
 package jenkins.plugins.elastest;
 
+import static java.lang.invoke.MethodHandles.lookup;
+import static org.slf4j.LoggerFactory.getLogger;
+import org.slf4j.Logger;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
-
 import hudson.console.ConsoleLogFilter;
 import hudson.model.Run;
 import jenkins.plugins.elastest.json.ExternalJob;
 
 /**
- * Allows to set a new decorate logger that sends the logs of a 
- * build to ElasTest.
+ * Allows to set a new decorate logger that sends the logs of a build to
+ * ElasTest.
  * 
  * @author Francisco R. Díaz
  * @since 0.0.1
@@ -41,6 +43,7 @@ import jenkins.plugins.elastest.json.ExternalJob;
  */
 public class ConsoleLogFilterImpl extends ConsoleLogFilter
         implements Serializable {
+    final Logger LOG = getLogger(lookup().lookupClass());
     private static final long serialVersionUID = 1L;
     private final transient Run<?, ?> build;
     private ElasTestService elasTestService;
@@ -55,12 +58,22 @@ public class ConsoleLogFilterImpl extends ConsoleLogFilter
     @Override
     public OutputStream decorateLogger(Run _ignore, OutputStream logger)
             throws IOException, InterruptedException {
+        LOG.info("Executing decorate logger");
 
-        ElasTestWriter elasTestWriter = getElasTestWriter(build, logger,
-                elasTestService.getExternalJobByBuildFullName(build.getFullDisplayName()));
+        ElasTestWriter elasTestWriter = null;
+        if (elasTestService.getElasTestBuild().get(build.getFullDisplayName())
+                .getWriter() != null) {
+            elasTestWriter = elasTestService.getElasTestBuild()
+                    .get(build.getFullDisplayName()).getWriter();
+        } else {
+            elasTestWriter = getElasTestWriter(build, logger, elasTestService
+                    .getExternalJobByBuildFullName(build.getFullDisplayName()));
+            elasTestService.getElasTestBuild().get(build.getFullDisplayName())
+                    .setWriter(elasTestWriter);
+        }
+
         ElasTestOutputStream los = new ElasTestOutputStream(logger,
                 elasTestWriter);
-
         return los;
     }
 

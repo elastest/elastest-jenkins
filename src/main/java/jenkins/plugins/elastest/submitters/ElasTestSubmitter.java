@@ -74,4 +74,13 @@ public interface ElasTestSubmitter {
      * @return
      */
     String buildPayload(List<String> logLines, ExternalJob externalJob);
+    
+    /**
+     * Bulds a String playload compatible with the Logstash input.
+     * 
+     * @param message
+     * @param externalJob
+     * @return
+     */
+    String buildPayload(String message, ExternalJob externalJob);
 }

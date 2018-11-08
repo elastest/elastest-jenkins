@@ -7,15 +7,18 @@ import java.util.List;
 import org.jenkinsci.plugins.workflow.steps.StepContext;
 
 import hudson.FilePath;
+import jenkins.plugins.elastest.ElasTestWriter;
 
 public class ElasTestBuild implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    FilePath workspace;
+    private FilePath workspace;
 
-    ExternalJob externalJob;
+    private ExternalJob externalJob;
     
-    List<String> containers;
+    private List<String> containers;
+    
+    private transient ElasTestWriter writer;
 
     public ElasTestBuild() {
     }
@@ -59,6 +62,14 @@ public class ElasTestBuild implements Serializable {
 
     public void setContainers(List<String> containers) {
         this.containers = containers;
+    }
+
+    public ElasTestWriter getWriter() {
+        return writer;
+    }
+
+    public void setWriter(ElasTestWriter writer) {
+        this.writer = writer;
     }
 
 

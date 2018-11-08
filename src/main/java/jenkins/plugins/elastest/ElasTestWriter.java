@@ -24,16 +24,19 @@
 
 package jenkins.plugins.elastest;
 
+import static java.lang.invoke.MethodHandles.lookup;
+import org.slf4j.Logger;
+import static org.slf4j.LoggerFactory.getLogger;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Logger;
-
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
-
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import jenkins.model.Jenkins;
@@ -49,9 +52,9 @@ import jenkins.plugins.elastest.submitters.SubmitterFactory;
  * @author Francisco R. Díaz
  * @since 0.0.1
  */
-public class ElasTestWriter {
-    private static final Logger LOG = Logger
-            .getLogger(ElasTestWriter.class.getName());
+public class ElasTestWriter implements Serializable{
+    private static final long serialVersionUID = 1L;
+    final Logger LOG = getLogger(lookup().lookupClass());
 
     final OutputStream errorStream;
     final Run<?, ?> build;
@@ -61,9 +64,11 @@ public class ElasTestWriter {
 
     private boolean connectionBroken;
     final ExternalJob externalJob;
+    private Executor executor = Executors.newSingleThreadExecutor();
 
     public ElasTestWriter(Run<?, ?> run, OutputStream error,
             TaskListener listener, ExternalJob externalJob) {
+        LOG.info("Creating ElasTestWriter");
         this.errorStream = error != null ? error : System.err;
         this.build = run;
         this.listener = listener;
@@ -75,16 +80,17 @@ public class ElasTestWriter {
         } else {
             this.jenkinsUrl = getJenkinsUrl();
         }
+        
+        executor = Executors.newSingleThreadExecutor();
     }
-
+    
     /**
      * Sends a logstash payload for a single line to the indexer. Call will be
      * ignored if the line is empty or if the connection to ElasTest is broken.
      * If write fails, errors will logged to errorStream and connectionBroken
      * will be set to true.
      *
-     * @param line
-     *            Message, not null
+     * @param line Message, not null
      */
     public void write(String line) {
         if (!isConnectionBroken() && StringUtils.isNotEmpty(line)) {
@@ -132,36 +138,12 @@ public class ElasTestWriter {
      */
     private void write(List<String> lines) {
         if (build.getAction(ElasTestItemMenuAction.class) != null) {
-            String payload = elastestSubmiter.buildPayload(lines, externalJob);
-            try {
-                int maxAttempts = 4;
-                int attempt = 0;
-                boolean sended = false;
-                LOG.info("Send message: " + payload.toString());
-                while (attempt < maxAttempts && !sended) {
-                    if (attempt >0) {
-                        try {
-                            Thread.sleep(500);
-                            
-                        } catch (InterruptedException ie) {}
-                    }
-                    attempt++;
-                    LOG.info("Attempt: " + attempt);
-                    sended = elastestSubmiter.push(payload.toString());
-                }
-                
-            } catch (IOException e) {
-                String msg = "[logstash-plugin]: Failed to send log data to "
-                        + elastestSubmiter.getSubmitterType() + ":"
-                        + elastestSubmiter.getDescription() + ".\n"
-                        + "[logstash-plugin]: No Further logs will be sent to "
-                        + elastestSubmiter.getDescription() + ".\n"
-                        + ExceptionUtils.getStackTrace(e);
-                logErrorMessage(msg);
-            }
+            final String payload = elastestSubmiter.buildPayload(lines, externalJob);
+            LOG.info("Message to send " + payload.toString());
+            executor.execute(() -> sendPayload(payload));
         }
     }
-
+    
     /**
      * Construct a valid indexerDao or return null. Writes errors to errorStream
      * if dao constructor fails.
@@ -180,18 +162,66 @@ public class ElasTestWriter {
         return null;
     }
 
+    public OutputStream getErrorStream() {
+        return errorStream;
+    }
+
+    public Run<?, ?> getBuild() {
+        return build;
+    }
+
+    public TaskListener getListener() {
+        return listener;
+    }
+
+    public ExternalJob getExternalJob() {
+        return externalJob;
+    }
+
     /**
-     * Write error message to errorStream and set connectionBroken to true.
+     * Write error message to errorStream
      */
     private void logErrorMessage(String msg) {
         try {
-            connectionBroken = true;
             errorStream.write(msg.getBytes(StandardCharsets.UTF_8));
             errorStream.flush();
         } catch (IOException ex) {
             // This should never happen, but if it does we just have to let it
             // go.
             ex.printStackTrace();
+        }
+    }
+
+    private void sendPayload(final String payload) {
+        try {
+            int maxAttempts = 4;
+            int attempt = 0;
+            boolean sended = false;
+            //LOG.info("Send message in runnable: " + payload.toString());
+            while (attempt < maxAttempts && !sended) {
+                if (attempt > 0) {
+                    try {
+                        Thread.sleep(500);
+      
+                    } catch (InterruptedException ie) {
+                    }
+                }
+                attempt++;
+                LOG.info("Attempt: {}", attempt);
+                sended = elastestSubmiter.push(payload.toString());
+            }
+            if (attempt > 4 && !sended) {
+                String msg = "[elastest-plugin]: Failed to send log data to "
+                        + elastestSubmiter.getSubmitterType() + ":"
+                        + elastestSubmiter.getDescription() + ".\n";
+                logErrorMessage(msg);
+            }
+        } catch (IOException e) {
+            String msg = "[elastest-plugin]: Failed to send log data to "
+                    + elastestSubmiter.getSubmitterType() + ":"
+                    + elastestSubmiter.getDescription() + ".\n"
+                    + ExceptionUtils.getStackTrace(e);
+            logErrorMessage(msg);
         }
     }
 }

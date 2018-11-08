@@ -25,6 +25,9 @@
 package jenkins.plugins.elastest.submitters;
 
 import static com.google.common.collect.Ranges.closedOpen;
+import static java.lang.invoke.MethodHandles.lookup;
+import static org.slf4j.LoggerFactory.getLogger;
+import org.slf4j.Logger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -44,8 +47,6 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Range;
 
@@ -56,8 +57,7 @@ import com.google.common.collect.Range;
  * @since 0.0.1
  */
 public class LogstashSubmitter extends AbstractElasTestSubmitter {
-    private static final Logger logger = LoggerFactory
-            .getLogger(LogstashSubmitter.class);
+    private final Logger logger = getLogger(lookup().lookupClass());
 
     final HttpClientBuilder clientBuilder;
     final URI uri;

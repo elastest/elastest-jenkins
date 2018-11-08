@@ -62,6 +62,15 @@ abstract class AbstractElasTestSubmitter implements ElasTestSubmitter {
         String payload = trace.toJSON();
         return payload;
     }
+    
+
+    @Override
+    public String buildPayload(String message, ExternalJob externalJob) {
+        Trace trace = new Trace("test", externalJob.gettJobExecId().toString(),
+                "default_log", message);
+        String payload = trace.toJSON();
+        return payload;
+    }
 
     @Override
     public String getDescription() {
