@@ -57,7 +57,7 @@ public final class SubmitterFactory {
             String password) throws InstantiationException {
         if (type == null || !INDEXER_MAP.containsKey(type)) {
             throw new InstantiationException(
-                    "[logstash-plugin]: Unknown IndexerType '" + type
+                    "[elastest-plugin]: Unknown IndexerType '" + type
                             + "'. Did you forget to configure the plugin?");
         }
 
