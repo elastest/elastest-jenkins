@@ -38,7 +38,7 @@ public class SubmitterFactoryTest {
     try {
       SubmitterFactory.getInstance(null, "localhost", 1234, "key", "username", "password");
     } catch (InstantiationException e) {
-      String msg = "[logstash-plugin]: Unknown IndexerType 'null'. Did you forget to configure the plugin?";
+      String msg = "[elastest-plugin]: Unknown IndexerType 'null'. Did you forget to configure the plugin?";
       assertEquals("Wrong message", msg, e.getMessage());
       throw e;
     }

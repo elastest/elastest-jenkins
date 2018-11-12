@@ -70,8 +70,8 @@ public class ElasTestOutputStreamTest {
   public void eolSuccessConnectionBroken() throws Exception {
     ElasTestOutputStream los = new ElasTestOutputStream(buffer, mockWriter);
 
-    String msg = "[logstash-plugin]: Failed to send log data to REDIS:localhost:8080.\n" +
-      "[logstash-plugin]: No Further logs will be sent.\n" +
+    String msg = "[elastest-plugin]: Failed to send log data to REDIS:localhost:8080.\n" +
+      "[elastest-plugin]: No Further logs will be sent.\n" +
       "java.io.IOException: BOOM!";
 
     buffer.reset();
