@@ -54,7 +54,7 @@ import jenkins.plugins.elastest.submitters.SubmitterFactory;
  */
 public class ElasTestWriter implements Serializable{
     private static final long serialVersionUID = 1L;
-    final Logger LOG = getLogger(lookup().lookupClass());
+    transient final Logger LOG = getLogger(lookup().lookupClass());
 
     final OutputStream errorStream;
     final Run<?, ?> build;

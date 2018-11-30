@@ -57,7 +57,7 @@ import com.google.common.collect.Range;
  * @since 0.0.1
  */
 public class LogstashSubmitter extends AbstractElasTestSubmitter {
-    private final Logger logger = getLogger(lookup().lookupClass());
+    private transient final Logger logger = getLogger(lookup().lookupClass());
 
     final HttpClientBuilder clientBuilder;
     final URI uri;
