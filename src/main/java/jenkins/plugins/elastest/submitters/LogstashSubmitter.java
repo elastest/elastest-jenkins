@@ -70,14 +70,14 @@ public class LogstashSubmitter extends AbstractElasTestSubmitter {
         this(null, host, port, key, username, password);
     }
 
-    LogstashSubmitter(HttpClientBuilder factory, String host, int port, String key,
-            String username, String password) {
+    LogstashSubmitter(HttpClientBuilder factory, String host, int port,
+            String key, String username, String password) {
         super(host, port, key, username, password);
         logger.info("Creating a Logstash submitter.");
 
         try {
             uri = new URIBuilder("http://" + host).setPort(port)
-                    .setPath("/" + key +"/").build();
+                    .setPath("/" + key + "/").build();
             logger.info("Logstash URI: {}", uri);
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("Could not create uri", e);
@@ -102,7 +102,7 @@ public class LogstashSubmitter extends AbstractElasTestSubmitter {
         requestConfig.setConnectTimeout(3 * 1000);
         requestConfig.setConnectionRequestTimeout(3 * 1000);
         requestConfig.setSocketTimeout(3 * 1000);
-        
+
         postRequest = new HttpPost(uri);
         postRequest.setConfig(requestConfig.build());
         StringEntity input = new StringEntity(data,
@@ -119,6 +119,7 @@ public class LogstashSubmitter extends AbstractElasTestSubmitter {
         CloseableHttpClient httpClient = null;
         CloseableHttpResponse response = null;
         HttpPost post = getHttpPost(data);
+        boolean sentMessage = false;
 
         try {
             httpClient = clientBuilder.build();
@@ -128,11 +129,11 @@ public class LogstashSubmitter extends AbstractElasTestSubmitter {
                     .contains(response.getStatusLine().getStatusCode())) {
                 throw new IOException(this.getErrorMessage(response));
             }
-            return true;
+            sentMessage = true;
+        } catch (RuntimeException re) {
+            throw re;
         } catch (Exception e) {
             logger.info("Error sendind log trace message {} ", data);
-            return false;
-
         } finally {
             if (response != null) {
                 response.close();
@@ -141,6 +142,7 @@ public class LogstashSubmitter extends AbstractElasTestSubmitter {
                 httpClient.close();
             }
         }
+        return sentMessage;
     }
 
     private String getErrorMessage(CloseableHttpResponse response) {
@@ -148,7 +150,8 @@ public class LogstashSubmitter extends AbstractElasTestSubmitter {
         PrintStream stream = null;
         try {
             byteStream = new ByteArrayOutputStream();
-            stream = new PrintStream(byteStream, false, StandardCharsets.UTF_8.name());
+            stream = new PrintStream(byteStream, false,
+                    StandardCharsets.UTF_8.name());
             try {
                 stream.print("HTTP error code: ");
                 stream.println(response.getStatusLine().getStatusCode());
