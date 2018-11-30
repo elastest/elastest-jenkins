@@ -57,14 +57,13 @@ public class ElasTestWriter implements Serializable{
     transient final Logger LOG = getLogger(lookup().lookupClass());
 
     final OutputStream errorStream;
-    final Run<?, ?> build;
+    transient final Run<?, ?> build;
     final TaskListener listener;
     final String jenkinsUrl;
-    final ElasTestSubmitter elastestSubmiter;
-
+    transient final ElasTestSubmitter elastestSubmiter;
     private boolean connectionBroken;
     final ExternalJob externalJob;
-    private Executor executor = Executors.newSingleThreadExecutor();
+    transient private Executor executor = Executors.newSingleThreadExecutor();
 
     public ElasTestWriter(Run<?, ?> run, OutputStream error,
             TaskListener listener, ExternalJob externalJob) {
