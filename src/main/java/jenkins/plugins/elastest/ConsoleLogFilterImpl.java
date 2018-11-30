@@ -43,7 +43,7 @@ import jenkins.plugins.elastest.json.ExternalJob;
  */
 public class ConsoleLogFilterImpl extends ConsoleLogFilter
         implements Serializable {
-    final Logger LOG = getLogger(lookup().lookupClass());
+    transient final Logger LOG = getLogger(lookup().lookupClass());
     private static final long serialVersionUID = 1L;
     private final transient Run<?, ?> build;
     private ElasTestService elasTestService;
