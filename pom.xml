@@ -38,6 +38,7 @@
         <docker-java.version>3.0.13</docker-java.version>
         <java.level>8</java.level>
         <jdk.version>1.8</jdk.version>
+        <jacoco-maven-plugin.version>0.7.9</jacoco-maven-plugin.version>
     </properties>
 
     <distributionManagement>
