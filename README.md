@@ -1,7 +1,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Documentation badge](https://img.shields.io/badge/docs-latest-brightgreen.svg)](http://elastest.io/docs/)
 [![Build Status](https://ci.elastest.io/jenkins/buildStatus/icon?job=elastest-jenkins/plugin)](https://ci.elastest.io/jenkins/job/elastest-jenkins/job/plugin/)
-[![codecov](https://codecov.io/gh/elastest/elastest-torm/branch/master/graph/badge.svg)](https://codecov.io/gh/elastest/elastest-torm)
+[![codecov](https://codecov.io/gh/elastest/elastest-jenkins/branch/master/graph/badge.svg)](https://codecov.io/gh/elastest/elastest-jenkins)
 
 [![][ElasTest Logo]][ElasTest]
 
