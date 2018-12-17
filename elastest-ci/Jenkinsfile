@@ -1,0 +1,55 @@
+node('TESTDOCKER') {
+    stage "Container Prep"
+        try {
+            echo("The node is up")
+            def mycontainer = docker.image('elastest/ci-docker-siblings:latest')
+            mycontainer.pull()
+            mycontainer.inside("-u jenkins -v /var/run/docker.sock:/var/run/docker.sock:rw") {
+
+                git 'https://github.com/elastest/elastest-jenkins.git'
+                
+                stage "Build and run Tests"
+                    echo ("Starting tests")
+                    try {
+                        sh 'mvn clean test'
+                    } catch (err) {
+                        def errString = err.toString()
+                        currentBuild.result = getJobStatus(errString)
+                        throw err
+                    } finally {
+                        step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
+                    }
+                
+                 stage "Upload coverage and quality reports"
+                        echo ("Upload reports to SonarCloud and Codecov")
+
+                        sh 'mvn org.jacoco:jacoco-maven-plugin:prepare-agent sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=elastest -Dsonar.login=${TORM_SONARCLOUD_TOKEN}'
+                        sh "curl -s https://codecov.io/bash | bash -s - -t ${TORM_CODECOV_TOKEN} || echo 'Codecov did not collect coverage reports'"
+
+                
+            }
+        } catch (err) {
+            if (currentBuild.result != "UNSTABLE") {
+                def errString = err.toString()
+                echo 'Error: ' + errString
+                currentBuild.result = getJobStatus(errString)
+            }
+            echo 'Error!!! Send email to the people responsible for the builds.'
+            emailext body: 'Please go to  ${BUILD_URL}  and verify the build',
+            replyTo: '${BUILD_USER_EMAIL}', 
+            subject: 'Job ${JOB_NAME} - ${BUILD_NUMBER} RESULT: ${BUILD_STATUS}', 
+            to: '${MAIL_LIST}'
+
+        throw err
+    }
+}
+
+def getJobStatus(exceptionString) {
+    def status = 'SUCCESS'
+    if (exceptionString.contains('FlowInterruptedException') || exceptionString.contains('AbortException')) {
+        status = 'ABORTED'
+    } else {
+        status = 'FAILURE'
+    }
+    return status;
+}
