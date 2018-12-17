@@ -2,6 +2,7 @@
 [![Documentation badge](https://img.shields.io/badge/docs-latest-brightgreen.svg)](http://elastest.io/docs/)
 [![Build Status](https://ci.elastest.io/jenkins/buildStatus/icon?job=elastest-jenkins/plugin)](https://ci.elastest.io/jenkins/job/elastest-jenkins/job/plugin/)
 [![codecov](https://codecov.io/gh/elastest/elastest-torm/branch/master/graph/badge.svg)](https://codecov.io/gh/elastest/elastest-torm)
+
 [![][ElasTest Logo]][ElasTest]
 
 ElasTest Plugin
