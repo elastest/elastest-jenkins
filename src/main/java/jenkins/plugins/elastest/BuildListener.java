@@ -24,6 +24,7 @@
 package jenkins.plugins.elastest;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -143,14 +144,25 @@ public class BuildListener extends RunListener<Run> {
                             containerId, "");
                 }
             } catch (RuntimeException io) {
-                LOG.warn(
-                        "Error stopping monitoring containers. It's possible "
+                LOG.warn("Error stopping monitoring containers. It's possible "
                         + "that you will have to stop them manually");
                 io.printStackTrace();
             } finally {
-                elasTestService.finishElasTestTJobExecution(elasTestService
-                        .getExternalJobByBuildFullName(build.getFullDisplayName()));
+                elasTestService.finishElasTestTJobExecution(
+                        elasTestService.getExternalJobByBuildFullName(
+                                build.getFullDisplayName()));
                 elasTestService.removeExternalJobs(build.getFullDisplayName());
+                ExecutorService executor = elasTestService.getElasTestBuild()
+                        .get(build.getFullDisplayName()).getWriter()
+                        .getExecutor();
+                if (elasTestService.getElasTestBuild()
+                        .get(build.getFullDisplayName()) != null
+                        && elasTestService.getElasTestBuild()
+                                .get(build.getFullDisplayName())
+                                .getWriter() != null
+                        && !executor.isTerminated()) {
+                    executor.shutdownNow();
+                }
             }
         }
         LOG.info("Finalized all");

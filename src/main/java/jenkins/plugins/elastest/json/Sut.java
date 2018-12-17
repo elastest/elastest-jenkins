@@ -1,6 +1,7 @@
 package jenkins.plugins.elastest.json;
 
 import java.io.Serializable;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -17,6 +18,8 @@ public class Sut implements Serializable {
     private Long id;
     @JsonProperty("ip")
     private String ip;
+    @JsonProperty("parameters")
+    private Map<String, String> parameters;
 
     public Sut() {
     }
@@ -24,6 +27,12 @@ public class Sut implements Serializable {
     public Sut(Long id) {
         super();
         this.id = id;
+    }
+
+    public Sut(Long id, Map<String, String> parameters) {
+        super();
+        this.id = id;
+        this.parameters = parameters;
     }
 
     public Sut(Long id, String ip) {
@@ -46,6 +55,14 @@ public class Sut implements Serializable {
 
     public void setIp(String ip) {
         this.ip = ip;
+    }
+
+    public Map<String, String> getParameters() {
+        return parameters;
+    }
+
+    public void setParameters(Map<String, String> parameters) {
+        this.parameters = parameters;
     }
 
     @Override

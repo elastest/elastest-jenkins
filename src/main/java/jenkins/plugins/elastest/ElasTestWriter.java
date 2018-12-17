@@ -34,6 +34,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -63,7 +64,7 @@ public class ElasTestWriter implements Serializable{
     transient final ElasTestSubmitter elastestSubmiter;
     private boolean connectionBroken;
     final ExternalJob externalJob;
-    transient private Executor executor = Executors.newSingleThreadExecutor();
+    transient private ExecutorService executor;
 
     public ElasTestWriter(Run<?, ?> run, OutputStream error,
             TaskListener listener, ExternalJob externalJob) {
@@ -116,12 +117,19 @@ public class ElasTestWriter implements Serializable{
         if (type.compareTo(SubmitterType.LOGSTASH) == 0) {
             LOG.info("ElasTest services ip:" + externalJob.getServicesIp());
 
-            key = externalJob.isFromIntegratedJenkins()
-                    && externalJob.getServicesIp().equals("etm")
-                            ? "api/monitoring"
-                            : SubmitterType.LOGSTASH.toString();
+            if (externalJob.isFromIntegratedJenkins()) {
+                if (externalJob.getServicesIp().equals("etm")) {
+                    key = "api/monitoring";
+                }
+            } else {
+                key =SubmitterType.LOGSTASH.toString();
+            }
+            
             host = externalJob.getServicesIp();
             port = Integer.valueOf(externalJob.getLogstashPort());
+            LOG.info("LOGSTASH KEY: {}", key);
+            LOG.info("LOGSTASH HOST: {}", host);
+            LOG.info("LOGSTASH PORT: {}", port);
         }
 
         return SubmitterFactory.getInstance(type, host, port, key,
@@ -175,6 +183,14 @@ public class ElasTestWriter implements Serializable{
 
     public ExternalJob getExternalJob() {
         return externalJob;
+    }
+
+    public ExecutorService getExecutor() {
+        return executor;
+    }
+
+    public void setExecutor(ExecutorService executor) {
+        this.executor = executor;
     }
 
     /**

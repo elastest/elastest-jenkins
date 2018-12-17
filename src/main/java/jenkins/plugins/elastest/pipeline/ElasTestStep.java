@@ -26,7 +26,9 @@ package jenkins.plugins.elastest.pipeline;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Nonnull;
 
@@ -62,6 +64,9 @@ public class ElasTestStep extends AbstractStepImpl {
 
     @Nonnull
     private Long sut = -1L;
+    
+    @Nonnull
+    private Map<String,String> sutParams = new HashMap<>();
 
     @Nonnull
     private List<String> tss = new ArrayList<String>();
@@ -138,6 +143,15 @@ public class ElasTestStep extends AbstractStepImpl {
     @DataBoundSetter
     public void setProject(String project) {
         this.project = project;
+    }
+
+    public Map<String, String> getSutParams() {
+        return sutParams;
+    }
+
+    @DataBoundSetter
+    public void setSutParams(Map<String, String> sutParams) {
+        this.sutParams = sutParams;
     }
 
     /**
