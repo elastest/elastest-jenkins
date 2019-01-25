@@ -12,7 +12,7 @@ import jenkins.plugins.elastest.ElasTestWriter;
 public class ElasTestBuild implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private FilePath workspace;
+    private transient FilePath workspace;
 
     private ExternalJob externalJob;
     
