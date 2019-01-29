@@ -19,7 +19,8 @@ public class Shell {
 
     public static Process run(boolean redirectOutputs,
             final String... command) {
-        log.info("Running command on the shell: {}", Arrays.toString(command));
+        log.debug("[elastest-plugin]: Running command on the shell -> {}",
+                Arrays.toString(command));
 
         try {
             ProcessBuilder p = new ProcessBuilder(command);
@@ -39,9 +40,10 @@ public class Shell {
     }
 
     public static String runAndWaitArray(final String[] command) {
-        log.info("Running command on the shell: {}", Arrays.toString(command));
+        log.debug("[elastest-plugin]: Running command on the shell -> {}",
+                Arrays.toString(command));
         String result = runAndWaitNoLog(command);
-        log.info("Result:" + result);
+        log.info("[elastest-plugin]: Result ->" + result);
         return result;
     }
 

@@ -39,7 +39,7 @@ public class PropertiesService {
         try (final InputStream stream = PropertiesService.class.getClassLoader()
                 .getResourceAsStream("compatible-versions.properties")) {
             properties.load(stream);
-            return (String)properties.get("elastest.version");
+            return (String) properties.get("elastest.version");
         }
     }
 }

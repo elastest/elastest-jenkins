@@ -31,7 +31,7 @@ public class DockerService implements Serializable {
     }
 
     public String executeDockerCommand(String... startCommand) {
-        LOG.info("Docker command to execute: {}",
+        LOG.info("[elastest-plugin]: Docker command to execute: {}",
                 Arrays.toString(startCommand));
         String result = Shell.runAndWait(startCommand).replaceAll("\n", "");
         return result;
@@ -42,7 +42,7 @@ public class DockerService implements Serializable {
         gateway = executeDockerCommand("docker", "inspect",
                 "--format=\\\"{{.NetworkSettings.Networks.elastest_elastest.Gateway}}\\\"",
                 containerName);
-        LOG.info("Docker network gateway: {}", gateway);
+        LOG.info("[elastest-plugin]: Docker network gateway: {}", gateway);
         return gateway.replaceAll("\\\\\"", "");
     }
 }

@@ -17,7 +17,8 @@ public class TestResultParser {
     public List<String> prepareTestReportsAsString(String workspacePath,
             String testResultFilePattern) throws Exception {
         List<String> testReportsAsString = new ArrayList<>();
-        LOG.info("Preparing test reports to be sended to ElasTest");
+        LOG.info(
+                "[elastest-plugin]: Preparing test reports to be sended to ElasTest");
 
         try {
             FileManager fm = new FileManager();
@@ -28,10 +29,11 @@ public class TestResultParser {
 
             List<String> files = Arrays.asList(ds.getIncludedFiles());
             for (String file : files) {
-                LOG.info("Test result file: " + file);
+                LOG.info("[elastest-plugin]: Test result file -> " + file);
                 String absoluteFilePath = workspacePath + "/" + file;
-                LOG.debug("Content of the test results file: "
-                        + fm.readFile(new File(absoluteFilePath)));
+                LOG.debug(
+                        "[elastest-plugin]: Content of the test results file: "
+                                + fm.readFile(new File(absoluteFilePath)));
                 testReportsAsString
                         .add(fm.readFile(new File(absoluteFilePath)));
             }

@@ -58,7 +58,7 @@ public class ConsoleLogFilterImpl extends ConsoleLogFilter
     @Override
     public OutputStream decorateLogger(Run _ignore, OutputStream logger)
             throws IOException, InterruptedException {
-        LOG.info("Executing decorate logger");
+        LOG.debug("[elastest-plugin]: Executing decorate logger");
 
         ElasTestWriter elasTestWriter = null;
         if (elasTestService.getElasTestBuild().get(build.getFullDisplayName())

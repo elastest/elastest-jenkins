@@ -33,7 +33,9 @@ import jenkins.plugins.elastest.ElasTestService;
 import jenkins.plugins.elastest.Messages;
 
 /**
- * This class creates the icon that allows access to the Job execution in ElasTest 
+ * This class creates the icon that allows access to the Job execution in
+ * ElasTest
+ * 
  * @author Francisco R. Díaz
  *
  */
@@ -49,19 +51,21 @@ public class ElasTestItemMenuAction extends Actionable implements Action {
     public ElasTestItemMenuAction(@SuppressWarnings("rawtypes") Run<?, ?> build,
             String elasTestLogAnalyzerUrl, String elasTestTJobExecutionUrl) {
         super();
-        LOG.info("ElasTest Log Analayser URL: {}", elasTestLogAnalyzerUrl);
-        LOG.info("ElasTest TJob execution URL: {}", elasTestTJobExecutionUrl);
+        LOG.debug("[elastest-plugin]: ElasTest Log Analayser URL: {}",
+                elasTestLogAnalyzerUrl);
+        LOG.debug("[elastest-plugin]: ElasTest TJob execution URL: {}",
+                elasTestTJobExecutionUrl);
         this.elasTestLogAnalyzerUrl = elasTestLogAnalyzerUrl;
         this.elasTestTJobExecutionUrl = elasTestTJobExecutionUrl;
     }
-    
+
     public static void addActionToMenu(Run<?, ?> build) {
         ElasTestService elasTestService = ElasTestService.getInstance();
         ElasTestItemMenuAction action = new ElasTestItemMenuAction(build,
-                elasTestService.getExternalJobByBuildFullName(build.getFullDisplayName())
-                        .getLogAnalyzerUrl(),
-                elasTestService.getExternalJobByBuildFullName(build.getFullDisplayName())
-                        .getExecutionUrl());
+                elasTestService.getExternalJobByBuildFullName(
+                        build.getFullDisplayName()).getLogAnalyzerUrl(),
+                elasTestService.getExternalJobByBuildFullName(
+                        build.getFullDisplayName()).getExecutionUrl());
         build.addAction(action);
     }
 

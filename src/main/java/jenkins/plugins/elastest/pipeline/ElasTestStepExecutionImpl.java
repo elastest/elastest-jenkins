@@ -96,7 +96,8 @@ public class ElasTestStepExecutionImpl extends AbstractStepExecutionImpl {
                 startMonitoringContainers(elasTestStep.envVars, elasTestBuild);
             }
         } catch (Exception e) {
-            LOG.error("Error trying to bind the build with a TJob.");
+            LOG.error(
+                    "[elastest-plugin]: Error trying to bind the build with a TJob.");
             e.printStackTrace();
             throw e;
         }
@@ -131,7 +132,7 @@ public class ElasTestStepExecutionImpl extends AbstractStepExecutionImpl {
 
     private ConsoleLogFilter createConsoleLogFilter(StepContext context,
             Run<?, ?> build) throws IOException, InterruptedException {
-        LOG.info("Creatin console log filter.");
+        LOG.debug("[elastest-plugin]: Creatin console log filter.");
         ConsoleLogFilterImpl logFilterImpl = new ConsoleLogFilterImpl(build,
                 elasTestService);
         return logFilterImpl;
@@ -147,15 +148,15 @@ public class ElasTestStepExecutionImpl extends AbstractStepExecutionImpl {
 
     private void startMonitoringContainers(EnvVars envVars,
             ElasTestBuild elasTestBuild) {
-        LOG.info("Start container monitoring");
+        LOG.info("[elastest-plugin]: Start container monitoring");
         dockerService = DockerService
                 .getDockerService(DockerService.DOCKER_HOST_BY_DEFAULT);
 
         String fileBeatImage = "elastest/etm-filebeat:latest";
         String dockBeatImage = "elastest/etm-dockbeat:latest";
 
-        String logstashHost = "LOGSTASHHOST="
-                + (!envVars.get("ET_MON_LSBEATS_HOST").trim().equals("localhost")
+        String logstashHost = "LOGSTASHHOST=" + (!envVars
+                .get("ET_MON_LSBEATS_HOST").trim().equals("localhost")
                         ? envVars.get("ET_MON_LSBEATS_HOST")
                         : dockerService
                                 .getGatewayFromContainer(ETM_CONTAINER_NAME));
@@ -187,7 +188,7 @@ public class ElasTestStepExecutionImpl extends AbstractStepExecutionImpl {
     }
 
     private boolean isRemoteElasTest() {
-        LOG.info("Checking if ElasTest is running locally.");
+        LOG.info("[elastest-plugin]: Checking if ElasTest is running locally.");
         boolean result = true;
         String etContainername = "elastest_etm_1";
         String errorMessage = "No such object: " + etContainername;
@@ -195,7 +196,8 @@ public class ElasTestStepExecutionImpl extends AbstractStepExecutionImpl {
                 .executeDockerCommand("docker", "inspect",
                         "--format=\\\"{{.Name}}\\\"", etContainername)
                 .contains(errorMessage);
-        LOG.info("Result of the inspect command: {}", result);
+        LOG.debug("[elastest-plugin]: Result of the inspect command: {}",
+                result);
         return result;
     }
 

@@ -48,14 +48,13 @@ import jenkins.YesNoMaybe;
 import jenkins.plugins.elastest.Messages;
 
 /**
- * Pipeline Step that allows to send log traces to ElasTest and use the EUS
- * TSS.
+ * Pipeline Step that allows to send log traces to ElasTest and use the EUS TSS.
  * 
  * @author Francisco R. Díaz
  * @since 0.0.1
  */
 public class ElasTestStep extends AbstractStepImpl {
-    
+
     private static final Logger LOG = LoggerFactory
             .getLogger(ElasTestStep.class);
 
@@ -64,22 +63,22 @@ public class ElasTestStep extends AbstractStepImpl {
 
     @Nonnull
     private Long sut = -1L;
-    
+
     @Nonnull
-    private Map<String,String> sutParams = new HashMap<>();
+    private Map<String, String> sutParams = new HashMap<>();
 
     @Nonnull
     private List<String> tss = new ArrayList<String>();
-    
+
     @Nonnull
     private String project = "";
 
     @Nonnull
     private Long tJobId = -1L;
-    
+
     @Nonnull
     private String surefireReportsPattern = "";
-    
+
     @Nonnull
     private boolean monitoring = false;
 
@@ -132,7 +131,8 @@ public class ElasTestStep extends AbstractStepImpl {
 
     @DataBoundSetter
     public void setMonitoring(boolean monitoring) {
-        LOG.info("Monitoring value: {}", String.valueOf(monitoring));
+        LOG.debug("[elastest-plugin]: Monitoring value -> {}",
+                String.valueOf(monitoring));
         this.monitoring = monitoring;
     }
 

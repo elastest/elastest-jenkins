@@ -24,10 +24,13 @@
 
 package jenkins.plugins.elastest;
 
+import static java.lang.invoke.MethodHandles.lookup;
+import static org.slf4j.LoggerFactory.getLogger;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Map.Entry;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
@@ -48,18 +51,17 @@ import jenkins.plugins.elastest.json.ExternalJob;
 import jenkins.tasks.SimpleBuildWrapper;
 
 /**
- * Build wrapper that decorates the build's logger to send to ElasTest and allow you to use
- * the EUS(ElasTest User Impersonation Service) from a Jenkins Job.
+ * Build wrapper that decorates the build's logger to send to ElasTest and allow
+ * you to use the EUS(ElasTest User Impersonation Service) from a Jenkins Job.
  * 
  * @author Francisco R. Díaz
  * @since 0.0.1
  */
 public class ElasTestBuildWrapper extends SimpleBuildWrapper {
-    private static final Logger LOG = Logger
-            .getLogger(ElasTestBuildWrapper.class.getName());
+    private static final Logger LOG = getLogger(lookup().lookupClass());
 
     private ElasTestService elasTestService;
-    
+
     private boolean eus;
 
     /**
@@ -68,9 +70,9 @@ public class ElasTestBuildWrapper extends SimpleBuildWrapper {
     @DataBoundConstructor
     public ElasTestBuildWrapper() {
         super();
-        LOG.info("ElasTestBuildWrapper Constructor");
+        LOG.debug("[elastest-plugin]: ElasTestBuildWrapper Constructor");
     }
-    
+
     public boolean isEus() {
         return eus;
     }
@@ -88,32 +90,34 @@ public class ElasTestBuildWrapper extends SimpleBuildWrapper {
             Launcher launcher, TaskListener listener,
             EnvVars initialEnvironment)
             throws IOException, InterruptedException {
-        LOG.info("ElasTestBuildWrapper SetUp");
-        ElasTestItemMenuAction.addActionToMenu(build);        
+        LOG.debug("[elastest-plugin]: ElasTestBuildWrapper SetUp");
+        ElasTestItemMenuAction.addActionToMenu(build);
         ExternalJob externalJob = elasTestService
                 .getExternalJobByBuildFullName(build.getFullDisplayName());
         ElasTestBuild elasTestBuild;
-        
+
         elasTestBuild = new ElasTestBuild(workspace, externalJob);
-                
+
         while (!elasTestBuild.getExternalJob().isReady()) {
             try {
                 elasTestBuild.setExternalJob(elasTestService
                         .isReadyTJobForExternalExecution(externalJob));
-                elasTestService.getElasTestBuild().put(build.getFullDisplayName(),
-                        elasTestBuild);
+                elasTestService.getElasTestBuild()
+                        .put(build.getFullDisplayName(), elasTestBuild);
             } catch (Exception e) {
-                LOG.info("Error checking the status of the TJob.");
+                LOG.debug(
+                        "[elastest-plugin]: Error checking the status of the TJob.");
                 e.printStackTrace();
                 throw new InterruptedException();
             }
         }
 
-        if (elasTestService.getExternalJobByBuildFullName(build.getFullDisplayName())
+        if (elasTestService
+                .getExternalJobByBuildFullName(build.getFullDisplayName())
                 .getEnvVars() != null) {
             for (Entry<String, String> entry : elasTestService
-                    .getExternalJobByBuildFullName(build.getFullDisplayName()).getEnvVars()
-                    .entrySet()) {
+                    .getExternalJobByBuildFullName(build.getFullDisplayName())
+                    .getEnvVars().entrySet()) {
                 context.env(entry.getKey(), entry.getValue());
             }
         }
@@ -124,7 +128,8 @@ public class ElasTestBuildWrapper extends SimpleBuildWrapper {
      */
     @Override
     public ConsoleLogFilter createLoggerDecorator(Run<?, ?> build) {
-        LOG.info("ElasTestBuildWrapper CreateLoggerDecorator");
+        LOG.debug(
+                "[elastest-plugin]: ElasTestBuildWrapper CreateLoggerDecorator");
         elasTestService = ElasTestService.getInstance();
         ElasTestBuild elasTestBuild = new ElasTestBuild();
         try {
@@ -138,10 +143,11 @@ public class ElasTestBuildWrapper extends SimpleBuildWrapper {
     public DescriptorImpl getDescriptor() {
         return (DescriptorImpl) super.getDescriptor();
     }
-    
+
     // Method to encapsulate calls for unit-testing
-    ElasTestWriter getElasTestWriter(Run<?, ?> build, OutputStream errorStream, ExternalJob externalJob) {
-      return new ElasTestWriter(build, errorStream, null, externalJob);
+    ElasTestWriter getElasTestWriter(Run<?, ?> build, OutputStream errorStream,
+            ExternalJob externalJob) {
+        return new ElasTestWriter(build, errorStream, null, externalJob);
     }
 
     /**

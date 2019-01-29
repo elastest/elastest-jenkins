@@ -58,7 +58,7 @@ public class BuildListener extends RunListener<Run> {
     private DockerService dockerService;
 
     public BuildListener() {
-        LOG.info("Initializing Listener");
+        LOG.debug("[elastest-plugin]: Initializing Listener");
         elasTestApiURL = ElasTestInstallation
                 .getLogstashDescriptor().elasTestUrl + "/api/external/tjob";
         elasTestService = ElasTestService.getInstance();
@@ -69,7 +69,7 @@ public class BuildListener extends RunListener<Run> {
 
     @Override
     public void onStarted(Run r, TaskListener listener) {
-        LOG.info("Listener on started");
+        LOG.debug("[elastest-plugin]: Listener on started");
         super.onStarted(r, listener);
     }
 
@@ -77,7 +77,7 @@ public class BuildListener extends RunListener<Run> {
     public Environment setUpEnvironment(AbstractBuild build, Launcher launcher,
             hudson.model.BuildListener listener)
             throws IOException, InterruptedException, RunnerAbortedException {
-        LOG.info("Set up environment");
+        LOG.debug(" [elastest-plugin]:Set up environment");
 
         return super.setUpEnvironment(build, launcher, listener);
     }
@@ -134,7 +134,7 @@ public class BuildListener extends RunListener<Run> {
                 break;
             }
             // Stop docker containers started locally
-            LOG.info("Stopping aux containers.");
+            LOG.debug("[elastest-plugin]: Stopping aux containers.");
             try {
                 dockerService.executeDockerCommand("docker", "ps");
                 for (String containerId : elasTestService.getElasTestBuild()
@@ -144,7 +144,7 @@ public class BuildListener extends RunListener<Run> {
                             containerId, "");
                 }
             } catch (RuntimeException io) {
-                LOG.warn("Error stopping monitoring containers. It's possible "
+                LOG.warn("[elastest-plugin]: Error stopping monitoring containers. It's possible "
                         + "that you will have to stop them manually");
                 io.printStackTrace();
             } finally {
@@ -165,6 +165,6 @@ public class BuildListener extends RunListener<Run> {
                 }
             }
         }
-        LOG.info("Finalized all");
+        LOG.info("[elastest-plugin]: Finalized all");
     }
 }

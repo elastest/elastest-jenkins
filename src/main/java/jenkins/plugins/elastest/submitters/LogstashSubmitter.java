@@ -1,5 +1,4 @@
 /*
- * The MIT License
  *
  * (C) Copyright 2017-2019 ElasTest (http://elastest.io/)
  *
@@ -73,19 +72,19 @@ public class LogstashSubmitter extends AbstractElasTestSubmitter {
     LogstashSubmitter(HttpClientBuilder factory, String host, int port,
             String key, String username, String password) {
         super(host, port, key, username, password);
-        logger.info("Creating a Logstash submitter.");
+        logger.info("[elastest-plugin]: Creating a Logstash submitter.");
 
         try {
             uri = new URIBuilder("http://" + host).setPort(port)
                     .setPath("/" + key + "/").build();
-            logger.info("Logstash URI: {}", uri);
+            logger.info("[elastest-plugin]: Logstash URI: {}", uri);
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("Could not create uri", e);
         }
 
         if (StringUtils.isNotBlank(username)
                 && StringUtils.isNotBlank(password)) {
-            logger.info("Using basic authentication.");
+            logger.info("[elastest-plugin]: Using basic authentication.");
             auth = Base64.encodeBase64String(
                     (username + ":" + StringUtils.defaultString(password))
                             .getBytes(StandardCharsets.UTF_8));
@@ -133,7 +132,9 @@ public class LogstashSubmitter extends AbstractElasTestSubmitter {
         } catch (RuntimeException re) {
             throw re;
         } catch (Exception e) {
-            logger.info("Error sendind log trace message {} ", data);
+            logger.error(
+                    "[elastest-plugin]: Error sendind log trace message {} ",
+                    data);
         } finally {
             if (response != null) {
                 response.close();

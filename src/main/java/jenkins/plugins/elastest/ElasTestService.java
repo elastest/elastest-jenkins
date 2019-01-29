@@ -107,7 +107,7 @@ public class ElasTestService implements Serializable {
     public void asociateToElasTestTJob(Run<?, ?> build,
             ElasTestBuildWrapper elasTestBuilder, ElasTestBuild elasTestBuild)
             throws Exception {
-        LOG.info("Associate a Job to a TJob {}",
+        LOG.info("[elastest-plugin]: Associate a Job to a TJob {}",
                 build.getParent().getDisplayName());
         ExternalJob externalJob = new ExternalJob(
                 build.getParent().getDisplayName());
@@ -130,7 +130,7 @@ public class ElasTestService implements Serializable {
                 build.getParent().getDisplayName());
 
         externalJob.setTSServices(prepareTSSToSendET(elasTestStep.getTss()));
-        LOG.info("TestResutlPatter: "
+        LOG.debug("[elastest-plugin]: TestResutlPatter: "
                 + elasTestStep.getSurefireReportsPattern());
         externalJob.setTestResultFilePattern(
                 (elasTestStep.getSurefireReportsPattern() != null
@@ -145,8 +145,10 @@ public class ElasTestService implements Serializable {
                         && elasTestStep.envVars.get("INTEGRATED_JENKINS")
                                 .equals(Boolean.TRUE.toString())
                         && elasTestUrl.equals("http://etm:8091"));
-        LOG.info("Build URL: {}", elasTestStep.envVars.get("BUILD_URL"));
-        LOG.info("Job URL: {}", elasTestStep.envVars.get("JOB_URL"));
+        LOG.info("[elastest-plugin]: Build URL: {}",
+                elasTestStep.envVars.get("BUILD_URL"));
+        LOG.info("[elastest-plugin]: Job URL: {}",
+                elasTestStep.envVars.get("JOB_URL"));
         externalJob.setBuildUrl(elasTestStep.envVars.get("BUILD_URL"));
         externalJob.setJobUrl(elasTestStep.envVars.get("JOB_URL"));
         externalJob.setProject(
@@ -164,7 +166,7 @@ public class ElasTestService implements Serializable {
         externalJob.setExecutionUrl(externalJob.getExecutionUrl());
         externalJob.setLogAnalyzerUrl(externalJob.getLogAnalyzerUrl());
 
-        LOG.info("Content of the external Job returned by ElasTest.");
+        LOG.debug("Content of the external Job returned by ElasTest.");
 
         return externalJob;
     }
@@ -187,7 +189,8 @@ public class ElasTestService implements Serializable {
                 throw new Exception(externalJob.getError());
             }
         } catch (Exception e) {
-            LOG.error("Error trying to create a TJob in ElasTest: {}",
+            LOG.error(
+                    "[elastest-plugin]: Error trying to create a TJob in ElasTest: {}",
                     e.getMessage());
             e.printStackTrace();
             throw e;
@@ -214,7 +217,9 @@ public class ElasTestService implements Serializable {
                 throw new Exception(externalJob.getError());
             }
         } catch (Exception e) {
-            LOG.error("Error cheking if the TJob is ready: {}", e.getMessage());
+            LOG.error(
+                    "[elastest-plugin]: Error cheking if the TJob is ready: {}",
+                    e.getMessage());
             e.printStackTrace();
             throw e;
         }
@@ -222,7 +227,7 @@ public class ElasTestService implements Serializable {
     }
 
     public void finishElasTestTJobExecution(ExternalJob externalJob) {
-        LOG.info("Finalization message.");
+        LOG.debug("[elastest-plugin]: Sending finalization message.");
         WebResource webResource = client.resource(elasTestTJobApiUrl);
         try {
             if (credentialsB64 != null) {
@@ -235,7 +240,8 @@ public class ElasTestService implements Serializable {
             }
 
         } catch (Exception e) {
-            LOG.error("Error sending the finalization message to ElasTest: {}",
+            LOG.error(
+                    "[elastest-plugin]: Error sending the finalization message to ElasTest: {}",
                     e.getMessage());
             e.printStackTrace();
             throw e;
@@ -255,13 +261,14 @@ public class ElasTestService implements Serializable {
                     : webResource.type("text/plain").get(ClientResponse.class);
 
             result = response.getEntity(String.class);
-            LOG.info("ElasTest version installed: " + result);
+            LOG.info(
+                    "[elastest-plugin]: ElasTest version installed: " + result);
         } catch (UniformInterfaceException uie) {
-            LOG.error("Error invoking ElasTest.");
+            LOG.error("[elastest-plugin]: Error invoking ElasTest.");
             result = "The connection to ElasTest could not be established.";
             throw uie;
         } catch (Exception e) {
-            LOG.error("Unknown error: {}", e.getMessage());
+            LOG.error("[elastest-plugin]: Unknown error: {}", e.getMessage());
             e.printStackTrace();
             throw e;
         }
@@ -305,7 +312,7 @@ public class ElasTestService implements Serializable {
     }
 
     private void updateInstance() {
-        LOG.info("Updating ElasTest service instance");
+        LOG.debug("[elastest-plugin]: Updating ElasTest service instance");
         instance.elasTestUrl = ElasTestInstallation
                 .getLogstashDescriptor().elasTestUrl;
         instance.elasTestTJobApiUrl = elasTestUrl + "/api/external/tjob";
@@ -317,11 +324,12 @@ public class ElasTestService implements Serializable {
             String authString = name + ":" + password;
             instance.credentialsB64 = new Base64().encodeAsString(
                     authString.getBytes(StandardCharsets.UTF_8));
-            LOG.info("Now access to ElasTest is with username and password.");
+            LOG.info(
+                    "[elastest-plugin]: Now access to ElasTest is with username and password.");
         } else {
             instance.credentialsB64 = null;
             LOG.info(
-                    "Now access to ElasTest is without username and password.");
+                    "[elastest-plugin]: Now access to ElasTest is without username and password.");
         }
 
         instance.tSServicesCatalog = loadTSSCatalog();

@@ -25,19 +25,21 @@
 package jenkins.plugins.elastest;
 
 import static java.lang.invoke.MethodHandles.lookup;
-import org.slf4j.Logger;
 import static org.slf4j.LoggerFactory.getLogger;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.slf4j.Logger;
+
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import jenkins.model.Jenkins;
@@ -53,7 +55,7 @@ import jenkins.plugins.elastest.submitters.SubmitterFactory;
  * @author Francisco R. Díaz
  * @since 0.0.1
  */
-public class ElasTestWriter implements Serializable{
+public class ElasTestWriter implements Serializable {
     private static final long serialVersionUID = 1L;
     transient final Logger LOG = getLogger(lookup().lookupClass());
 
@@ -68,7 +70,7 @@ public class ElasTestWriter implements Serializable{
 
     public ElasTestWriter(Run<?, ?> run, OutputStream error,
             TaskListener listener, ExternalJob externalJob) {
-        LOG.info("Creating ElasTestWriter");
+        LOG.debug("[elastest-plugin]: Creating ElasTestWriter");
         this.errorStream = error != null ? error : System.err;
         this.build = run;
         this.listener = listener;
@@ -80,10 +82,10 @@ public class ElasTestWriter implements Serializable{
         } else {
             this.jenkinsUrl = getJenkinsUrl();
         }
-        
+
         executor = Executors.newSingleThreadExecutor();
     }
-    
+
     /**
      * Sends a logstash payload for a single line to the indexer. Call will be
      * ignored if the line is empty or if the connection to ElasTest is broken.
@@ -115,21 +117,22 @@ public class ElasTestWriter implements Serializable{
         Integer port = 0;
 
         if (type.compareTo(SubmitterType.LOGSTASH) == 0) {
-            LOG.info("ElasTest services ip:" + externalJob.getServicesIp());
+            LOG.info("[elastest-plugin]: ElasTest services ip ->"
+                    + externalJob.getServicesIp());
 
             if (externalJob.isFromIntegratedJenkins()) {
                 if (externalJob.getServicesIp().equals("etm")) {
                     key = "api/monitoring";
                 }
             } else {
-                key =SubmitterType.LOGSTASH.toString();
+                key = SubmitterType.LOGSTASH.toString();
             }
-            
+
             host = externalJob.getServicesIp();
             port = Integer.valueOf(externalJob.getLogstashPort());
-            LOG.info("LOGSTASH KEY: {}", key);
-            LOG.info("LOGSTASH HOST: {}", host);
-            LOG.info("LOGSTASH PORT: {}", port);
+            LOG.debug("[elastest-plugin]: LOGSTASH KEY -> {}", key);
+            LOG.debug("[elastest-plugin]: LOGSTASH HOST -> {}", host);
+            LOG.debug("[elastest-plugin]: LOGSTASH PORT -> {}", port);
         }
 
         return SubmitterFactory.getInstance(type, host, port, key,
@@ -145,12 +148,14 @@ public class ElasTestWriter implements Serializable{
      */
     private void write(List<String> lines) {
         if (build.getAction(ElasTestItemMenuAction.class) != null) {
-            final String payload = elastestSubmiter.buildPayload(lines, externalJob);
-            LOG.info("Message to send " + payload.toString());
+            final String payload = elastestSubmiter.buildPayload(lines,
+                    externalJob);
+            LOG.debug(
+                    "[elastest-plugin]: Message to send " + payload.toString());
             executor.execute(() -> sendPayload(payload));
         }
     }
-    
+
     /**
      * Construct a valid indexerDao or return null. Writes errors to errorStream
      * if dao constructor fails.
@@ -212,17 +217,17 @@ public class ElasTestWriter implements Serializable{
             int maxAttempts = 4;
             int attempt = 0;
             boolean sended = false;
-            //LOG.info("Send message in runnable: " + payload.toString());
+            // LOG.info("Send message in runnable: " + payload.toString());
             while (attempt < maxAttempts && !sended) {
                 if (attempt > 0) {
                     try {
                         Thread.sleep(500);
-      
+
                     } catch (InterruptedException ie) {
                     }
                 }
                 attempt++;
-                LOG.info("Attempt: {}", attempt);
+                LOG.debug("[elastest-plugin]: Attempt to send {}", attempt);
                 sended = elastestSubmiter.push(payload.toString());
             }
             if (attempt > 4 && !sended) {

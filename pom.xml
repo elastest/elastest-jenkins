@@ -60,7 +60,7 @@
     <name>ElasTest Plugin</name>
     <description>Plugin to integrate Jenkins with ElasTest, an elastic platform to ease end to end testing.
 	 Using this plugin you will be able to send logs of a build to ElasTest to store and analyze them.
-	 Also, you can make use of several services provide by ElasTest (currently ElasTest provide browsers on demand).
+	 Also, you can make use of several services provided by ElasTest (eg. browsers on demand).
 	</description>
     <url>https://wiki.jenkins.io/display/JENKINS/ElasTest+Plugin</url>
 

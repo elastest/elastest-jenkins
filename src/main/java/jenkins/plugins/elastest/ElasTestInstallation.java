@@ -121,8 +121,8 @@ public class ElasTestInstallation extends ToolInstallation {
                             elasTestService.getElasTestVersion())) {
                         return FormValidation.ok("Success");
                     } else {
-                        return FormValidation
-                                .error("Your installed ElasTest version is not compatible"
+                        return FormValidation.error(
+                                "Your installed ElasTest version is not compatible"
                                         + " with this plugin version. You need to get "
                                         + "installed ElasTest v."
                                         + elasTestVersion + "or later.");
@@ -143,7 +143,7 @@ public class ElasTestInstallation extends ToolInstallation {
                     elasTestVersion = PropertiesService
                             .getCompatibleElasTestVersion();
                     LOG.info(
-                            "ElasTest version compatible with this plugin version: "
+                            "[elastest-plugin]: ElasTest version compatible with this plugin version: "
                                     + elasTestVersion);
                 } catch (IOException e) {
                     elasTestVersion = "Error reading the compatible ElasTest version.";
