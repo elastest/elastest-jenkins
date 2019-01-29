@@ -43,7 +43,7 @@ public class Shell {
         log.debug("[elastest-plugin]: Running command on the shell -> {}",
                 Arrays.toString(command));
         String result = runAndWaitNoLog(command);
-        log.info("[elastest-plugin]: Result ->" + result);
+        log.info("[elastest-plugin]: Result -> " + result);
         return result;
     }
 

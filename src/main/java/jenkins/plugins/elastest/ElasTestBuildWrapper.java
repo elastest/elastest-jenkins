@@ -96,7 +96,8 @@ public class ElasTestBuildWrapper extends SimpleBuildWrapper {
                 .getExternalJobByBuildFullName(build.getFullDisplayName());
         ElasTestBuild elasTestBuild;
 
-        elasTestBuild = new ElasTestBuild(workspace, externalJob);
+        elasTestBuild = new ElasTestBuild(externalJob);
+        elasTestBuild.setWorkspace(workspace);
 
         while (!elasTestBuild.getExternalJob().isReady()) {
             try {

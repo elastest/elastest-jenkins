@@ -38,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import hudson.EnvVars;
+import hudson.FilePath;
 import hudson.console.ConsoleLogFilter;
 import hudson.model.Run;
 import jenkins.plugins.elastest.ConsoleLogFilterImpl;
@@ -77,7 +78,8 @@ public class ElasTestStepExecutionImpl extends AbstractStepExecutionImpl {
         ElasTestBuild elasTestBuild = null;
         try {
             // Init Build Context
-            elasTestBuild = new ElasTestBuild(context);
+            elasTestBuild = new ElasTestBuild();
+            elasTestBuild.setWorkspace(context.get(FilePath.class));
             // Associate the Jenkins' Job to an ElasTest Job
             elasTestService.asociateToElasTestTJob(build, elasTestStep,
                     elasTestBuild);

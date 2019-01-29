@@ -4,8 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jenkinsci.plugins.workflow.steps.StepContext;
-
 import hudson.FilePath;
 import jenkins.plugins.elastest.ElasTestWriter;
 
@@ -21,21 +19,11 @@ public class ElasTestBuild implements Serializable {
     private transient ElasTestWriter writer;
 
     public ElasTestBuild() {
+        this(null);
     }
 
-    public ElasTestBuild(StepContext context) throws Exception {
-        this(context, null);
-    }
-
-    public ElasTestBuild(StepContext context, ExternalJob externalJob)
-            throws Exception {
-        this(context != null ? context.get(FilePath.class) : null, externalJob);
-    }
-
-    public ElasTestBuild(FilePath workspace, ExternalJob externalJob) {
+    public ElasTestBuild(ExternalJob externalJob) {
         super();
-        this.workspace = workspace;
-        // this.workspace.mkdirs();
         this.externalJob = externalJob;
         this.containers = new ArrayList<>();
     }
