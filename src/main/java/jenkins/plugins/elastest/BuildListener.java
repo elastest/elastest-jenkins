@@ -88,7 +88,7 @@ public class BuildListener extends RunListener<Run> {
         final long buildTime = run.getTimestamp().getTimeInMillis();
         final long timeOnMaster = System.currentTimeMillis();
 
-        ElasTestBuild elasTestBuild = elasTestService.getElasTestBuild()
+        ElasTestBuild elasTestBuild = elasTestService.getElasTestBuilds()
                 .get(run.getFullDisplayName());
 
         if (elasTestBuild.getExternalJob().getTestResultFilePattern() != null
@@ -112,7 +112,7 @@ public class BuildListener extends RunListener<Run> {
     public void onFinalized(Run build) {
         super.onFinalized(build);
 
-        if (elasTestService.getElasTestBuild().size() > 0
+        if (elasTestService.getElasTestBuilds().size() > 0
                 && (build != null && build.getFullDisplayName() != null
                         && build.getResult() != null)) {
             ExternalJob externalJob = elasTestService
@@ -137,7 +137,7 @@ public class BuildListener extends RunListener<Run> {
             LOG.debug("[elastest-plugin]: Stopping aux containers.");
             try {
                 dockerService.executeDockerCommand("docker", "ps");
-                for (String containerId : elasTestService.getElasTestBuild()
+                for (String containerId : elasTestService.getElasTestBuilds()
                         .get(build.getFullDisplayName()).getContainers()) {
                     LOG.info("Stopping docker container: {}", containerId);
                     dockerService.executeDockerCommand("docker", "rm", "-f",
@@ -152,12 +152,12 @@ public class BuildListener extends RunListener<Run> {
                         elasTestService.getExternalJobByBuildFullName(
                                 build.getFullDisplayName()));
                 elasTestService.removeExternalJobs(build.getFullDisplayName());
-                ExecutorService executor = elasTestService.getElasTestBuild()
+                ExecutorService executor = elasTestService.getElasTestBuilds()
                         .get(build.getFullDisplayName()).getWriter()
                         .getExecutor();
-                if (elasTestService.getElasTestBuild()
+                if (elasTestService.getElasTestBuilds()
                         .get(build.getFullDisplayName()) != null
-                        && elasTestService.getElasTestBuild()
+                        && elasTestService.getElasTestBuilds()
                                 .get(build.getFullDisplayName())
                                 .getWriter() != null
                         && !executor.isTerminated()) {

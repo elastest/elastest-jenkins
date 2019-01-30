@@ -61,14 +61,14 @@ public class ConsoleLogFilterImpl extends ConsoleLogFilter
         LOG.debug("[elastest-plugin]: Executing decorate logger");
 
         ElasTestWriter elasTestWriter = null;
-        if (elasTestService.getElasTestBuild().get(build.getFullDisplayName())
+        if (elasTestService.getElasTestBuilds().get(build.getFullDisplayName())
                 .getWriter() != null) {
-            elasTestWriter = elasTestService.getElasTestBuild()
+            elasTestWriter = elasTestService.getElasTestBuilds()
                     .get(build.getFullDisplayName()).getWriter();
         } else {
             elasTestWriter = getElasTestWriter(build, logger, elasTestService
                     .getExternalJobByBuildFullName(build.getFullDisplayName()));
-            elasTestService.getElasTestBuild().get(build.getFullDisplayName())
+            elasTestService.getElasTestBuilds().get(build.getFullDisplayName())
                     .setWriter(elasTestWriter);
         }
 

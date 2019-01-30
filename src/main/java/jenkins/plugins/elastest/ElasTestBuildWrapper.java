@@ -103,7 +103,7 @@ public class ElasTestBuildWrapper extends SimpleBuildWrapper {
             try {
                 elasTestBuild.setExternalJob(elasTestService
                         .isReadyTJobForExternalExecution(externalJob));
-                elasTestService.getElasTestBuild()
+                elasTestService.getElasTestBuilds()
                         .put(build.getFullDisplayName(), elasTestBuild);
             } catch (Exception e) {
                 LOG.debug(

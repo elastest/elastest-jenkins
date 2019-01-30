@@ -280,7 +280,7 @@ public class ElasTestService implements Serializable {
         return elasTestBuilds.get(buildFullName).getExternalJob();
     }
 
-    public HashMap<String, ElasTestBuild> getElasTestBuild() {
+    public HashMap<String, ElasTestBuild> getElasTestBuilds() {
         return elasTestBuilds;
     }
 
