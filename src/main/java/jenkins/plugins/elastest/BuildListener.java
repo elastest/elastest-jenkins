@@ -151,7 +151,6 @@ public class BuildListener extends RunListener<Run> {
                 elasTestService.finishElasTestTJobExecution(
                         elasTestService.getExternalJobByBuildFullName(
                                 build.getFullDisplayName()));
-                elasTestService.removeExternalJobs(build.getFullDisplayName());
                 ExecutorService executor = elasTestService.getElasTestBuilds()
                         .get(build.getFullDisplayName()).getWriter()
                         .getExecutor();
@@ -163,6 +162,7 @@ public class BuildListener extends RunListener<Run> {
                         && !executor.isTerminated()) {
                     executor.shutdownNow();
                 }
+                elasTestService.removeExternalJobs(build.getFullDisplayName());
             }
         }
         LOG.info("[elastest-plugin]: Finalized all");
