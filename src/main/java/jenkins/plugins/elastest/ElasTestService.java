@@ -156,7 +156,9 @@ public class ElasTestService implements Serializable {
                         : null);
         externalJob = asociateToElasTestTJob(build, externalJob);
         elasTestBuild.setExternalJob(externalJob);
+        LOG.info("[elastest-plugin]: Job associated with a TJob");
         elasTestBuilds.put(build.getFullDisplayName(), elasTestBuild);
+        LOG.info("[elastest-plugin]: ElasTestBuild saved {} ", elasTestBuild);
     }
 
     public ExternalJob asociateToElasTestTJob(Run<?, ?> build,
@@ -166,7 +168,7 @@ public class ElasTestService implements Serializable {
         externalJob.setExecutionUrl(externalJob.getExecutionUrl());
         externalJob.setLogAnalyzerUrl(externalJob.getLogAnalyzerUrl());
 
-        LOG.debug("Content of the external Job returned by ElasTest.");
+        LOG.info("Content of the external Job returned by ElasTest.");
 
         return externalJob;
     }

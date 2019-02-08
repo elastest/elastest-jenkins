@@ -59,7 +59,7 @@ public class ElasTestWriter implements Serializable {
     private static final long serialVersionUID = 1L;
     transient final Logger LOG = getLogger(lookup().lookupClass());
 
-    final OutputStream errorStream;
+    transient OutputStream errorStream;
     transient final Run<?, ?> build;
     final TaskListener listener;
     final String jenkinsUrl;
@@ -68,10 +68,10 @@ public class ElasTestWriter implements Serializable {
     final ExternalJob externalJob;
     transient private ExecutorService executor;
 
-    public ElasTestWriter(Run<?, ?> run, OutputStream error,
+    public ElasTestWriter(Run<?, ?> run, /*OutputStream error,*/
             TaskListener listener, ExternalJob externalJob) {
-        LOG.debug("[elastest-plugin]: Creating ElasTestWriter");
-        this.errorStream = error != null ? error : System.err;
+        LOG.info("[elastest-plugin]: Creating ElasTestWriter");
+        //this.errorStream = error != null ? error : System.err;
         this.build = run;
         this.listener = listener;
         this.externalJob = externalJob;
@@ -84,6 +84,10 @@ public class ElasTestWriter implements Serializable {
         }
 
         executor = Executors.newSingleThreadExecutor();
+    }
+    
+    public void setErrorStream(OutputStream error) {
+        this.errorStream = error != null ? error : System.err;
     }
 
     /**

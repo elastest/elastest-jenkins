@@ -43,15 +43,17 @@ import jenkins.plugins.elastest.json.ExternalJob;
  */
 public class ConsoleLogFilterImpl extends ConsoleLogFilter
         implements Serializable {
-    transient final Logger LOG = getLogger(lookup().lookupClass());
+    transient static final Logger LOG = getLogger(lookup().lookupClass());
     private static final long serialVersionUID = 1L;
+    
     private final transient Run<?, ?> build;
-    private ElasTestService elasTestService;
+    private ElasTestWriter writer;
 
     public ConsoleLogFilterImpl(Run<?, ?> build,
-            ElasTestService elasTestService) {
+            ElasTestWriter writer) {
         this.build = build;
-        this.elasTestService = elasTestService;
+        this.writer = writer;
+        
     }
 
     @SuppressWarnings("rawtypes")
@@ -60,26 +62,15 @@ public class ConsoleLogFilterImpl extends ConsoleLogFilter
             throws IOException, InterruptedException {
         LOG.debug("[elastest-plugin]: Executing decorate logger");
 
-        ElasTestWriter elasTestWriter = null;
-        if (elasTestService.getElasTestBuilds().get(build.getFullDisplayName())
-                .getWriter() != null) {
-            elasTestWriter = elasTestService.getElasTestBuilds()
-                    .get(build.getFullDisplayName()).getWriter();
-        } else {
-            elasTestWriter = getElasTestWriter(build, logger, elasTestService
-                    .getExternalJobByBuildFullName(build.getFullDisplayName()));
-            elasTestService.getElasTestBuilds().get(build.getFullDisplayName())
-                    .setWriter(elasTestWriter);
-        }
-
         ElasTestOutputStream los = new ElasTestOutputStream(logger,
-                elasTestWriter);
+                getElasTestWriter(build, logger, null));
         return los;
     }
 
     // Method to encapsulate calls for unit-testing
     ElasTestWriter getElasTestWriter(Run<?, ?> build, OutputStream errorStream,
             ExternalJob externalJob) {
-        return new ElasTestWriter(build, errorStream, null, externalJob);
+        writer.setErrorStream(errorStream);
+        return this.writer;
     }
 }

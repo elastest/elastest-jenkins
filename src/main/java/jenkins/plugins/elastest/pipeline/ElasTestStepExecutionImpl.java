@@ -32,6 +32,7 @@ import javax.inject.Inject;
 
 import org.jenkinsci.plugins.workflow.steps.AbstractStepExecutionImpl;
 import org.jenkinsci.plugins.workflow.steps.BodyExecutionCallback;
+import org.jenkinsci.plugins.workflow.steps.BodyInvoker;
 import org.jenkinsci.plugins.workflow.steps.EnvironmentExpander;
 import org.jenkinsci.plugins.workflow.steps.StepContext;
 import org.slf4j.Logger;
@@ -43,6 +44,7 @@ import hudson.console.ConsoleLogFilter;
 import hudson.model.Run;
 import jenkins.plugins.elastest.ConsoleLogFilterImpl;
 import jenkins.plugins.elastest.ElasTestService;
+import jenkins.plugins.elastest.ElasTestWriter;
 import jenkins.plugins.elastest.action.ElasTestItemMenuAction;
 import jenkins.plugins.elastest.docker.DockerService;
 import jenkins.plugins.elastest.json.ElasTestBuild;
@@ -63,6 +65,7 @@ public class ElasTestStepExecutionImpl extends AbstractStepExecutionImpl {
 
     private ElasTestService elasTestService;
     private DockerService dockerService;
+    private ElasTestWriter writer;
 
     @Inject
     transient ElasTestStep elasTestStep;
@@ -103,7 +106,36 @@ public class ElasTestStepExecutionImpl extends AbstractStepExecutionImpl {
             e.printStackTrace();
             throw e;
         }
-
+        
+        LOG.info("Build name {}", build.getFullDisplayName());
+        try {
+            writer = new ElasTestWriter(build, null, elasTestService
+                .getExternalJobByBuildFullName(build.getFullDisplayName()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        LOG.info("Writer created");
+        
+//        try {
+//            if (elasTestService.getElasTestBuilds() != null
+//                    && elasTestService.getElasTestBuilds().size() > 0
+//                    && elasTestService.getElasTestBuilds()
+//                            .get(build.getDisplayName()) != null
+//                    && elasTestService.getElasTestBuilds()
+//                            .get(build.getDisplayName()).getWriter() != null) {
+//                elasTestWriter = elasTestService.getElasTestBuilds()
+//                        .get(build.getDisplayName()).getWriter();
+//            } else {
+//                elasTestWriter = new ElasTestWriter(build, null, elasTestService
+//                        .getExternalJobByBuildFullName(build.getDisplayName()));
+//                elasTestService.getElasTestBuilds().get(build.getDisplayName())
+//                        .setWriter(elasTestWriter);
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            LOG.error("[elastest-plugin]: {}", e.getMessage());
+//        }
+        
         ExpanderImpl expanderImpl = new ExpanderImpl();
         expanderImpl.setOverrides(elasTestStep.envVars);
         expanderImpl.expand(getContext().get(EnvVars.class));
@@ -136,7 +168,7 @@ public class ElasTestStepExecutionImpl extends AbstractStepExecutionImpl {
             Run<?, ?> build) throws IOException, InterruptedException {
         LOG.debug("[elastest-plugin]: Creatin console log filter.");
         ConsoleLogFilterImpl logFilterImpl = new ConsoleLogFilterImpl(build,
-                elasTestService);
+                writer);
         return logFilterImpl;
     }
 
