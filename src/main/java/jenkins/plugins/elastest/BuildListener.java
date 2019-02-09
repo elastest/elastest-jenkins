@@ -24,6 +24,7 @@
 package jenkins.plugins.elastest;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 import org.slf4j.Logger;
@@ -136,12 +137,17 @@ public class BuildListener extends RunListener<Run> {
             // Stop docker containers started locally
             LOG.debug("[elastest-plugin]: Stopping aux containers.");
             try {
-                dockerService.executeDockerCommand("docker", "ps");
-                for (String containerId : elasTestService.getElasTestBuilds()
-                        .get(build.getFullDisplayName()).getContainers()) {
-                    LOG.info("Stopping docker container: {}", containerId);
-                    dockerService.executeDockerCommand("docker", "rm", "-f",
-                            containerId, "");
+                List<String> buildContainers = elasTestService.getElasTestBuilds()
+                        .get(build.getFullDisplayName()).getContainers();
+                if (buildContainers.size() > 0) {
+                    dockerService.executeDockerCommand("docker", "ps");
+                    for (String containerId : elasTestService
+                            .getElasTestBuilds().get(build.getFullDisplayName())
+                            .getContainers()) {
+                        LOG.info("Stopping docker container: {}", containerId);
+                        dockerService.executeDockerCommand("docker", "rm", "-f",
+                                containerId, "");
+                    }
                 }
             } catch (RuntimeException io) {
                 LOG.warn("[elastest-plugin]: Error stopping monitoring containers. It's possible "

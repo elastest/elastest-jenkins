@@ -111,6 +111,7 @@ public class ElasTestStepExecutionImpl extends AbstractStepExecutionImpl {
         try {
             writer = new ElasTestWriter(build, null, elasTestService
                 .getExternalJobByBuildFullName(build.getFullDisplayName()));
+            elasTestBuild.setWriter(writer);
         } catch (Exception e) {
             e.printStackTrace();
         }

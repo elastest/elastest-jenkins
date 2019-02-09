@@ -229,7 +229,7 @@ public class ElasTestService implements Serializable {
     }
 
     public void finishElasTestTJobExecution(ExternalJob externalJob) {
-        LOG.debug("[elastest-plugin]: Sending finalization message.");
+        LOG.info("[elastest-plugin]: Sending finalization message.");
         WebResource webResource = client.resource(elasTestTJobApiUrl);
         try {
             if (credentialsB64 != null) {
