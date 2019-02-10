@@ -44,7 +44,7 @@ import jenkins.plugins.elastest.json.ExternalJob;
 import jenkins.plugins.elastest.utils.ParseResultCallable;
 
 /**
- * Listener for the Job life cycle.
+ * Listener to perform some actions during the Job life cycle.
  * 
  * @author Francisco R Diaz
  * @since 0.0.1
@@ -137,8 +137,9 @@ public class BuildListener extends RunListener<Run> {
             // Stop docker containers started locally
             LOG.debug("[elastest-plugin]: Stopping aux containers.");
             try {
-                List<String> buildContainers = elasTestService.getElasTestBuilds()
-                        .get(build.getFullDisplayName()).getContainers();
+                List<String> buildContainers = elasTestService
+                        .getElasTestBuilds().get(build.getFullDisplayName())
+                        .getContainers();
                 if (buildContainers.size() > 0) {
                     dockerService.executeDockerCommand("docker", "ps");
                     for (String containerId : elasTestService
@@ -150,8 +151,9 @@ public class BuildListener extends RunListener<Run> {
                     }
                 }
             } catch (RuntimeException io) {
-                LOG.warn("[elastest-plugin]: Error stopping monitoring containers. It's possible "
-                        + "that you will have to stop them manually");
+                LOG.warn(
+                        "[elastest-plugin]: Error stopping monitoring containers. It's possible "
+                                + "that you will have to stop them manually");
                 io.printStackTrace();
             } finally {
                 elasTestService.finishElasTestTJobExecution(

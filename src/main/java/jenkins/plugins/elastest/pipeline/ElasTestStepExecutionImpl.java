@@ -24,6 +24,7 @@
 package jenkins.plugins.elastest.pipeline;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,7 +33,6 @@ import javax.inject.Inject;
 
 import org.jenkinsci.plugins.workflow.steps.AbstractStepExecutionImpl;
 import org.jenkinsci.plugins.workflow.steps.BodyExecutionCallback;
-import org.jenkinsci.plugins.workflow.steps.BodyInvoker;
 import org.jenkinsci.plugins.workflow.steps.EnvironmentExpander;
 import org.jenkinsci.plugins.workflow.steps.StepContext;
 import org.slf4j.Logger;
@@ -42,10 +42,12 @@ import hudson.EnvVars;
 import hudson.FilePath;
 import hudson.console.ConsoleLogFilter;
 import hudson.model.Run;
+import hudson.remoting.VirtualChannel;
 import jenkins.plugins.elastest.ConsoleLogFilterImpl;
 import jenkins.plugins.elastest.ElasTestService;
 import jenkins.plugins.elastest.ElasTestWriter;
 import jenkins.plugins.elastest.action.ElasTestItemMenuAction;
+import jenkins.plugins.elastest.docker.DockerCommandExecuter;
 import jenkins.plugins.elastest.docker.DockerService;
 import jenkins.plugins.elastest.json.ElasTestBuild;
 import jenkins.plugins.elastest.json.ExternalJob;
@@ -66,6 +68,7 @@ public class ElasTestStepExecutionImpl extends AbstractStepExecutionImpl {
     private ElasTestService elasTestService;
     private DockerService dockerService;
     private ElasTestWriter writer;
+    private DockerCommandExecuter dockerCommandExecuter;
 
     @Inject
     transient ElasTestStep elasTestStep;
@@ -79,6 +82,9 @@ public class ElasTestStepExecutionImpl extends AbstractStepExecutionImpl {
         StepContext context = getContext();
         Run<?, ?> build = context.get(Run.class);
         ElasTestBuild elasTestBuild = null;
+
+        LOG.info("[elastest-plubin]: Working on build {}",
+                build.getFullDisplayName());
         try {
             // Init Build Context
             elasTestBuild = new ElasTestBuild();
@@ -86,6 +92,15 @@ public class ElasTestStepExecutionImpl extends AbstractStepExecutionImpl {
             // Associate the Jenkins' Job to an ElasTest Job
             elasTestService.asociateToElasTestTJob(build, elasTestStep,
                     elasTestBuild);
+        } catch (Exception e) {
+            LOG.error(
+                    "[elastest-plugin]: Error trying to bind the build with a TJob.");
+            e.printStackTrace();
+            throw e;
+        }
+
+        try {
+
             // Add the ElasTest menu item to the left menu
             ElasTestItemMenuAction.addActionToMenu(build);
             // Wait until the ElasTest Job is ready
@@ -94,53 +109,28 @@ public class ElasTestStepExecutionImpl extends AbstractStepExecutionImpl {
                         elasTestService.isReadyTJobForExternalExecution(
                                 elasTestBuild.getExternalJob()));
             }
+            writer = new ElasTestWriter(build, null, elasTestService
+                    .getExternalJobByBuildFullName(build.getFullDisplayName()));
+            elasTestBuild.setWriter(writer);
             // Set environment variables
             addEnvVars(build);
             // If monitoring is true, start monitoring
             if (elasTestStep.isMonitoring()) {
-                startMonitoringContainers(elasTestStep.envVars, elasTestBuild);
+                dockerCommandExecuter = new DockerCommandExecuter(null,
+                        dockerService);
+                startMonitoringContainers(elasTestStep.envVars, elasTestBuild,
+                        context.get(FilePath.class).getChannel());
             }
+
         } catch (Exception e) {
-            LOG.error(
-                    "[elastest-plugin]: Error trying to bind the build with a TJob.");
+            LOG.error("[elastest-plugin]: Error preparing Job execution.");
             e.printStackTrace();
             throw e;
         }
-        
-        LOG.info("Build name {}", build.getFullDisplayName());
-        try {
-            writer = new ElasTestWriter(build, null, elasTestService
-                .getExternalJobByBuildFullName(build.getFullDisplayName()));
-            elasTestBuild.setWriter(writer);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        LOG.info("Writer created");
-        
-//        try {
-//            if (elasTestService.getElasTestBuilds() != null
-//                    && elasTestService.getElasTestBuilds().size() > 0
-//                    && elasTestService.getElasTestBuilds()
-//                            .get(build.getDisplayName()) != null
-//                    && elasTestService.getElasTestBuilds()
-//                            .get(build.getDisplayName()).getWriter() != null) {
-//                elasTestWriter = elasTestService.getElasTestBuilds()
-//                        .get(build.getDisplayName()).getWriter();
-//            } else {
-//                elasTestWriter = new ElasTestWriter(build, null, elasTestService
-//                        .getExternalJobByBuildFullName(build.getDisplayName()));
-//                elasTestService.getElasTestBuilds().get(build.getDisplayName())
-//                        .setWriter(elasTestWriter);
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            LOG.error("[elastest-plugin]: {}", e.getMessage());
-//        }
-        
+
         ExpanderImpl expanderImpl = new ExpanderImpl();
         expanderImpl.setOverrides(elasTestStep.envVars);
         expanderImpl.expand(getContext().get(EnvVars.class));
-
         context.newBodyInvoker()
                 .withContext(createConsoleLogFilter(context, build))
                 .withContext(EnvironmentExpander.merge(
@@ -182,8 +172,10 @@ public class ElasTestStepExecutionImpl extends AbstractStepExecutionImpl {
     }
 
     private void startMonitoringContainers(EnvVars envVars,
-            ElasTestBuild elasTestBuild) {
+            ElasTestBuild elasTestBuild, VirtualChannel channel)
+            throws IOException, RuntimeException, InterruptedException {
         LOG.info("[elastest-plugin]: Start container monitoring");
+
         dockerService = DockerService
                 .getDockerService(DockerService.DOCKER_HOST_BY_DEFAULT);
 
@@ -204,33 +196,36 @@ public class ElasTestStepExecutionImpl extends AbstractStepExecutionImpl {
         String etMonContainersName = "ET_MON_CONTAINERS_NAME=" + "^("
                 + envVars.get("ET_SUT_CONTAINER_NAME") + ")(_)?(\\d*)(.*)?";
 
-        if (isRemoteElasTest()) {
+        if (isRemoteElasTest(channel)) {
+            dockerCommandExecuter.setCommand("docker", "run", "-d", "-e",
+                    etMonLsbeatsHost, "-e", etMonLsbeatsPort, "-e",
+                    etMonContainersName, "-v",
+                    "/var/run/docker.sock:/var/run/docker.sock", "-v",
+                    "/var/lib/docker/containers:/var/lib/docker/containers",
+                    "--network=elastest_elastest", fileBeatImage);
             elasTestBuild.getContainers()
-                    .add(dockerService.executeDockerCommand("docker", "run",
-                            "-d", "-e", etMonLsbeatsHost, "-e",
-                            etMonLsbeatsPort, "-e", etMonContainersName, "-v",
-                            "/var/run/docker.sock:/var/run/docker.sock", "-v",
-                            "/var/lib/docker/containers:/var/lib/docker/containers",
-                            "--network=elastest_elastest", fileBeatImage));
+                    .add(channel.call(dockerCommandExecuter));
         }
 
-        elasTestBuild.getContainers()
-                .add(dockerService.executeDockerCommand("docker", "run", "-d",
-                        "-e", logstashHost, "-e", logstashPort, "-v",
-                        "/var/run/docker.sock:/var/run/docker.sock", "-v",
-                        "/var/lib/docker/containers:/var/lib/docker/containers",
-                        "--network=elastest_elastest", dockBeatImage));
+        dockerCommandExecuter.setCommand("docker", "run", "-d", "-e",
+                logstashHost, "-e", logstashPort, "-v",
+                "/var/run/docker.sock:/var/run/docker.sock", "-v",
+                "/var/lib/docker/containers:/var/lib/docker/containers",
+                "--network=elastest_elastest", dockBeatImage);
+        LOG.info("[elastest-jenkins]: Built command to execute {}",
+                Arrays.toString(dockerCommandExecuter.getCommand()));
+        elasTestBuild.getContainers().add(channel.call(dockerCommandExecuter));
     }
 
-    private boolean isRemoteElasTest() {
+    private boolean isRemoteElasTest(VirtualChannel channel)
+            throws IOException, RuntimeException, InterruptedException {
         LOG.info("[elastest-plugin]: Checking if ElasTest is running locally.");
         boolean result = true;
         String etContainername = "elastest_etm_1";
         String errorMessage = "No such object: " + etContainername;
-        result = dockerService
-                .executeDockerCommand("docker", "inspect",
-                        "--format=\\\"{{.Name}}\\\"", etContainername)
-                .contains(errorMessage);
+        dockerCommandExecuter.setCommand("docker", "inspect",
+                "--format=\\\"{{.Name}}\\\"", etContainername);
+        result = channel.call(dockerCommandExecuter).contains(errorMessage);
         LOG.debug("[elastest-plugin]: Result of the inspect command: {}",
                 result);
         return result;
