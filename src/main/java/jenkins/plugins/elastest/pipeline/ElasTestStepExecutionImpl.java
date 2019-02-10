@@ -116,6 +116,8 @@ public class ElasTestStepExecutionImpl extends AbstractStepExecutionImpl {
             addEnvVars(build);
             // If monitoring is true, start monitoring
             if (elasTestStep.isMonitoring()) {
+                dockerService = DockerService
+                        .getDockerService(DockerService.DOCKER_HOST_BY_DEFAULT);
                 dockerCommandExecuter = new DockerCommandExecuter(null,
                         dockerService);
                 startMonitoringContainers(elasTestStep.envVars, elasTestBuild,
@@ -175,10 +177,6 @@ public class ElasTestStepExecutionImpl extends AbstractStepExecutionImpl {
             ElasTestBuild elasTestBuild, VirtualChannel channel)
             throws IOException, RuntimeException, InterruptedException {
         LOG.info("[elastest-plugin]: Start container monitoring");
-
-        dockerService = DockerService
-                .getDockerService(DockerService.DOCKER_HOST_BY_DEFAULT);
-
         String fileBeatImage = "elastest/etm-filebeat:latest";
         String dockBeatImage = "elastest/etm-dockbeat:latest";
 

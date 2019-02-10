@@ -23,6 +23,8 @@
  */
 package jenkins.plugins.elastest.docker;
 
+import java.util.Arrays;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import jenkins.security.MasterToSlaveCallable;
@@ -44,19 +46,20 @@ public class DockerCommandExecuter
     public DockerCommandExecuter(String[] command,
             DockerService dockerService) {
         super();
-        this.command = command;
+        this.command = command != null ? command.clone() : null;
         this.dockerService = dockerService;
     }
 
     @Override
     public String call() throws RuntimeException {
         LOG.debug(
-                "[elastest-plugin]: Executing docker command on a distributed node if necessary");
+                "[elastest-plugin]: Executing docker command \" {} \" on a distributed node if necessary",
+                Arrays.toString(command));
         return dockerService.executeDockerCommand(command);
     }
 
     public String[] getCommand() {
-        return command;
+        return command.clone();
     }
 
     public void setCommand(String... command) {

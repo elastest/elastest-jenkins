@@ -25,6 +25,7 @@ package jenkins.plugins.elastest.utils;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.util.Arrays;
 
 import org.slf4j.Logger;
@@ -32,8 +33,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.io.CharStreams;
 
-public class Shell {
-
+public class Shell implements Serializable {
+    private static final long serialVersionUID = 1L;
     public static final Logger log = LoggerFactory.getLogger(Shell.class);
 
     public static Process run(final String... command) {
