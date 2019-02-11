@@ -95,8 +95,8 @@ public class ElasTestBuildWrapper extends SimpleBuildWrapper {
         ExternalJob externalJob = elasTestService
                 .getExternalJobByBuildFullName(build.getFullDisplayName());
         ElasTestBuild elasTestBuild;
-
-        elasTestBuild = new ElasTestBuild(externalJob);
+        elasTestBuild = elasTestService.getElasTestBuilds()
+                .get(build.getFullDisplayName());
         elasTestBuild.setWorkspace(workspace);
 
         while (!elasTestBuild.getExternalJob().isReady()) {
@@ -138,7 +138,23 @@ public class ElasTestBuildWrapper extends SimpleBuildWrapper {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return new ConsoleLogFilterImpl(build, elasTestService);
+        
+        ElasTestWriter elasTestWriter;
+        
+        if (elasTestService.getElasTestBuilds().get(build.getFullDisplayName())
+                .getWriter() != null) {
+            LOG.debug("[elastest-plugin]: Getting the existing writer");
+            elasTestWriter = elasTestService.getElasTestBuilds()
+                    .get(build.getFullDisplayName()).getWriter();
+        } else {
+            LOG.debug("[elastest-plugin]: Creating a new writer");
+            elasTestWriter = new ElasTestWriter(build, null, elasTestService
+                    .getExternalJobByBuildFullName(build.getFullDisplayName()));
+            elasTestService.getElasTestBuilds().get(build.getFullDisplayName())
+                    .setWriter(elasTestWriter);
+        }
+        elasTestBuild.setWriter(elasTestWriter);
+        return new ConsoleLogFilterImpl(build, elasTestWriter);
     }
 
     public DescriptorImpl getDescriptor() {
@@ -148,7 +164,7 @@ public class ElasTestBuildWrapper extends SimpleBuildWrapper {
     // Method to encapsulate calls for unit-testing
     ElasTestWriter getElasTestWriter(Run<?, ?> build, OutputStream errorStream,
             ExternalJob externalJob) {
-        return new ElasTestWriter(build, errorStream, null, externalJob);
+        return new ElasTestWriter(build, null, externalJob);
     }
 
     /**
