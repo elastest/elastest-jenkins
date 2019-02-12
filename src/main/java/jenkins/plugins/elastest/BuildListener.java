@@ -26,6 +26,7 @@ package jenkins.plugins.elastest;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -168,7 +169,12 @@ public class BuildListener extends RunListener<Run> {
                                 .get(build.getFullDisplayName())
                                 .getWriter() != null
                         && !executor.isTerminated()) {
-                    executor.shutdownNow();
+                    executor.shutdown();
+                    try {
+                        executor.awaitTermination(60, TimeUnit.SECONDS);
+                    } catch (InterruptedException e) {
+                        LOG.warn("Timeout sending logs to ElasTest");
+                    }
                 }
                 elasTestService.removeExternalJobs(build.getFullDisplayName());
             }
