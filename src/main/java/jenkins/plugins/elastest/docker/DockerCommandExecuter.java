@@ -55,7 +55,9 @@ public class DockerCommandExecuter
         LOG.debug(
                 "[elastest-plugin]: Executing docker command \" {} \" on a distributed node if necessary",
                 Arrays.toString(command));
-        return dockerService.executeDockerCommand(command);
+        String result = dockerService.executeDockerCommand(command);
+        LOG.debug("Docker command output: {}", result);
+        return result;
     }
 
     public String[] getCommand() {
