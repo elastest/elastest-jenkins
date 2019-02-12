@@ -195,8 +195,9 @@ public class ElasTestStepExecutionImpl extends AbstractStepExecutionImpl {
                 + envVars.get("ET_SUT_CONTAINER_NAME") + ")(_)?(\\d*)(.*)?";
 
         if (isRemoteElasTest(channel)) {
-            dockerCommandExecuter.setCommand("docker", "run", "-d", "-e",
-                    etMonLsbeatsHost, "-e", etMonLsbeatsPort, "-e",
+            dockerCommandExecuter.setCommand("sudo", "docker", "run", "-d",
+                    "--name", "fileBeat_" + envVars.get("ET_SUT_CONTAINER_NAME"),
+                    "-e", etMonLsbeatsHost, "-e", etMonLsbeatsPort, "-e",
                     etMonContainersName, "-v",
                     "/var/run/docker.sock:/var/run/docker.sock", "-v",
                     "/var/lib/docker/containers:/var/lib/docker/containers",
@@ -205,7 +206,8 @@ public class ElasTestStepExecutionImpl extends AbstractStepExecutionImpl {
                     .add(channel.call(dockerCommandExecuter));
         }
 
-        dockerCommandExecuter.setCommand("docker", "run", "-d", "-e",
+        dockerCommandExecuter.setCommand("sudo", "docker", "run", "-d",
+                "--name", "dockBeat_" + envVars.get("ET_SUT_CONTAINER_NAME"), "-e",
                 logstashHost, "-e", logstashPort, "-v",
                 "/var/run/docker.sock:/var/run/docker.sock", "-v",
                 "/var/lib/docker/containers:/var/lib/docker/containers",
