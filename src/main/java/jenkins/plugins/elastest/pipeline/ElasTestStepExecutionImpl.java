@@ -204,8 +204,8 @@ public class ElasTestStepExecutionImpl extends AbstractStepExecutionImpl {
                     fileBeatImage);
             LOG.info("[elastest-jenkins]: Built command to execute {}",
                     Arrays.toString(dockerCommandExecutor.getCommand()));
-            elasTestBuild.getContainers()
-                    .add(channel.call(dockerCommandExecutor));
+            elasTestBuild.getContainers().add(processDockeCommandOutput(
+                    channel.call(dockerCommandExecutor)));
         }
 
         dockerCommandExecutor.setCommand("docker", "run", "-d", "--name",
@@ -217,7 +217,15 @@ public class ElasTestStepExecutionImpl extends AbstractStepExecutionImpl {
 
         LOG.info("[elastest-jenkins]: Built command to execute {}",
                 Arrays.toString(dockerCommandExecutor.getCommand()));
-        elasTestBuild.getContainers().add(channel.call(dockerCommandExecutor));
+        elasTestBuild.getContainers().add(
+                processDockeCommandOutput(channel.call(dockerCommandExecutor)));
+    }
+
+    private String processDockeCommandOutput(String output) {
+        if (output.contains(":")) {
+            output = output.substring(output.lastIndexOf(":latest") + 1);
+        }
+        return output;
     }
 
     private boolean isRemoteElasTest(VirtualChannel channel)

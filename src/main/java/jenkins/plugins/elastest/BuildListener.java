@@ -69,8 +69,7 @@ public class BuildListener extends RunListener<Run> {
         elasTestService = ElasTestService.getInstance();
         dockerService = DockerService
                 .getDockerService(DockerService.DOCKER_HOST_BY_DEFAULT);
-        dockerCommandExecutor = new DockerCommandExecutor(null,
-                dockerService);
+        dockerCommandExecutor = new DockerCommandExecutor(null, dockerService);
 
     }
 
@@ -144,12 +143,13 @@ public class BuildListener extends RunListener<Run> {
             LOG.debug("[elastest-plugin]: Stopping aux containers.");
             try {
                 ElasTestBuild elasTestBuild = elasTestService
-                .getElasTestBuilds().get(build.getFullDisplayName());
+                        .getElasTestBuilds().get(build.getFullDisplayName());
                 List<String> buildContainers = elasTestService
                         .getElasTestBuilds().get(build.getFullDisplayName())
                         .getContainers();
                 if (buildContainers.size() > 0) {
-                    VirtualChannel channel = elasTestBuild.getWorkspace().getChannel();
+                    VirtualChannel channel = elasTestBuild.getWorkspace()
+                            .getChannel();
                     dockerCommandExecutor.setCommand("docker", "ps");
                     channel.call(dockerCommandExecutor);
                     for (String containerId : elasTestService
@@ -157,7 +157,7 @@ public class BuildListener extends RunListener<Run> {
                             .getContainers()) {
                         LOG.info("Stopping docker container: {}", containerId);
                         dockerCommandExecutor.setCommand("docker", "rm", "-f",
-                        containerId, "");
+                                containerId);
                         channel.call(dockerCommandExecutor);
                     }
                 }
