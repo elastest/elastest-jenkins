@@ -223,7 +223,7 @@ public class ElasTestStepExecutionImpl extends AbstractStepExecutionImpl {
 
     private String processDockeCommandOutput(String output) {
         if (output.contains(":")) {
-            output = output.substring(output.lastIndexOf(":latest") + 1);
+            output = output.substring(output.lastIndexOf(":latest") + 7);
         }
         return output;
     }
