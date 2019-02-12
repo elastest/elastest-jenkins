@@ -39,6 +39,8 @@ import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.model.Run.RunnerAbortedException;
 import hudson.model.listeners.RunListener;
+import hudson.remoting.VirtualChannel;
+import jenkins.plugins.elastest.docker.DockerCommandExecutor;
 import jenkins.plugins.elastest.docker.DockerService;
 import jenkins.plugins.elastest.json.ElasTestBuild;
 import jenkins.plugins.elastest.json.ExternalJob;
@@ -58,6 +60,7 @@ public class BuildListener extends RunListener<Run> {
     private String elasTestApiURL;
     private ElasTestService elasTestService;
     private DockerService dockerService;
+    private DockerCommandExecutor dockerCommandExecutor;
 
     public BuildListener() {
         LOG.debug("[elastest-plugin]: Initializing Listener");
@@ -66,6 +69,8 @@ public class BuildListener extends RunListener<Run> {
         elasTestService = ElasTestService.getInstance();
         dockerService = DockerService
                 .getDockerService(DockerService.DOCKER_HOST_BY_DEFAULT);
+        dockerCommandExecutor = new DockerCommandExecutor(null,
+                dockerService);
 
     }
 
@@ -138,20 +143,25 @@ public class BuildListener extends RunListener<Run> {
             // Stop docker containers started locally
             LOG.debug("[elastest-plugin]: Stopping aux containers.");
             try {
+                ElasTestBuild elasTestBuild = elasTestService
+                .getElasTestBuilds().get(build.getFullDisplayName());
                 List<String> buildContainers = elasTestService
                         .getElasTestBuilds().get(build.getFullDisplayName())
                         .getContainers();
                 if (buildContainers.size() > 0) {
-                    dockerService.executeDockerCommand("docker", "ps");
+                    VirtualChannel channel = elasTestBuild.getWorkspace().getChannel();
+                    dockerCommandExecutor.setCommand("docker", "ps");
+                    channel.call(dockerCommandExecutor);
                     for (String containerId : elasTestService
                             .getElasTestBuilds().get(build.getFullDisplayName())
                             .getContainers()) {
                         LOG.info("Stopping docker container: {}", containerId);
-                        dockerService.executeDockerCommand("docker", "rm", "-f",
-                                containerId, "");
+                        dockerCommandExecutor.setCommand("docker", "rm", "-f",
+                        containerId, "");
+                        channel.call(dockerCommandExecutor);
                     }
                 }
-            } catch (RuntimeException io) {
+            } catch (RuntimeException | IOException | InterruptedException io) {
                 LOG.warn(
                         "[elastest-plugin]: Error stopping monitoring containers. It's possible "
                                 + "that you will have to stop them manually");
