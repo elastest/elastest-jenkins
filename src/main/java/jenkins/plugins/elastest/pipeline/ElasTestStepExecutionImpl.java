@@ -47,7 +47,7 @@ import jenkins.plugins.elastest.ConsoleLogFilterImpl;
 import jenkins.plugins.elastest.ElasTestService;
 import jenkins.plugins.elastest.ElasTestWriter;
 import jenkins.plugins.elastest.action.ElasTestItemMenuAction;
-import jenkins.plugins.elastest.docker.DockerCommandExecuter;
+import jenkins.plugins.elastest.docker.DockerCommandExecutor;
 import jenkins.plugins.elastest.docker.DockerService;
 import jenkins.plugins.elastest.json.ElasTestBuild;
 import jenkins.plugins.elastest.json.ExternalJob;
@@ -68,7 +68,7 @@ public class ElasTestStepExecutionImpl extends AbstractStepExecutionImpl {
     private ElasTestService elasTestService;
     private DockerService dockerService;
     private ElasTestWriter writer;
-    private DockerCommandExecuter dockerCommandExecuter;
+    private DockerCommandExecutor dockerCommandExecutor;
 
     @Inject
     transient ElasTestStep elasTestStep;
@@ -118,7 +118,7 @@ public class ElasTestStepExecutionImpl extends AbstractStepExecutionImpl {
             if (elasTestStep.isMonitoring()) {
                 dockerService = DockerService
                         .getDockerService(DockerService.DOCKER_HOST_BY_DEFAULT);
-                dockerCommandExecuter = new DockerCommandExecuter(null,
+                dockerCommandExecutor = new DockerCommandExecutor(null,
                         dockerService);
                 startMonitoringContainers(elasTestStep.envVars, elasTestBuild,
                         context.get(FilePath.class).getChannel());
@@ -195,26 +195,29 @@ public class ElasTestStepExecutionImpl extends AbstractStepExecutionImpl {
                 + envVars.get("ET_SUT_CONTAINER_NAME") + ")(_)?(\\d*)(.*)?";
 
         if (isRemoteElasTest(channel)) {
-            dockerCommandExecuter.setCommand("sudo", "docker", "run", "-d",
-                    "--name", "fileBeat_" + envVars.get("ET_SUT_CONTAINER_NAME"),
-                    "-e", etMonLsbeatsHost, "-e", etMonLsbeatsPort, "-e",
+            dockerCommandExecutor.setCommand("docker", "run", "-d", "--name",
+                    "fileBeat_" + envVars.get("ET_SUT_CONTAINER_NAME"), "-e",
+                    etMonLsbeatsHost, "-e", etMonLsbeatsPort, "-e",
                     etMonContainersName, "-v",
                     "/var/run/docker.sock:/var/run/docker.sock", "-v",
                     "/var/lib/docker/containers:/var/lib/docker/containers",
-                    "--network=elastest_elastest", fileBeatImage);
+                    fileBeatImage);
+            LOG.info("[elastest-jenkins]: Built command to execute {}",
+                    Arrays.toString(dockerCommandExecutor.getCommand()));
             elasTestBuild.getContainers()
-                    .add(channel.call(dockerCommandExecuter));
+                    .add(channel.call(dockerCommandExecutor));
         }
 
-        dockerCommandExecuter.setCommand("sudo", "docker", "run", "-d",
-                "--name", "dockBeat_" + envVars.get("ET_SUT_CONTAINER_NAME"), "-e",
+        dockerCommandExecutor.setCommand("docker", "run", "-d", "--name",
+                "dockBeat_" + envVars.get("ET_SUT_CONTAINER_NAME"), "-e",
                 logstashHost, "-e", logstashPort, "-v",
                 "/var/run/docker.sock:/var/run/docker.sock", "-v",
                 "/var/lib/docker/containers:/var/lib/docker/containers",
-                "--network=elastest_elastest", dockBeatImage);
+                dockBeatImage);
+
         LOG.info("[elastest-jenkins]: Built command to execute {}",
-                Arrays.toString(dockerCommandExecuter.getCommand()));
-        elasTestBuild.getContainers().add(channel.call(dockerCommandExecuter));
+                Arrays.toString(dockerCommandExecutor.getCommand()));
+        elasTestBuild.getContainers().add(channel.call(dockerCommandExecutor));
     }
 
     private boolean isRemoteElasTest(VirtualChannel channel)
@@ -223,9 +226,9 @@ public class ElasTestStepExecutionImpl extends AbstractStepExecutionImpl {
         boolean result = true;
         String etContainername = "elastest_etm_1";
         String errorMessage = "No such object: " + etContainername;
-        dockerCommandExecuter.setCommand("docker", "inspect",
+        dockerCommandExecutor.setCommand("docker", "inspect",
                 "--format=\\\"{{.Name}}\\\"", etContainername);
-        result = channel.call(dockerCommandExecuter).contains(errorMessage);
+        result = channel.call(dockerCommandExecutor).contains(errorMessage);
         LOG.debug("[elastest-plugin]: Result of the inspect command: {}",
                 result);
         return result;

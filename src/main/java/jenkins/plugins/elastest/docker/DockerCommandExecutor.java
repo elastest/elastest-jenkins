@@ -35,15 +35,15 @@ import jenkins.security.MasterToSlaveCallable;
  * @author Francisco R. Díaz
  * @since 0.0.1
  */
-public class DockerCommandExecuter
+public class DockerCommandExecutor
         extends MasterToSlaveCallable<String, RuntimeException> {
     private static final Logger LOG = LoggerFactory
-            .getLogger(DockerCommandExecuter.class);
+            .getLogger(DockerCommandExecutor.class);
     private static final long serialVersionUID = 1L;
     private String[] command;
     private DockerService dockerService;
 
-    public DockerCommandExecuter(String[] command,
+    public DockerCommandExecutor(String[] command,
             DockerService dockerService) {
         super();
         this.command = command != null ? command.clone() : null;
