@@ -170,20 +170,21 @@ public class BuildListener extends RunListener<Run> {
                 elasTestService.finishElasTestTJobExecution(
                         elasTestService.getExternalJobByBuildFullName(
                                 build.getFullDisplayName()));
-                ExecutorService executor = elasTestService.getElasTestBuilds()
-                        .get(build.getFullDisplayName()).getWriter()
-                        .getExecutor();
                 if (elasTestService.getElasTestBuilds()
                         .get(build.getFullDisplayName()) != null
                         && elasTestService.getElasTestBuilds()
                                 .get(build.getFullDisplayName())
-                                .getWriter() != null
-                        && !executor.isTerminated()) {
-                    executor.shutdown();
-                    try {
-                        executor.awaitTermination(60, TimeUnit.SECONDS);
-                    } catch (InterruptedException e) {
-                        LOG.warn("Timeout sending logs to ElasTest");
+                                .getWriter() != null) {
+                    ExecutorService executor = elasTestService
+                            .getElasTestBuilds().get(build.getFullDisplayName())
+                            .getWriter().getExecutor();
+                    if (!executor.isTerminated()) {
+                        executor.shutdown();
+                        try {
+                            executor.awaitTermination(60, TimeUnit.SECONDS);
+                        } catch (InterruptedException e) {
+                            LOG.warn("Timeout sending logs to ElasTest");
+                        }
                     }
                 }
                 elasTestService.removeExternalJobs(build.getFullDisplayName());
