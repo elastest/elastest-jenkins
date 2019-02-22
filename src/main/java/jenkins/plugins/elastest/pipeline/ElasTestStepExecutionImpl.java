@@ -108,6 +108,13 @@ public class ElasTestStepExecutionImpl extends AbstractStepExecutionImpl {
                 elasTestBuild.setExternalJob(
                         elasTestService.isReadyTJobForExternalExecution(
                                 elasTestBuild.getExternalJob()));
+                try {
+                    if (!elasTestBuild.getExternalJob().isReady()) {
+                        Thread.sleep(500);
+                    }
+                } catch (InterruptedException | IllegalArgumentException ie) {
+                    LOG.warn("[elastest-plugin]: {}", ie.getMessage());
+                }
             }
             writer = new ElasTestWriter(build, null, elasTestService
                     .getExternalJobByBuildFullName(build.getFullDisplayName()));
