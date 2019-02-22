@@ -206,34 +206,6 @@ public class ElasTestService implements Serializable {
         return externalJob;
     }
 
-//    private void executeCurlCommand(String body) {
-//        String user = ElasTestInstallation.getLogstashDescriptor().username;
-//        String password = ElasTestInstallation.getLogstashDescriptor().password;
-//        String[] command = { "curl", "-u", user + ":" + password, "-X", "POST",
-//                "-H", "Content-Type: application/json", "-d", body,
-//                elasTestTJobApiUrl };
-//
-//        ProcessBuilder process = new ProcessBuilder(command);
-//        Process p;
-//        try {
-//            p = process.start();
-//            BufferedReader reader = new BufferedReader(
-//                    new InputStreamReader(p.getInputStream()));
-//            StringBuilder builder = new StringBuilder();
-//            String line = null;
-//            LOG.info("[elastest-plugin]: Curl result");
-//            while ((line = reader.readLine()) != null) {
-//                builder.append(line);
-//                builder.append(System.getProperty("line.separator"));
-//            }
-//            String result = builder.toString();
-//            LOG.info("[elastest-plugin]: {}", result);
-//
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
-
     private ExternalJob createTJobOnElasTest(ExternalJob externalJob)
             throws Exception {
         ObjectMapper objetMapper = new ObjectMapper();
