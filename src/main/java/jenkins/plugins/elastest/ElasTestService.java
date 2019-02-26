@@ -23,12 +23,7 @@
  */
 package jenkins.plugins.elastest;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,19 +31,12 @@ import java.util.Map;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.ClientRequestContext;
-import javax.ws.rs.client.ClientRequestFilter;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import javax.xml.bind.DatatypeConverter;
 
-import org.apache.commons.codec.binary.Base64;
-import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,6 +49,7 @@ import jenkins.plugins.elastest.json.ExternalJob.ExternalJobStatusEnum;
 import jenkins.plugins.elastest.json.Sut;
 import jenkins.plugins.elastest.json.TestSupportServices;
 import jenkins.plugins.elastest.pipeline.ElasTestStep;
+import jenkins.plugins.elastest.utils.Authenticator;
 
 /**
  * Service to communicate with ElasTest and store the info related to each TJob
@@ -81,11 +70,14 @@ public class ElasTestService implements Serializable {
     private String elasTestVersionApiUrl;
     private String elasTestUrl;
     private transient Client client;
-    private boolean witAuthentication;
+    protected boolean witAuthentication;
+    private Authenticator authenticator;
 
     public ElasTestService() {
         this.elasTestBuilds = new HashMap<>();
         witAuthentication = false;
+        client = ClientBuilder.newClient();
+        authenticator = new Authenticator(null, null);
         setNewConfiguration();
     }
 
@@ -95,15 +87,32 @@ public class ElasTestService implements Serializable {
         elasTestVersionApiUrl = "/api/external/elastest/version";
         String name = ElasTestInstallation.getLogstashDescriptor().username;
         String password = ElasTestInstallation.getLogstashDescriptor().password;
-        client = ClientBuilder.newClient();
         if ((name != null && !name.equals(""))
                 && (password != null && !password.equals(""))) {
             witAuthentication = true;
-            client.register(new Authenticator(name, password));
+            if (client.getConfiguration().isRegistered(Authenticator.class)) {
+                LOG.info("[elastest-plugin]: There is an Authenticator registered");
+                LOG.info("[elastest-plugin]: Setting new credentials");
+                authenticator.setCredentials(name, password);
+//                client.getConfiguration().getInstances()
+//                        .forEach((component) -> {
+//                            if (component instanceof Authenticator) {
+//                                LOG.info("[elastest-plugin]: Setting new credentials");
+//                                ((Authenticator) component).setCredentials(name,
+//                                        password);
+//                            }
+//                        });
+
+            } else {
+                client = client.register(authenticator);
+//            client = ClientBuilder.newClient().register(authenticator);
+            }
             LOG.info(
                     "[elastest-plugin]: Now access to ElasTest is with username and password.");
         } else {
+            LOG.info("[elastest-plugin]: Removing credentials");
             witAuthentication = false;
+            authenticator.setCredentials(null, null);
             LOG.info(
                     "[elastest-plugin]: Now access to ElasTest is without username and password.");
         }
@@ -192,7 +201,6 @@ public class ElasTestService implements Serializable {
             } catch (IllegalArgumentException | InterruptedException ie) {
                 LOG.warn("[elastest-plugin]: {}", ie.getMessage());
             } catch (Exception e) {
-                setNewConfiguration();
                 LOG.error("[elastest-plugin]: Error during reattempt -> {}",
                         e.getMessage());
                 if (attempt == maxAttempts - 1) {
@@ -222,6 +230,8 @@ public class ElasTestService implements Serializable {
             if (externalJob.getStatus() == ExternalJobStatusEnum.ERROR) {
                 throw new Exception(externalJob.getError());
             }
+            LOG.debug("[elastest-plugin]: Body in association request: {}",
+                    externalJob.toJSON());
         } catch (Exception e) {
             LOG.error(
                     "[elastest-plugin]: Error trying to create a TJob {} in ElasTest: {}",
@@ -337,39 +347,4 @@ public class ElasTestService implements Serializable {
         return eTTSServices;
     }
 
-    public static class Authenticator implements ClientRequestFilter {
-
-        private String user;
-        private String password;
-
-        public Authenticator(String user, String password) {
-            this.user = user;
-            this.password = password;
-        }
-        
-        public void setCredentials(String user, String password) {
-            this.user = user;
-            this.password = password;
-        }
-
-        @Override
-        public void filter(ClientRequestContext requestContext)
-                throws IOException {
-            MultivaluedMap<String, Object> headers = requestContext
-                    .getHeaders();
-            final String basicAuthentication = getBasicAuthentication();
-            headers.add("Authorization", basicAuthentication);
-
-        }
-
-        private String getBasicAuthentication() {
-            String token = this.user + ":" + this.password;
-            try {
-                return "BASIC " + DatatypeConverter
-                        .printBase64Binary(token.getBytes("UTF-8"));
-            } catch (UnsupportedEncodingException ex) {
-                throw new IllegalStateException("Cannot encode with UTF-8", ex);
-            }
-        }
-    }
 }
