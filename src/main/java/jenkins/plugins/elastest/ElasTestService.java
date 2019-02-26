@@ -94,18 +94,8 @@ public class ElasTestService implements Serializable {
                 LOG.info("[elastest-plugin]: There is an Authenticator registered");
                 LOG.info("[elastest-plugin]: Setting new credentials");
                 authenticator.setCredentials(name, password);
-//                client.getConfiguration().getInstances()
-//                        .forEach((component) -> {
-//                            if (component instanceof Authenticator) {
-//                                LOG.info("[elastest-plugin]: Setting new credentials");
-//                                ((Authenticator) component).setCredentials(name,
-//                                        password);
-//                            }
-//                        });
-
             } else {
                 client = client.register(authenticator);
-//            client = ClientBuilder.newClient().register(authenticator);
             }
             LOG.info(
                     "[elastest-plugin]: Now access to ElasTest is with username and password.");
