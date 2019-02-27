@@ -107,9 +107,10 @@ public class ElasTestInstallation extends ToolInstallation {
                 @QueryParameter("elasTestUrl") final String elasTestUrl,
                 @QueryParameter("username") final String username,
                 @QueryParameter("password") final String password) {
-            this.elasTestUrl = elasTestUrl;
+            String oldElasTestUrl = this.elasTestUrl;
             String oldUsername = this.username;
             String oldPassword = this.password;
+            this.elasTestUrl = elasTestUrl;
             this.username = username;
             this.password = password;
 
@@ -139,6 +140,7 @@ public class ElasTestInstallation extends ToolInstallation {
                             "To use credentials to access ElasTest, it is necessary to complete both fields, username and password.");
                 }
             } finally {
+                this.elasTestUrl = oldElasTestUrl;
                 this.username = oldUsername;
                 this.password = oldPassword;
             }
