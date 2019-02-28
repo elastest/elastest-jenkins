@@ -40,6 +40,7 @@
         <jdk.version>1.8</jdk.version>
         <jacoco-maven-plugin.version>0.7.9</jacoco-maven-plugin.version>
         <jersey2.version>2.25.1</jersey2.version>
+        <retrofit.version>2.5.0</retrofit.version>
     </properties>
 
     <distributionManagement>
@@ -57,11 +58,12 @@
 
     <artifactId>elastest</artifactId>
     <packaging>hpi</packaging>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.1-SNAPSHOT</version>
     <name>ElasTest Plugin</name>
     <description>Plugin to integrate Jenkins with ElasTest, an elastic platform to ease end to end testing.
 	 Using this plugin you will be able to send logs of a build to ElasTest to store and analyze them.
-	 Also, you can make use of several services provided by ElasTest (eg. browsers on demand).
+	 Also, you can make use of several services provided by ElasTest such as browsers on demand with video 
+     recording. 
 	</description>
     <url>https://wiki.jenkins.io/display/JENKINS/ElasTest+Plugin</url>
 
@@ -140,6 +142,16 @@
             <groupId>org.glassfish.jersey.core</groupId>
             <artifactId>jersey-client</artifactId>
             <version>${jersey2.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.retrofit2</groupId>
+            <artifactId>retrofit</artifactId>
+            <version>${retrofit.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.retrofit2</groupId>
+            <artifactId>converter-jackson</artifactId>
+            <version>${retrofit.version}</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish.tyrus.bundles</groupId>
