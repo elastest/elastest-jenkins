@@ -90,10 +90,10 @@ public class ElasTestService implements Serializable {
         if ((name != null && !name.equals(""))
                 && (password != null && !password.equals(""))) {
             witAuthentication = true;
+            authenticator.setCredentials(name, password);
             if (client.getConfiguration().isRegistered(Authenticator.class)) {
                 LOG.info("[elastest-plugin]: There is an Authenticator registered");
                 LOG.info("[elastest-plugin]: Setting new credentials");
-                authenticator.setCredentials(name, password);
             } else {
                 client = client.register(authenticator);
             }
