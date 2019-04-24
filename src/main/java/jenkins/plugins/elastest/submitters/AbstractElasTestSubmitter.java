@@ -23,6 +23,7 @@
  */
 package jenkins.plugins.elastest.submitters;
 
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -58,16 +59,15 @@ abstract class AbstractElasTestSubmitter implements ElasTestSubmitter {
     @Override
     public String buildPayload(List<String> logLines, ExternalJob externalJob) {
         Trace trace = new Trace("test", externalJob.gettJobExecId().toString(),
-                "default_log", logLines.get(0));
+                "default_log", logLines.get(0), new Date());
         String payload = trace.toJSON();
         return payload;
     }
-    
 
     @Override
     public String buildPayload(String message, ExternalJob externalJob) {
         Trace trace = new Trace("test", externalJob.gettJobExecId().toString(),
-                "default_log", message);
+                "default_log", message, new Date());
         String payload = trace.toJSON();
         return payload;
     }
