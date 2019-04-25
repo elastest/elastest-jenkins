@@ -14,7 +14,6 @@ public class Trace implements Serializable {
     private String exec;
     private String stream;
     private String message;
-    private Date timestamp;
     @JsonProperty("@timestamp")
     private String timestampStr;
 
@@ -29,8 +28,7 @@ public class Trace implements Serializable {
         this.exec = exec;
         this.stream = stream;
         this.message = message;
-        this.timestamp = timestamp;
-        this.timestampStr = this.timestamp.toString();
+        this.timestampStr = timestamp != null ? timestamp.toString() : null;
     }
 
     public String getComponent() {
@@ -65,14 +63,6 @@ public class Trace implements Serializable {
         this.message = message;
     }
 
-    public Date getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(Date timestamp) {
-        this.timestamp = timestamp;
-    }
-
     public String getTimestampStr() {
         return timestampStr;
     }
@@ -97,7 +87,7 @@ public class Trace implements Serializable {
     @Override
     public String toString() {
         return "Trace [component=" + component + ", exec=" + exec + ", stream="
-                + stream + ", message=" + message + ", timestamp=" + timestamp
+                + stream + ", message=" + message 
                 + ", timestampStr=" + timestampStr + "]";
     }
 }
