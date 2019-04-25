@@ -167,9 +167,6 @@ public class BuildListener extends RunListener<Run> {
                                 + "that you will have to stop them manually");
                 io.printStackTrace();
             } finally {
-                elasTestService.finishElasTestTJobExecution(
-                        elasTestService.getExternalJobByBuildFullName(
-                                build.getFullDisplayName()));
                 if (elasTestService.getElasTestBuilds()
                         .get(build.getFullDisplayName()) != null
                         && elasTestService.getElasTestBuilds()
@@ -187,6 +184,9 @@ public class BuildListener extends RunListener<Run> {
                         }
                     }
                 }
+                elasTestService.finishElasTestTJobExecution(
+                        elasTestService.getExternalJobByBuildFullName(
+                                build.getFullDisplayName()));
                 elasTestService.removeExternalJobs(build.getFullDisplayName());
             }
         }
