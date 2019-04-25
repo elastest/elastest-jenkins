@@ -99,6 +99,9 @@ public class ExternalJob implements Serializable {
     @JsonProperty("jobUrl")
     private String jobUrl;
 
+    @JsonProperty("maxExecutions")
+    private Long maxExecutions = 0l;
+
     public ExternalJob() {
     }
 
@@ -112,7 +115,8 @@ public class ExternalJob implements Serializable {
             Map<String, String> envVars, int result, boolean isReady,
             ExternalJobStatusEnum status, String error,
             String testResultFilePattern, List<String> testResults, Sut sut,
-            boolean fromIntegratedJenkins, String buildUrl, String jobUrl, String project) {
+            boolean fromIntegratedJenkins, String buildUrl, String jobUrl,
+            String project, Long maxExecutions) {
         super();
         this.jobName = jobName;
         this.executionUrl = executionUrl;
@@ -133,6 +137,7 @@ public class ExternalJob implements Serializable {
         this.buildUrl = buildUrl;
         this.jobUrl = jobUrl;
         this.project = project;
+        this.maxExecutions = maxExecutions;
     }
 
     public enum ExternalJobStatusEnum {
@@ -314,6 +319,14 @@ public class ExternalJob implements Serializable {
         this.project = project;
     }
 
+    public Long getMaxExecutions() {
+        return maxExecutions;
+    }
+
+    public void setMaxExecutions(Long maxExecutions) {
+        this.maxExecutions = maxExecutions;
+    }
+
     @Override
     public boolean equals(java.lang.Object o) {
         if (this == o) {
@@ -344,7 +357,8 @@ public class ExternalJob implements Serializable {
                         .isFromIntegratedJenkins()
                 && Objects.equals(this.buildUrl, externalJob.buildUrl)
                 && Objects.equals(this.jobUrl, externalJob.jobUrl)
-                && Objects.equals(this.project, externalJob.project);
+                && Objects.equals(this.project, externalJob.project) && Objects
+                        .equals(this.maxExecutions, externalJob.maxExecutions);
     }
 
     @Override
@@ -352,7 +366,8 @@ public class ExternalJob implements Serializable {
         return Objects.hash(jobName, executionUrl, logAnalyzerUrl, tJobExecId,
                 logstashPort, servicesIp, tSServices, envVars, result, isReady,
                 testResultFilePattern, testResults, sut, status, error,
-                fromIntegratedJenkins, buildUrl, jobUrl, project);
+                fromIntegratedJenkins, buildUrl, jobUrl, project,
+                maxExecutions);
     }
 
     @Override
@@ -392,6 +407,8 @@ public class ExternalJob implements Serializable {
         sb.append("    jobBuild: ").append(toIndentedString(jobUrl))
                 .append("\n");
         sb.append("    project: ").append(toIndentedString(project))
+                .append("\n");
+        sb.append("    maxExecutions: ").append(toIndentedString(maxExecutions))
                 .append("\n");
         sb.append("}");
 

@@ -43,6 +43,8 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import hudson.model.Run;
+import hudson.tasks.LogRotator;
+import jenkins.model.BuildDiscarder;
 import jenkins.plugins.elastest.json.ElasTestBuild;
 import jenkins.plugins.elastest.json.ExternalJob;
 import jenkins.plugins.elastest.json.ExternalJob.ExternalJobStatusEnum;
@@ -92,7 +94,8 @@ public class ElasTestService implements Serializable {
             witAuthentication = true;
             authenticator.setCredentials(name, password);
             if (client.getConfiguration().isRegistered(Authenticator.class)) {
-                LOG.info("[elastest-plugin]: There is an Authenticator registered");
+                LOG.info(
+                        "[elastest-plugin]: There is an Authenticator registered");
                 LOG.info("[elastest-plugin]: Setting new credentials");
             } else {
                 client = client.register(authenticator);
@@ -119,6 +122,7 @@ public class ElasTestService implements Serializable {
         return tSSCatalog;
     }
 
+    // For normal Jenkins Job
     public void asociateToElasTestTJob(Run<?, ?> build,
             ElasTestBuildWrapper elasTestBuilder, ElasTestBuild elasTestBuild)
             throws Exception {
@@ -137,11 +141,21 @@ public class ElasTestService implements Serializable {
         elasTestBuilds.put(build.getFullDisplayName(), elasTestBuild);
     }
 
+    // For Pipeline
     public void asociateToElasTestTJob(Run<?, ?> build,
             ElasTestStep elasTestStep, ElasTestBuild elasTestBuild)
             throws Exception {
         ExternalJob externalJob = new ExternalJob(
                 build.getParent().getDisplayName());
+
+        Long maxBuilds = getMaxBuildsToKeep(build);
+        if (maxBuilds != null && maxBuilds >= 0) {
+            LOG.debug("Max builds to keep: {}", maxBuilds);
+            externalJob.setMaxExecutions(maxBuilds);
+        } else {
+            LOG.debug(
+                    "Max builds to keep: Using the default value set by elastest");
+        }
 
         externalJob.setTSServices(prepareTSSToSendET(elasTestStep.getTss()));
         LOG.debug("[elastest-plugin]: TestResutlPatter: "
@@ -337,4 +351,11 @@ public class ElasTestService implements Serializable {
         return eTTSServices;
     }
 
+    private Long getMaxBuildsToKeep(Run<?, ?> build) {
+        BuildDiscarder buildDiscarder = build.getParent().getBuildDiscarder();
+        if (buildDiscarder != null && buildDiscarder instanceof LogRotator) {
+            return (long) ((LogRotator) buildDiscarder).getNumToKeep();
+        }
+        return null;
+    }
 }
