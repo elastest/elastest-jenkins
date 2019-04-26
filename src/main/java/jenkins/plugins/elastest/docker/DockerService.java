@@ -43,18 +43,12 @@ public class DockerService implements Serializable {
     public static final String DOCKER_HOST_BY_DEFAULT = "unix:///var/run/docker.sock";
     private static DockerService dockerService;
 
-    private DockerService(String dockerHost) {
-        if (dockerHost != null && !dockerHost.isEmpty()) {
-
-        }
-    }
-
     public synchronized static DockerService getDockerService(
             String dockerHost) {
         if (dockerService != null) {
             return dockerService;
         } else {
-            return new DockerService(dockerHost);
+            return new DockerService();
         }
     }
 
