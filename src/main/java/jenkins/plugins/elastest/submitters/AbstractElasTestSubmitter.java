@@ -59,7 +59,7 @@ abstract class AbstractElasTestSubmitter implements ElasTestSubmitter {
     @Override
     public String buildPayload(List<String> logLines, ExternalJob externalJob) {
         Trace trace = new Trace("test", externalJob.gettJobExecId().toString(),
-                "default_log", logLines.get(0), new Date());
+                "default_log", logLines.get(0), new Date().toString());
         String payload = trace.toJSON();
         return payload;
     }
@@ -67,7 +67,7 @@ abstract class AbstractElasTestSubmitter implements ElasTestSubmitter {
     @Override
     public String buildPayload(String message, ExternalJob externalJob) {
         Trace trace = new Trace("test", externalJob.gettJobExecId().toString(),
-                "default_log", message, new Date());
+                "default_log", message, new Date().toString());
         String payload = trace.toJSON();
         return payload;
     }

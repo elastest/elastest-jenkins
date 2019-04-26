@@ -1,7 +1,6 @@
 package jenkins.plugins.elastest.json;
 
 import java.io.Serializable;
-import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -22,13 +21,13 @@ public class Trace implements Serializable {
     }
 
     public Trace(String component, String exec, String stream, String message,
-            Date timestamp) {
+            String timestampStr) {
         super();
         this.component = component;
         this.exec = exec;
         this.stream = stream;
         this.message = message;
-        this.timestampStr = timestamp != null ? timestamp.toString() : null;
+        this.timestampStr = timestampStr;
     }
 
     public String getComponent() {
