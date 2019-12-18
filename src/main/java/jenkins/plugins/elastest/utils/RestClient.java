@@ -5,6 +5,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -38,15 +39,13 @@ public class RestClient {
         return responseBody;
     }
 
-    public HttpEntity sendPost(String urlString, String jsonBody)
-            throws Exception {
+    public HttpEntity sendPost(String urlString, String jsonBody) throws Exception {
         logger.info("Sending post to {}", urlString);
 
         CloseableHttpClient client = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost(urlString);
 
-        StringEntity entity = jsonBody != null ? new StringEntity(jsonBody)
-                : null;
+        StringEntity entity = jsonBody != null ? new StringEntity(jsonBody) : null;
         httpPost.setEntity(entity);
 
         httpPost.setHeader("Accept", "*/*");
@@ -67,6 +66,27 @@ public class RestClient {
         return responseEntity;
     }
 
+    public byte[] delete(String urlString) throws Exception {
+        logger.info("Sending delete to {}", urlString);
 
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+
+        HttpDelete httpDelete = new HttpDelete(urlString);
+        httpDelete.setHeader("Accept", "application/json");
+
+        CloseableHttpResponse response = httpClient.execute(httpDelete);
+        final int statusCode = response.getStatusLine().getStatusCode();
+
+        byte[] responseBody = EntityUtils.toByteArray(response.getEntity());
+        response.close();
+
+        if (statusCode != 200) {
+            throw new Exception("Error on attach file: Code " + statusCode);
+        }
+
+        httpClient.close();
+
+        return responseBody;
+    }
 
 }

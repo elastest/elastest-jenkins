@@ -44,7 +44,6 @@ import hudson.console.ConsoleLogFilter;
 import hudson.model.Run;
 import hudson.remoting.VirtualChannel;
 import jenkins.plugins.elastest.ConsoleLogFilterImpl;
-import jenkins.plugins.elastest.EIMManager;
 import jenkins.plugins.elastest.ElasTestService;
 import jenkins.plugins.elastest.ElasTestWriter;
 import jenkins.plugins.elastest.action.ElasTestItemMenuAction;
@@ -65,10 +64,6 @@ public class ElasTestStepExecutionImpl extends AbstractStepExecutionImpl {
     private static final long serialVersionUID = 1L;
     private static final String ETM_CONTAINER_NAME = "elastest_etm_1";
 
-    private static final String EIM_API_KEY = "ET_EIM_API";
-    private static final String EIM_PACKETLOSS_KEY = "ET_EIM_CONTROLLABILLITY_PACKETLOSS";
-    private static final String EIM_CPUBURST_KEY = "ET_EIM_CONTROLLABILLITY_CPUBURST";
-
     private ElasTestService elasTestService;
     private DockerService dockerService;
     private ElasTestWriter writer;
@@ -83,7 +78,7 @@ public class ElasTestStepExecutionImpl extends AbstractStepExecutionImpl {
     @Override
     public boolean start() throws Exception {
         System.setProperty("hudson.model.ParametersAction.keepUndefinedParameters", "true");
-        
+
         elasTestService = ElasTestService.getInstance();
         StepContext context = getContext();
         Run<?, ?> build = context.get(Run.class);
@@ -141,12 +136,15 @@ public class ElasTestStepExecutionImpl extends AbstractStepExecutionImpl {
         ExpanderImpl expanderImpl = new ExpanderImpl();
         expanderImpl.setOverrides(elasTestStep.envVars);
         expanderImpl.expand(getContext().get(EnvVars.class));
+
+        String agentIdOrNull = elasTestService.manageEIMIfNecessary(build,
+                elasTestBuild.getEnvVars());
+        elasTestBuild.setEimAgentId(agentIdOrNull);
+
         context.newBodyInvoker().withContext(createConsoleLogFilter(context, build))
                 .withContext(EnvironmentExpander.merge(getContext().get(EnvironmentExpander.class),
                         expanderImpl))
                 .withCallback(BodyExecutionCallback.wrap(getContext())).start();
-
-        manageEIMIfNecessary(build, elasTestStep);
 
         return false;
     }
@@ -167,7 +165,7 @@ public class ElasTestStepExecutionImpl extends AbstractStepExecutionImpl {
 
     private ConsoleLogFilter createConsoleLogFilter(StepContext context, Run<?, ?> build)
             throws IOException, InterruptedException {
-        LOG.debug("[elastest-plugin]: Creatin console log filter.");
+        LOG.debug("[elastest-plugin]: Creating console log filter.");
         ConsoleLogFilterImpl logFilterImpl = new ConsoleLogFilterImpl(build, writer);
         return logFilterImpl;
     }
@@ -236,45 +234,6 @@ public class ElasTestStepExecutionImpl extends AbstractStepExecutionImpl {
         result = channel.call(dockerCommandExecutor).contains(errorMessage);
         LOG.debug("[elastest-plugin]: Result of the inspect command: {}", result);
         return result;
-    }
-
-    private void manageEIMIfNecessary(Run<?, ?> build, ElasTestStep elasTestStep) {
-        try {
-            EnvVars buildVars = build.getEnvironment();
-            EnvVars etBuildVars = elasTestStep.envVars;
-            LOG.info("buildVarsbuildVarsbuildVarsbuildVarsbuildVars {}",buildVars);
-            LOG.info("etBuildVarsetBuildVarsetBuildVarsetBuildVars {}",etBuildVars);
-
-            String EIM_AGENTID_KEY = "ET_EIM_SUT_AGENT_ID";
-            if (etBuildVars.containsKey(EIM_API_KEY) && etBuildVars.containsKey(EIM_AGENTID_KEY)
-                    && (buildVars.containsKey(EIM_PACKETLOSS_KEY)
-                            || buildVars.containsKey(EIM_CPUBURST_KEY))) {
-                String eimApiUrl = etBuildVars.get(EIM_API_KEY);
-                EIMManager eimManager = new EIMManager(eimApiUrl);
-
-                String agentId = etBuildVars.get(EIM_AGENTID_KEY);
-
-                // Packetloss
-                if (buildVars.containsKey(EIM_PACKETLOSS_KEY)) {
-                    String packetLossValue = buildVars.get(EIM_PACKETLOSS_KEY);
-                    LOG.info("Sending packet loss {} to agent {} through EIM at {}",
-                            packetLossValue, agentId, eimApiUrl);
-                    eimManager.sendPacketLoss(agentId, packetLossValue);
-                }
-
-                // Cpu burst
-                if (buildVars.containsKey(EIM_CPUBURST_KEY)) {
-                    String cpuBurstValue = buildVars.get(EIM_CPUBURST_KEY);
-                    LOG.info("Sending cpu burst {} to agent {} through EIM at {}", cpuBurstValue,
-                            eimApiUrl);
-                    eimManager.sendCpuBurst(agentId, cpuBurstValue);
-                }
-
-            }
-        } catch (Exception e) {
-            LOG.warn("[elastest-plugin] EIM manage: {}", e.getMessage());
-        }
-
     }
 
     /**

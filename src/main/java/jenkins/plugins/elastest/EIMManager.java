@@ -23,8 +23,8 @@ public class EIMManager {
 
     /* *** Methods *** */
 
-    public void sendPacketLoss(String agentId, String packetLossValue, String cronExpression)
-            throws Exception {
+    public void sendPacketLossWithCron(String agentId, String packetLossValue,
+            String cronExpression) throws Exception {
         if (apiUrl == null || agentId == null || packetLossValue == null) {
             throw new Exception("EIM API, SuT agent Id or packetLoss Value is null");
         }
@@ -38,17 +38,28 @@ public class EIMManager {
         jsonBody.addProperty("packetLoss", packetLossValue);
         jsonBody.addProperty("stressNg", "");
         jsonBody.addProperty("dockerized", "yes");
-        cronExpression = cronExpression != null ? cronExpression : "60s";
-        jsonBody.addProperty("cronExpression", "@every " + cronExpression);
+        jsonBody.addProperty("cronExpression",
+                cronExpression != null ? "@every " + cronExpression : "");
 
         restClient.sendPost(url, jsonBody.toString());
     }
 
     public void sendPacketLoss(String agentId, String packetLossValue) throws Exception {
-        sendPacketLoss(agentId, packetLossValue, null);
+        sendPacketLossWithCron(agentId, packetLossValue, null);
     }
 
-    public void sendCpuBurst(String agentId, String cpuBurstValue, String cronExpression)
+    public void removePacketloss(String agentId) throws Exception {
+        if (apiUrl == null || agentId == null) {
+            throw new Exception("EIM API or Agent Id is null");
+        }
+
+        String url = apiUrl.endsWith("/") ? apiUrl : apiUrl + "/";
+        url += "agent/" + agentId + "/unchecked";
+
+        restClient.delete(url);
+    }
+
+    public void sendCpuBurstWithCron(String agentId, String cpuBurstValue, String cronExpression)
             throws Exception {
         if (apiUrl == null || agentId == null || cpuBurstValue == null) {
             throw new Exception("EIM API, SuT agent Id or cpuBurst Value is null");
@@ -70,7 +81,7 @@ public class EIMManager {
     }
 
     public void sendCpuBurst(String agentId, String cpuBurstValue) throws Exception {
-        sendCpuBurst(agentId, cpuBurstValue, null);
+        sendCpuBurstWithCron(agentId, cpuBurstValue, null);
     }
 
 }

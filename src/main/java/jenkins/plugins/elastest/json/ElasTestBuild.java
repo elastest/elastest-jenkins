@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import hudson.EnvVars;
 import hudson.FilePath;
 import jenkins.plugins.elastest.ElasTestWriter;
 
@@ -13,10 +14,14 @@ public class ElasTestBuild implements Serializable {
     private transient FilePath workspace;
 
     private ExternalJob externalJob;
-    
+
     private List<String> containers;
-    
+
     private transient ElasTestWriter writer;
+
+    private String eimAgentId;
+
+    private EnvVars envVars;
 
     public ElasTestBuild() {
         this(null);
@@ -26,6 +31,7 @@ public class ElasTestBuild implements Serializable {
         super();
         this.externalJob = externalJob;
         this.containers = new ArrayList<>();
+        this.envVars = new EnvVars();
     }
 
     public ExternalJob getExternalJob() {
@@ -60,5 +66,20 @@ public class ElasTestBuild implements Serializable {
         this.writer = writer;
     }
 
+    public String getEimAgentId() {
+        return eimAgentId;
+    }
+
+    public void setEimAgentId(String eimAgentId) {
+        this.eimAgentId = eimAgentId;
+    }
+
+    public EnvVars getEnvVars() {
+        return envVars;
+    }
+
+    public void setEnvVars(EnvVars envVars) {
+        this.envVars = envVars;
+    }
 
 }

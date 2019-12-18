@@ -54,8 +54,7 @@ import jenkins.plugins.elastest.utils.ParseResultCallable;
  */
 @Extension
 public class BuildListener extends RunListener<Run> {
-    private static final Logger LOG = LoggerFactory
-            .getLogger(BuildListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BuildListener.class);
 
     private String elasTestApiURL;
     private ElasTestService elasTestService;
@@ -64,19 +63,18 @@ public class BuildListener extends RunListener<Run> {
 
     public BuildListener() {
         LOG.debug("[elastest-plugin]: Initializing Listener");
-        elasTestApiURL = ElasTestInstallation
-                .getLogstashDescriptor().elasTestUrl + "/api/external/tjob";
+        elasTestApiURL = ElasTestInstallation.getLogstashDescriptor().elasTestUrl
+                + "/api/external/tjob";
         elasTestService = ElasTestService.getInstance();
-        dockerService = DockerService
-                .getDockerService(DockerService.DOCKER_HOST_BY_DEFAULT);
+        dockerService = DockerService.getDockerService(DockerService.DOCKER_HOST_BY_DEFAULT);
         dockerCommandExecutor = new DockerCommandExecutor(null, dockerService);
 
     }
 
     @Override
-    public void onStarted(Run r, TaskListener listener) {
+    public void onStarted(Run build, TaskListener listener) {
         LOG.debug("[elastest-plugin]: Listener on started");
-        super.onStarted(r, listener);
+        super.onStarted(build, listener);
     }
 
     @Override
@@ -89,23 +87,23 @@ public class BuildListener extends RunListener<Run> {
     }
 
     @Override
-    public void onCompleted(Run run, TaskListener listener) {
+    public void onCompleted(Run build, TaskListener listener) {
+        super.onCompleted(build, listener);
 
-        final long buildTime = run.getTimestamp().getTimeInMillis();
+        final long buildTime = build.getTimestamp().getTimeInMillis();
         final long timeOnMaster = System.currentTimeMillis();
 
         ElasTestBuild elasTestBuild = elasTestService.getElasTestBuilds()
-                .get(run.getFullDisplayName());
+                .get(build.getFullDisplayName());
 
-        if (elasTestBuild.getExternalJob().getTestResultFilePattern() != null
-                && !elasTestBuild.getExternalJob().getTestResultFilePattern()
-                        .isEmpty()) {
+        if (elasTestBuild != null && elasTestBuild.getExternalJob() != null
+                && elasTestBuild.getExternalJob().getTestResultFilePattern() != null
+                && !elasTestBuild.getExternalJob().getTestResultFilePattern().isEmpty()) {
             try {
                 elasTestBuild.getExternalJob()
                         .setTestResults(elasTestBuild.getWorkspace()
                                 .act(new ParseResultCallable(
-                                        elasTestBuild.getExternalJob()
-                                                .getTestResultFilePattern(),
+                                        elasTestBuild.getExternalJob().getTestResultFilePattern(),
                                         buildTime, timeOnMaster)));
             } catch (IOException | InterruptedException e) {
                 listener.getLogger().println("Error sending surefire reports");
@@ -117,10 +115,10 @@ public class BuildListener extends RunListener<Run> {
     @Override
     public void onFinalized(Run build) {
         super.onFinalized(build);
+        System.setProperty("hudson.model.ParametersAction.keepUndefinedParameters", "true");
 
-        if (elasTestService.getElasTestBuilds().size() > 0
-                && (build != null && build.getFullDisplayName() != null
-                        && build.getResult() != null)) {
+        if (elasTestService.getElasTestBuilds().size() > 0 && (build != null
+                && build.getFullDisplayName() != null && build.getResult() != null)) {
             ExternalJob externalJob = elasTestService
                     .getExternalJobByBuildFullName(build.getFullDisplayName());
             switch (build.getResult().ordinal) {
@@ -141,40 +139,33 @@ public class BuildListener extends RunListener<Run> {
             }
             // Stop docker containers started locally
             LOG.debug("[elastest-plugin]: Stopping aux containers.");
+            ElasTestBuild elasTestBuild = elasTestService.getElasTestBuilds()
+                    .get(build.getFullDisplayName());
             try {
-                ElasTestBuild elasTestBuild = elasTestService
-                        .getElasTestBuilds().get(build.getFullDisplayName());
-                List<String> buildContainers = elasTestService
-                        .getElasTestBuilds().get(build.getFullDisplayName())
-                        .getContainers();
+                List<String> buildContainers = elasTestService.getElasTestBuilds()
+                        .get(build.getFullDisplayName()).getContainers();
                 if (buildContainers.size() > 0) {
-                    VirtualChannel channel = elasTestBuild.getWorkspace()
-                            .getChannel();
+                    VirtualChannel channel = elasTestBuild.getWorkspace().getChannel();
                     dockerCommandExecutor.setCommand("docker", "ps");
                     channel.call(dockerCommandExecutor);
-                    for (String containerId : elasTestService
-                            .getElasTestBuilds().get(build.getFullDisplayName())
-                            .getContainers()) {
+                    for (String containerId : elasTestService.getElasTestBuilds()
+                            .get(build.getFullDisplayName()).getContainers()) {
                         LOG.info("Stopping docker container: {}", containerId);
-                        dockerCommandExecutor.setCommand("docker", "rm", "-f",
-                                containerId);
+                        dockerCommandExecutor.setCommand("docker", "rm", "-f", containerId);
                         channel.call(dockerCommandExecutor);
                     }
                 }
             } catch (RuntimeException | IOException | InterruptedException io) {
-                LOG.warn(
-                        "[elastest-plugin]: Error stopping monitoring containers. It's possible "
-                                + "that you will have to stop them manually");
+                LOG.warn("[elastest-plugin]: Error stopping monitoring containers. It's possible "
+                        + "that you will have to stop them manually");
                 io.printStackTrace();
             } finally {
-                if (elasTestService.getElasTestBuilds()
-                        .get(build.getFullDisplayName()) != null
-                        && elasTestService.getElasTestBuilds()
-                                .get(build.getFullDisplayName())
-                                .getWriter() != null) {
-                    ExecutorService executor = elasTestService
-                            .getElasTestBuilds().get(build.getFullDisplayName())
-                            .getWriter().getExecutor();
+                if (elasTestBuild != null && elasTestService.getElasTestBuilds()
+                        .get(build.getFullDisplayName()).getWriter() != null) {
+                    elasTestService.manageEIMEndIfNecessary(build, elasTestBuild.getEnvVars());
+
+                    ExecutorService executor = elasTestService.getElasTestBuilds()
+                            .get(build.getFullDisplayName()).getWriter().getExecutor();
                     if (!executor.isTerminated()) {
                         executor.shutdown();
                         try {
@@ -185,8 +176,7 @@ public class BuildListener extends RunListener<Run> {
                     }
                 }
                 elasTestService.finishElasTestTJobExecution(
-                        elasTestService.getExternalJobByBuildFullName(
-                                build.getFullDisplayName()));
+                        elasTestService.getExternalJobByBuildFullName(build.getFullDisplayName()));
                 elasTestService.removeExternalJobs(build.getFullDisplayName());
             }
         }
