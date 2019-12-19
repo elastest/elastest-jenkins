@@ -334,8 +334,6 @@ public class ElasTestService implements Serializable {
     public String manageEIMIfNecessary(Run<?, ?> build, EnvVars etBuildVars) {
         try {
             EnvVars buildVars = build.getEnvironment();
-            LOG.info("buildVarsbuildVarsbuildVarsbuildVarsbuildVars {}", buildVars);
-            LOG.info("etBuildVarsetBuildVarsetBuildVarsetBuildVars {}", etBuildVars);
 
             String EIM_AGENTID_KEY = "ET_EIM_SUT_AGENT_ID";
             if (etBuildVars.containsKey(EIM_API_KEY) && etBuildVars.containsKey(EIM_AGENTID_KEY)
@@ -373,8 +371,6 @@ public class ElasTestService implements Serializable {
     public void manageEIMEndIfNecessary(Run<?, ?> build, EnvVars etBuildVars) {
         try {
             EnvVars buildVars = build.getEnvironment();
-            LOG.info("buildVarsbuildVarsbuildVarsbuildVarsbuildVars {}", buildVars);
-            LOG.info("etBuildVarsetBuildVarsetBuildVarsetBuildVars {}", etBuildVars);
 
             String EIM_AGENTID_KEY = "ET_EIM_SUT_AGENT_ID";
             if (etBuildVars.containsKey(EIM_API_KEY) && etBuildVars.containsKey(EIM_AGENTID_KEY)
