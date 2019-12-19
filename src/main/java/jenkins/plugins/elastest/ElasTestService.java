@@ -389,15 +389,6 @@ public class ElasTestService implements Serializable {
                     eimManager.removePacketloss(agentId);
                 }
 
-                // Cpu burst
-                if (buildVars.containsKey(EIM_CPUBURST_KEY)) {
-                    String cpuBurstValue = buildVars.get(EIM_CPUBURST_KEY);
-                    // LOG.info("Removing cpu burst {} to agent {} through EIM at {}",
-                    // cpuBurstValue,
-                    // eimApiUrl);
-                    // TODO delete (in EIM side)
-                }
-
             }
         } catch (Exception e) {
             LOG.warn("[elastest-plugin] EIM end manage: {}", e.getMessage());
