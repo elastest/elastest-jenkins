@@ -51,7 +51,7 @@ public class ElasTestItemMenuAction extends Actionable implements Action {
     public ElasTestItemMenuAction(@SuppressWarnings("rawtypes") Run<?, ?> build,
             String elasTestLogAnalyzerUrl, String elasTestTJobExecutionUrl) {
         super();
-        LOG.debug("[elastest-plugin]: ElasTest Log Analayser URL: {}",
+        LOG.debug("[elastest-plugin]: ElasTest Log Analyzer URL: {}",
                 elasTestLogAnalyzerUrl);
         LOG.debug("[elastest-plugin]: ElasTest TJob execution URL: {}",
                 elasTestTJobExecutionUrl);

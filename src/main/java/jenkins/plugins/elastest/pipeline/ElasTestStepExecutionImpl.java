@@ -183,32 +183,42 @@ public class ElasTestStepExecutionImpl extends AbstractStepExecutionImpl {
         String fileBeatImage = "elastest/etm-filebeat:latest";
         String dockBeatImage = "elastest/etm-dockbeat:latest";
 
-        String logstashHost = "LOGSTASHHOST="
-                + (!envVars.get("ET_MON_LSBEATS_HOST").trim().equals("localhost")
-                        ? envVars.get("ET_MON_LSBEATS_HOST")
+        // Obtain values from Env vars
+        String etMonLsbeatsHost = envVars.get("ET_MON_LSBEATS_HOST");
+        String etMonInternalLsbeatsPort = envVars.get("ET_MON_INTERNAL_LSBEATS_PORT");
+        String etMonLsbeatsPort = envVars.get("ET_MON_LSBEATS_PORT");
+        String etSutContainerName = envVars.get("ET_SUT_CONTAINER_NAME");
+
+        // Init string env vars for monitoring services
+        String logstashHostEnv = "LOGSTASHHOST="
+                + (!etMonLsbeatsHost.trim().equals("localhost") ? etMonLsbeatsHost
                         : dockerService.getGatewayFromContainer(ETM_CONTAINER_NAME));
-        String logstashPort = "LOGSTASHPORT=" + envVars.get("ET_MON_INTERNAL_LSBEATS_PORT");
-        String etMonLsbeatsHost = "ET_MON_LSBEATS_HOST=" + envVars.get("ET_MON_LSBEATS_HOST");
-        String etMonLsbeatsPort = "ET_MON_LSBEATS_PORT=" + envVars.get("ET_MON_LSBEATS_PORT");
-        String etMonContainersName = "ET_MON_CONTAINERS_NAME=" + "^("
-                + envVars.get("ET_SUT_CONTAINER_NAME") + ")(_)?(\\d*)(.*)?";
+
+        String logstashPort = "LOGSTASHPORT=" + etMonInternalLsbeatsPort;
+        String etMonLsbeatsHostEnv = "ET_MON_LSBEATS_HOST=" + etMonLsbeatsHost;
+        String etMonLsbeatsPortEnv = "ET_MON_LSBEATS_PORT=" + etMonLsbeatsPort;
+        String etMonContainersNameEnv = "ET_MON_CONTAINERS_NAME=" + "^(" + etSutContainerName
+                + ")(_)?(\\d*)(.*)?";
+
+        String dockerSockVolume = "/var/run/docker.sock:/var/run/docker.sock";
+        String dockerContainersVolume = "/var/lib/docker/containers:/var/lib/docker/containers";
 
         if (isRemoteElasTest(channel)) {
+            // Start Filebeat
             dockerCommandExecutor.setCommand("docker", "run", "-d", "--name",
-                    "fileBeat_" + envVars.get("ET_SUT_CONTAINER_NAME"), "-e", etMonLsbeatsHost,
-                    "-e", etMonLsbeatsPort, "-e", etMonContainersName, "-v",
-                    "/var/run/docker.sock:/var/run/docker.sock", "-v",
-                    "/var/lib/docker/containers:/var/lib/docker/containers", fileBeatImage);
+                    "fileBeat_" + etSutContainerName, "-e", etMonLsbeatsHostEnv, "-e",
+                    etMonLsbeatsPortEnv, "-e", etMonContainersNameEnv, "-v", dockerSockVolume, "-v",
+                    dockerContainersVolume, fileBeatImage);
             LOG.info("[elastest-jenkins]: Built command to execute {}",
                     Arrays.toString(dockerCommandExecutor.getCommand()));
             elasTestBuild.getContainers()
                     .add(processDockeCommandOutput(channel.call(dockerCommandExecutor)));
         }
 
+        // Start Dockbeat
         dockerCommandExecutor.setCommand("docker", "run", "-d", "--name",
-                "dockBeat_" + envVars.get("ET_SUT_CONTAINER_NAME"), "-e", logstashHost, "-e",
-                logstashPort, "-v", "/var/run/docker.sock:/var/run/docker.sock", "-v",
-                "/var/lib/docker/containers:/var/lib/docker/containers", dockBeatImage);
+                "dockBeat_" + etSutContainerName, "-e", logstashHostEnv, "-e", logstashPort, "-v",
+                dockerSockVolume, "-v", dockerContainersVolume, dockBeatImage);
 
         LOG.info("[elastest-jenkins]: Built command to execute {}",
                 Arrays.toString(dockerCommandExecutor.getCommand()));
